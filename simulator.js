@@ -247,8 +247,14 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
     const state = {...initial_state};
     const { midfield_pow3: home_mid, specialties: home_specs } = home_team;
     const { midfield_pow3: away_mid, specialties: away_specs } = away_team;
-    const home_has_weaker_midfield = home_team.base_midfield < away_team.base_midfield;
-    const press_chance = (TACTIC_RATES.Pressing[home_team.tactic_level] || 0) + (TACTIC_RATES.Pressing[away_team.tactic_level] || 0);
+    const home_has_weaker_midfield = home_team.base_midfield < away_team.base_midfield;    
+    let press_chance = 0;
+    if (home_team.tactic === 'Pressing') {
+        press_chance += (TACTIC_RATES.Pressing[home_team.tactic_level] || 0);
+    }
+    if (away_team.tactic === 'Pressing') {
+        press_chance += (TACTIC_RATES.Pressing[away_team.tactic_level] || 0);
+    }
 
     const num_total_ses = determineTotalSEs(home_team, away_team);
     const se_slot_indices = new Set();
@@ -321,7 +327,8 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
                      state[scoring_team_home ? 'home_score' : 'away_score']++;
                      state[scoring_team_home ? 'home_se_goals' : 'away_se_goals']++;
                 }
-                continue; // SE happened, so skip regular chance for this slot
+                // By removing the 'continue;' statement here, a normal chance can still be processed
+                // for this slot even if an SE occurred.
             }
         }
 
