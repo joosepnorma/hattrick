@@ -14,6 +14,69 @@ const PDIM_TRIGGER_RATES = {1: 0.10, 2: 0.16, 3: 0.20};
 const PDIM_SUCCESS_RATE = 0.625;
 const PNF_TRIGGER_RATES = {1: 0.10, 2: 0.16, 3: 0.20};
 
+// Data from the provided table for PC tactic effects
+// Indices for effect_type_idx:
+// 0: Overall SE Freq Multiplier (from "SE Freq vs '2 Others'")
+// 1: SE% Team Share (from "SE% Team") - Not directly used in this logic, but kept for reference
+// 2: SE Freq Multiplier for PC Team (from "SE Freq Team vs '2 Others'")
+// 3: SE Freq Multiplier for Opponent of PC Team (from "SE Freq Opp vs '2 Others'")
+const PC_LEVEL_DATA = {
+    // level: [OverallSEFreqVsNormal, SEPercentForPCTeam, SEFreqForPCTeamVsNormal, SEFreqForOppVsNormal]
+    0:  [1.00, 0.50, 1.00, 1.00], // PC Level 0 behaves as Normal for SEs
+    7:  [1.51, 0.49, 1.46, 1.55], // Represents <8
+    8:  [1.65, 0.49, 1.62, 1.67],
+    9:  [1.67, 0.51, 1.70, 1.64],
+    10: [1.75, 0.53, 1.86, 1.65],
+    11: [1.85, 0.55, 2.04, 1.66],
+    12: [1.93, 0.55, 2.13, 1.72],
+    13: [1.99, 0.56, 2.24, 1.73],
+    14: [2.05, 0.58, 2.36, 1.73],
+    15: [2.15, 0.59, 2.54, 1.76],
+    16: [2.21, 0.59, 2.63, 1.80],
+    17: [2.32, 0.61, 2.84, 1.79],
+    18: [2.46, 0.63, 3.11, 1.80],
+    19: [2.56, 0.65, 3.32, 1.79],
+    20: [2.75, 0.66, 3.60, 1.90],
+    21: [3.02, 0.67, 4.05, 2.00],
+    22: [3.30, 0.67, 4.44, 2.16]  // Represents >21
+};
+
+const getPcLevelValue = (level, effect_type_idx) => {
+    if (level === 0) return PC_LEVEL_DATA[0][effect_type_idx];
+    let key_level = level;
+    if (level < 8) key_level = 7;
+    else if (level > 21) key_level = 22;
+    
+    const values = PC_LEVEL_DATA[key_level];
+    // Should always find a value due to mapping, but as a fallback:
+    return values ? values[effect_type_idx] : PC_LEVEL_DATA[10][effect_type_idx]; 
+};
+
+// Distribution of total Special Events per match based on PC skill
+// Keys: 6 (<7), 7-22, 23 (23+)
+// Values: Array of probabilities for [0 SEs, 1 SE, 2 SEs, 3 SEs, 4 SEs, 5 SEs, 6 SEs]
+const PC_SE_COUNT_DISTRIBUTION = {
+    6:  [0.222, 0.405, 0.270, 0.087, 0.014, 0.002, 0.000], // <7
+    7:  [0.210, 0.383, 0.294, 0.101, 0.009, 0.002, 0.000],
+    8:  [0.171, 0.384, 0.316, 0.107, 0.019, 0.002, 0.000],
+    9:  [0.183, 0.371, 0.297, 0.120, 0.027, 0.002, 0.000],
+    10: [0.157, 0.364, 0.314, 0.135, 0.027, 0.002, 0.000],
+    11: [0.140, 0.349, 0.326, 0.148, 0.033, 0.004, 0.000],
+    12: [0.129, 0.332, 0.332, 0.160, 0.041, 0.004, 0.000],
+    13: [0.121, 0.317, 0.343, 0.170, 0.044, 0.006, 0.000],
+    14: [0.111, 0.309, 0.346, 0.176, 0.050, 0.008, 0.000],
+    15: [0.096, 0.298, 0.337, 0.202, 0.060, 0.008, 0.000],
+    16: [0.090, 0.279, 0.348, 0.206, 0.067, 0.011, 0.000],
+    17: [0.081, 0.256, 0.346, 0.227, 0.077, 0.013, 0.000],
+    18: [0.069, 0.236, 0.335, 0.243, 0.098, 0.018, 0.002],
+    19: [0.056, 0.215, 0.344, 0.256, 0.107, 0.019, 0.003],
+    20: [0.035, 0.182, 0.336, 0.294, 0.126, 0.025, 0.003],
+    21: [0.029, 0.151, 0.293, 0.293, 0.174, 0.055, 0.004],
+    22: [0.023, 0.133, 0.270, 0.326, 0.187, 0.052, 0.009],
+    23: [0.013, 0.104, 0.200, 0.340, 0.248, 0.079, 0.017]  // 23+
+};
+const NORMAL_SE_COUNT_DISTRIBUTION = [0.400, 0.350, 0.200, 0.050, 0.000, 0.000, 0.000]; // Approx. avg 0.9 SEs
+
 export const precomputeRatings = (teamData) => {
     const computedData = {
         name: teamData.name, attitude: teamData.attitude,
@@ -124,20 +187,66 @@ const _runPenaltyShootout = (home_team, away_team) => {
     return home_pk_score > away_pk_score ? 'home' : 'away';
 };
 
+// Helper to roll against a probability distribution array for SE counts
+const rollDistribution = (distArray) => {
+    const roll = Math.random();
+    let cumulativeProb = 0;
+    for (let i = 0; i < distArray.length; i++) {
+        cumulativeProb += distArray[i];
+        if (roll < cumulativeProb) {
+            return i; // Returns the index, which is the number of SEs (0 SEs, 1 SE, etc.)
+        }
+    }
+    return distArray.length - 1; // Fallback if probabilities don't sum to 1 (should be rare)
+};
+
+const getPcSEDistributionForSkill = (skill_level) => {
+    let key = skill_level;
+    if (skill_level < 7) key = 6;       // Map skills <7 to key '6'
+    else if (skill_level > 22) key = 23; // Map skills 23+ to key '23'
+    // else key is skill_level itself (7-22)
+    return PC_SE_COUNT_DISTRIBUTION[key] || PC_SE_COUNT_DISTRIBUTION[10]; // Fallback
+};
+
+const determineTotalSEs = (home_team, away_team) => {
+    const home_is_pc = home_team.tactic === 'PC';
+    const away_is_pc = away_team.tactic === 'PC';
+    let distribution;
+
+    if (home_is_pc && away_is_pc) {
+        const effective_skill = Math.max(home_team.tactic_level, away_team.tactic_level);
+        distribution = getPcSEDistributionForSkill(effective_skill);
+    } else if (home_is_pc) {
+        distribution = getPcSEDistributionForSkill(home_team.tactic_level);
+    } else if (away_is_pc) {
+        distribution = getPcSEDistributionForSkill(away_team.tactic_level);
+    } else {
+        distribution = NORMAL_SE_COUNT_DISTRIBUTION;
+    }
+    return rollDistribution(distribution);
+};
+
 const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
     const state = {...initial_state};
-    const max_ses = 5 + (home_team.tactic === 'PC' ? 1 : 0) + (away_team.tactic === 'PC' ? 1 : 0);
     const { midfield_pow3: home_mid, specialties: home_specs } = home_team;
     const { midfield_pow3: away_mid, specialties: away_specs } = away_team;
     const home_has_weaker_midfield = home_team.base_midfield < away_team.base_midfield;
     const press_chance = (TACTIC_RATES.Pressing[home_team.tactic_level] || 0) + (TACTIC_RATES.Pressing[away_team.tactic_level] || 0);
 
+    const num_total_ses = determineTotalSEs(home_team, away_team);
+    const se_slot_indices = new Set();
+    const available_slots = chance_slots.map((_, idx) => idx);
+    for (let k = 0; k < num_total_ses && available_slots.length > 0; k++) {
+        const random_idx_in_available = Math.floor(Math.random() * available_slots.length);
+        se_slot_indices.add(available_slots.splice(random_idx_in_available, 1)[0]);
+    }
+
     for(let i=0; i < chance_slots.length; i++) {
-        // Phase A: Special Event
-        let base_se_prob = SE_TIMING_PROBABILITY[Math.min(i, SE_TIMING_PROBABILITY.length - 1)];
-        if (home_team.tactic === 'PC') base_se_prob *= 1.2;
-        if (away_team.tactic === 'PC') base_se_prob *= 1.2;
-        if (Math.random() < base_se_prob / (1 + (0.5 * state.se_count)) && state.se_count < max_ses) {
+        const home_is_pc = home_team.tactic === 'PC';
+        const away_is_pc = away_team.tactic === 'PC';
+
+        // Phase A: Special Event (if this slot was chosen for an SE)
+        if (se_slot_indices.has(i)) {
             const event_pool = [], weights = [];
             const total_specs = {};
             Object.keys(SE_XG_RATES).forEach(spec => { total_specs[spec] = (home_specs[spec] || 0) + (away_specs[spec] || 0); });
@@ -159,15 +268,34 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
                 if (['Corner', 'Experienced Fwd', 'Inexperienced Def'].includes(chosen_event)) {
                     se_attacker = Math.random() < (home_mid / (home_mid + away_mid + 1e-9)) ? home_team : away_team;
                 } else {
-                    let h_spec = home_specs[chosen_event] || 0, a_spec = away_specs[chosen_event] || 0;
-                    if (home_team.tactic === 'PC') h_spec *= 1.5;
-                    if (away_team.tactic === 'PC') a_spec *= 1.5;
-                    if(h_spec + a_spec > 0) se_attacker = Math.random() < (Math.pow(h_spec, 3) / (Math.pow(h_spec, 3) + Math.pow(a_spec, 3) + 1e-9)) ? home_team : away_team;
-                }
+                    let home_spec_component = Math.pow(home_specs[chosen_event] || 0.01, 3);
+                    let away_spec_component = Math.pow(away_specs[chosen_event] || 0.01, 3);
+
+                    // Apply PC bias for who gets the SE (using PC_LEVEL_DATA indices 2 and 3)
+                    let home_final_pull = home_spec_component * (home_is_pc ? getPcLevelValue(home_team.tactic_level, 2) : (away_is_pc ? getPcLevelValue(away_team.tactic_level, 3) : 1.0));
+                    let away_final_pull = away_spec_component * (away_is_pc ? getPcLevelValue(away_team.tactic_level, 2) : (home_is_pc ? getPcLevelValue(home_team.tactic_level, 3) : 1.0));
+                    
+                    if (home_is_pc && away_is_pc) {
+                        home_final_pull *= getPcLevelValue(home_team.tactic_level, 2);
+                        away_final_pull *= getPcLevelValue(away_team.tactic_level, 2);
+                    } else if (home_is_pc) { // Only home is PC
+                        home_final_pull *= getPcLevelValue(home_team.tactic_level, 2);
+                        away_final_pull *= getPcLevelValue(home_team.tactic_level, 3); // Away is opponent
+                    } else if (away_is_pc) { // Only away is PC
+                        away_final_pull *= getPcLevelValue(away_team.tactic_level, 2);
+                        home_final_pull *= getPcLevelValue(away_team.tactic_level, 3); // Home is opponent
+                    }
+
+                    if (home_final_pull + away_final_pull > 1e-9) {
+                        se_attacker = Math.random() < (home_final_pull / (home_final_pull + away_final_pull)) ? home_team : away_team;
+                    } else { // Fallback if both pulls are effectively zero
+                        se_attacker = Math.random() < (home_mid / (home_mid + away_mid + 1e-9)) ? home_team : away_team;
+                    }                }
                 if (se_attacker && Math.random() < Math.abs(SE_XG_RATES[chosen_event] || 0)) {
                      const is_neg_event = SE_XG_RATES[chosen_event] < 0;
                      state[((se_attacker === home_team && !is_neg_event) || (se_attacker === away_team && is_neg_event)) ? 'home_score' : 'away_score']++;
                 }
+                continue; // SE happened, so skip regular chance for this slot
             }
         }
 
