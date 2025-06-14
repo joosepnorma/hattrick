@@ -1,0 +1,2 @@
+# hattrick
+Hattrick simulator
