@@ -231,7 +231,13 @@
                     let results = {
                         normal_time: { home_wins: 0, draws: 0, away_wins: 0, home_goals: 0, away_goals: 0 },
                         extra_time: { home_wins: 0, draws: 0, away_wins: 0 },
-                        penalties: { home_wins: 0, away_wins: 0 }
+                        penalties: { home_wins: 0, away_wins: 0 },
+                        goal_details_sum: {
+                            home_l_attack_goals: 0, home_c_attack_goals: 0, home_r_attack_goals: 0,
+                            home_sp_goals: 0, home_se_goals: 0, home_pnf_goals: 0, home_ls_goals: 0,
+                            away_l_attack_goals: 0, away_c_attack_goals: 0, away_r_attack_goals: 0,
+                            away_sp_goals: 0, away_se_goals: 0, away_pnf_goals: 0, away_ls_goals: 0
+                        }
                     };
 
                     for(let i = 0; i < sim_count; i++) {
@@ -253,6 +259,15 @@
                         if (sim_result.pk_winner) {
                             if (sim_result.pk_winner === 'home') results.penalties.home_wins++;
                             else results.penalties.away_wins++;
+                        }
+
+                        // Accumulate goal details
+                        if (sim_result.goal_details) {
+                            for (const key in results.goal_details_sum) {
+                                if (sim_result.goal_details.hasOwnProperty(key)) {
+                                    results.goal_details_sum[key] += sim_result.goal_details[key];
+                                }
+                            }
                         }
                     }
 
@@ -290,6 +305,40 @@
                                          <p>${away_name} Wins: <strong>${final_a_wins.toFixed(1)}%</strong></p>
                                       </div>`;
                     }
+                    
+                    // Calculate averages for goal details
+                    const avg_goal_details = {};
+                    for (const key in results.goal_details_sum) {
+                        avg_goal_details[key] = results.goal_details_sum[key] / sim_count;
+                    }
+
+                    const home_total_avg_goals_for_breakdown = avg_goal_details.home_l_attack_goals + avg_goal_details.home_c_attack_goals + avg_goal_details.home_r_attack_goals + avg_goal_details.home_sp_goals + avg_goal_details.home_se_goals + avg_goal_details.home_pnf_goals + avg_goal_details.home_ls_goals;
+                    const away_total_avg_goals_for_breakdown = avg_goal_details.away_l_attack_goals + avg_goal_details.away_c_attack_goals + avg_goal_details.away_r_attack_goals + avg_goal_details.away_sp_goals + avg_goal_details.away_se_goals + avg_goal_details.away_pnf_goals + avg_goal_details.away_ls_goals;
+
+                    outputHTML += `<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">`;
+                    outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg">
+                                      <h3 class="text-xl font-semibold mb-2 text-indigo-400">${home_name} - Goal Breakdown</h3>
+                                      <p>Total Expected Goals (Overall): <strong>${home_total_avg_goals_for_breakdown.toFixed(2)}</strong></p>
+                                      <p>Left Attack: <strong>${avg_goal_details.home_l_attack_goals.toFixed(2)}</strong> (${((avg_goal_details.home_l_attack_goals / Math.max(0.01, home_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
+                                      <p>Central Attack: <strong>${avg_goal_details.home_c_attack_goals.toFixed(2)}</strong> (${((avg_goal_details.home_c_attack_goals / Math.max(0.01, home_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
+                                      <p>Right Attack: <strong>${avg_goal_details.home_r_attack_goals.toFixed(2)}</strong> (${((avg_goal_details.home_r_attack_goals / Math.max(0.01, home_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
+                                      <p>Set Pieces: <strong>${avg_goal_details.home_sp_goals.toFixed(2)}</strong> (${((avg_goal_details.home_sp_goals / Math.max(0.01, home_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
+                                      <p>Special Events: <strong>${avg_goal_details.home_se_goals.toFixed(2)}</strong> (${((avg_goal_details.home_se_goals / Math.max(0.01, home_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
+                                      <p>PNF: <strong>${avg_goal_details.home_pnf_goals.toFixed(2)}</strong> (${((avg_goal_details.home_pnf_goals / Math.max(0.01, home_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
+                                      <p>Long Shots: <strong>${avg_goal_details.home_ls_goals.toFixed(2)}</strong> (${((avg_goal_details.home_ls_goals / Math.max(0.01, home_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
+                                   </div>`;
+                    outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg">
+                                      <h3 class="text-xl font-semibold mb-2 text-indigo-400">${away_name} - Goal Breakdown</h3>
+                                      <p>Total Expected Goals (Overall): <strong>${away_total_avg_goals_for_breakdown.toFixed(2)}</strong></p>
+                                      <p>Left Attack: <strong>${avg_goal_details.away_l_attack_goals.toFixed(2)}</strong> (${((avg_goal_details.away_l_attack_goals / Math.max(0.01, away_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
+                                      <p>Central Attack: <strong>${avg_goal_details.away_c_attack_goals.toFixed(2)}</strong> (${((avg_goal_details.away_c_attack_goals / Math.max(0.01, away_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
+                                      <p>Right Attack: <strong>${avg_goal_details.away_r_attack_goals.toFixed(2)}</strong> (${((avg_goal_details.away_r_attack_goals / Math.max(0.01, away_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
+                                      <p>Set Pieces: <strong>${avg_goal_details.away_sp_goals.toFixed(2)}</strong> (${((avg_goal_details.away_sp_goals / Math.max(0.01, away_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
+                                      <p>Special Events: <strong>${avg_goal_details.away_se_goals.toFixed(2)}</strong> (${((avg_goal_details.away_se_goals / Math.max(0.01, away_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
+                                      <p>PNF: <strong>${avg_goal_details.away_pnf_goals.toFixed(2)}</strong> (${((avg_goal_details.away_pnf_goals / Math.max(0.01, away_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
+                                      <p>Long Shots: <strong>${avg_goal_details.away_ls_goals.toFixed(2)}</strong> (${((avg_goal_details.away_ls_goals / Math.max(0.01, away_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
+                                   </div>`;
+                    outputHTML += `</div>`;
 
                     resultsDiv.innerHTML = outputHTML;
                     loader.classList.add('hidden');

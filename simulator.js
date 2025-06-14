@@ -284,6 +284,8 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
                 let se_attacker = null;
                 let home_base_pull, away_base_pull;
 
+                const scoring_team_is_home_for_se = (attacker_team) => attacker_team === home_team; // Simplified for SE context
+
                 if (['Corner', 'Experienced Fwd', 'Inexperienced Def'].includes(chosen_event)) {
                     home_base_pull = home_mid; // Use midfield strength for generic SEs
                     away_base_pull = away_mid;
@@ -293,20 +295,16 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
                     away_base_pull = Math.pow(away_specs[chosen_event] || 0.01, 3);
                 }
 
-                // Apply PC bias to the base pull factors
                 let home_final_pull = home_base_pull;
                 let away_final_pull = away_base_pull;
 
                 if (home_is_pc && away_is_pc) {
-                    // Both PC: each gets their own PC team's bias (index 2 from PC_LEVEL_DATA)
                     home_final_pull *= getPcLevelValue(home_team.tactic_level, 2);
                     away_final_pull *= getPcLevelValue(away_team.tactic_level, 2);
                 } else if (home_is_pc) {
-                    // Only Home is PC: Home gets PC team bias (index 2), Away gets opponent-of-PC bias (index 3)
                     home_final_pull *= getPcLevelValue(home_team.tactic_level, 2);
                     away_final_pull *= getPcLevelValue(home_team.tactic_level, 3); 
                 } else if (away_is_pc) {
-                    // Only Away is PC: Away gets PC team bias (index 2), Home gets opponent-of-PC bias (index 3)
                     away_final_pull *= getPcLevelValue(away_team.tactic_level, 2);
                     home_final_pull *= getPcLevelValue(away_team.tactic_level, 3);
                 }
@@ -314,14 +312,14 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
                 if (home_final_pull + away_final_pull > 1e-9) {
                     se_attacker = Math.random() < (home_final_pull / (home_final_pull + away_final_pull)) ? home_team : away_team;
                 } else { 
-                    // Fallback if both pulls are effectively zero (e.g., 0 midfield and 0 relevant specialty)
-                    // Use midfield as the ultimate fallback, ensuring no division by zero.
                     se_attacker = Math.random() < (home_mid / (Math.max(1e-9, home_mid) + Math.max(1e-9, away_mid))) ? home_team : away_team;
                 }
 
                 if (se_attacker && Math.random() < Math.abs(SE_XG_RATES[chosen_event] || 0)) {
                      const is_neg_event = SE_XG_RATES[chosen_event] < 0;
-                     state[((se_attacker === home_team && !is_neg_event) || (se_attacker === away_team && is_neg_event)) ? 'home_score' : 'away_score']++;
+                     const scoring_team_home = (se_attacker === home_team && !is_neg_event) || (se_attacker === away_team && is_neg_event);
+                     state[scoring_team_home ? 'home_score' : 'away_score']++;
+                     state[scoring_team_home ? 'home_se_goals' : 'away_se_goals']++;
                 }
                 continue; // SE happened, so skip regular chance for this slot
             }
@@ -367,6 +365,15 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
         
         if (goal_scored) {
             state[attacker_is_home ? 'home_score' : 'away_score']++;
+            if (chance_type === 'set_piece') {
+                state[attacker_is_home ? 'home_sp_goals' : 'away_sp_goals']++;
+            } else if (chance_type === 'long_shot') {
+                state[attacker_is_home ? 'home_ls_goals' : 'away_ls_goals']++;
+            } else { // Normal attack (left, central, right) from direct chance
+                if (chance_type === 'left') state[attacker_is_home ? 'home_l_attack_goals' : 'away_l_attack_goals']++;
+                else if (chance_type === 'central') state[attacker_is_home ? 'home_c_attack_goals' : 'away_c_attack_goals']++;
+                else if (chance_type === 'right') state[attacker_is_home ? 'home_r_attack_goals' : 'away_r_attack_goals']++;
+            }
         } else {
             if (chance_type !== 'set_piece') {
                 state[attacker_is_home ? 'away_opp_miss' : 'home_opp_miss']++;
@@ -375,6 +382,7 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
                 if (pnf_count > 0 && Math.random() < (PNF_TRIGGER_RATES[pnf_count] || 0)) {
                      if (Math.random() < SE_XG_RATES.PNF) { 
                          state[attacker_is_home ? 'home_score' : 'away_score']++; 
+                         state[attacker_is_home ? 'home_pnf_goals' : 'away_pnf_goals']++;
                          pnf_scored_this_chance = true;
                      }
                 }
@@ -402,6 +410,10 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
                                 };
                                 if (_resolveAttack(chance_type, ntca_attacker_team, ntca_defender_team, ntca_attack_mods)) {
                                     state[!attacker_is_home ? 'home_score' : 'away_score']++; // Score for the NTCA attacker
+                                    // Attribute NTCA goal to the correct attack sector
+                                    if (chance_type === 'left') state[!attacker_is_home ? 'home_l_attack_goals' : 'away_l_attack_goals']++;
+                                    else if (chance_type === 'central') state[!attacker_is_home ? 'home_c_attack_goals' : 'away_c_attack_goals']++;
+                                    else if (chance_type === 'right') state[!attacker_is_home ? 'home_r_attack_goals' : 'away_r_attack_goals']++;
                                 }
                                 continue; // NTCA was formed and resolved (scored or missed), skip tactical CA.
                             }
@@ -417,6 +429,10 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
                         const tactical_ca_mods = { ...mods, attacker_is_home: !attacker_is_home }; // Apply original goal_diff mods
                         if (_resolveAttack(chance_type, defender, attacker, tactical_ca_mods)) {
                             state[!attacker_is_home ? 'home_score' : 'away_score']++; // Score for tactical CA
+                            // Attribute CA goal to the correct attack sector
+                            if (chance_type === 'left') state[!attacker_is_home ? 'home_l_attack_goals' : 'away_l_attack_goals']++;
+                            else if (chance_type === 'central') state[!attacker_is_home ? 'home_c_attack_goals' : 'away_c_attack_goals']++;
+                            else if (chance_type === 'right') state[!attacker_is_home ? 'home_r_attack_goals' : 'away_r_attack_goals']++;
                             state[!attacker_is_home ? 'home_ca_succ' : 'away_ca_succ']++; // Increment tactical CA success
                         }
                     }
@@ -428,15 +444,50 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
 };
 
 export const simulateMatch = (home_team, away_team, match_type = 'league') => {
-    const state = {'home_score': 0, 'away_score': 0, 'home_ca_succ': 0, 'away_ca_succ': 0, 'home_opp_miss': 0, 'away_opp_miss': 0, 'se_count': 0, 'home_aim_conv': 0, 'away_aim_conv': 0, 'home_aow_conv': 0, 'away_aow_conv': 0 };
-    const final_state = _runMatchPeriod(['home','home','home','home','home','away','away','away','away','away','open','open','open','open','open'], home_team, away_team, state);
-    const result = { normal_time_score: [final_state.home_score, final_state.away_score], extra_time_score: null, pk_winner: null };
-    if (match_type === 'cup' && final_state.home_score === final_state.away_score) {
-        const et_state = _runMatchPeriod(['home', 'away', 'open', 'open'], home_team, away_team, final_state);
+    const initial_sim_state = {
+        'home_score': 0, 'away_score': 0, 
+        'home_ca_succ': 0, 'away_ca_succ': 0, 
+        'home_opp_miss': 0, 'away_opp_miss': 0, 
+        'se_count': 0, 
+        'home_aim_conv': 0, 'away_aim_conv': 0, 
+        'home_aow_conv': 0, 'away_aow_conv': 0,
+        // Goal type counters
+        'home_l_attack_goals': 0, 'home_c_attack_goals': 0, 'home_r_attack_goals': 0,
+        'home_sp_goals': 0, 'home_se_goals': 0, 'home_pnf_goals': 0, 'home_ls_goals': 0,
+        'away_l_attack_goals': 0, 'away_c_attack_goals': 0, 'away_r_attack_goals': 0,
+        'away_sp_goals': 0, 'away_se_goals': 0, 'away_pnf_goals': 0, 'away_ls_goals': 0
+    };
+
+    const nt_state = _runMatchPeriod(
+        ['home','home','home','home','home','away','away','away','away','away','open','open','open','open','open'], 
+        home_team, away_team, {...initial_sim_state} // Pass a copy for normal time
+    );
+
+    let state_for_details = nt_state;
+    const result = { 
+        normal_time_score: [nt_state.home_score, nt_state.away_score], 
+        extra_time_score: null, 
+        pk_winner: null,
+        goal_details: {} 
+    };
+
+    if (match_type === 'cup' && nt_state.home_score === nt_state.away_score) {
+        // For ET, pass a copy of nt_state so its counters continue to accumulate
+        const et_state = _runMatchPeriod(['home', 'away', 'open', 'open'], home_team, away_team, {...nt_state});
         result.extra_time_score = [et_state.home_score, et_state.away_score];
+        state_for_details = et_state; // Use ET state for final goal details if ET was played
         if (et_state.home_score === et_state.away_score) {
             result.pk_winner = _runPenaltyShootout(home_team, away_team);
         }
     }
+
+    // Populate goal_details from the final state of the match (nt_state or et_state)
+    result.goal_details = {
+        home_l_attack_goals: state_for_details.home_l_attack_goals, home_c_attack_goals: state_for_details.home_c_attack_goals, home_r_attack_goals: state_for_details.home_r_attack_goals,
+        home_sp_goals: state_for_details.home_sp_goals, home_se_goals: state_for_details.home_se_goals, home_pnf_goals: state_for_details.home_pnf_goals, home_ls_goals: state_for_details.home_ls_goals,
+        away_l_attack_goals: state_for_details.away_l_attack_goals, away_c_attack_goals: state_for_details.away_c_attack_goals, away_r_attack_goals: state_for_details.away_r_attack_goals,
+        away_sp_goals: state_for_details.away_sp_goals, away_se_goals: state_for_details.away_se_goals, away_pnf_goals: state_for_details.away_pnf_goals, away_ls_goals: state_for_details.away_ls_goals,
+    };
+
     return result;
 };
