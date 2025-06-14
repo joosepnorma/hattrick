@@ -5,7 +5,7 @@ const BASELINE_CA_RATE = TACTIC_RATES['CA'][18];
 const CA_DYNAMIC_RATES = [ [0.34, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.44, 0.23, 0.0, 0.0, 0.0, 0.0, 0.0], [0.49, 0.31, 0.19, 0.0, 0.0, 0.0, 0.0], [0.50, 0.34, 0.18, 0.14, 0.0, 0.0, 0.0], [0.50, 0.35, 0.29, 0.13, 0.11, 0.0, 0.0], [0.49, 0.39, 0.33, 0.19, 0.09, 0.0, 0.0], [0.42, 0.41, 0.34, 0.26, 0.1, 0.13, 0.0], [0.49, 0.45, 0.36, 0.31, 0.2, 0.08, 0.0] ];
 const AOW_DYNAMIC_RATES = {14: [0.49,0.23,0.15,0.50,0.50], 16: [0.58,0.32,0.17,0.15,0.00], 18: [0.63,0.33,0.25,0.21,0.11], 20: [0.69,0.33,0.21,0.21,0.25], 22: [0.73,0.37,0.22,0.19,0.27], 24: [0.71,0.37,0.23,0.18,0.00], 26: [0.72,0.39,0.24,0.23,0.00], 28: [0.73,0.44,0.27,0.24,0.00], 30: [0.70,0.49,0.29,0.25,0.00]};
 const AIM_DYNAMIC_RATES = {18: [0.43,0.23,0.19,0.11], 20: [0.48,0.23,0.12,0.00], 22: [0.51,0.26,0.20,0.06], 24: [0.52,0.26,0.18,0.10], 26: [0.54,0.29,0.19,0.15], 28: [0.55,0.31,0.16,0.06], 30: [0.54,0.29,0.22,0.22]};
-const SE_XG_RATES = {'Quick_off': 0.17, 'Head_off': 0.14, 'Tech_off': 0.03, 'Unpr_IM': 0.05, 'Unpr_FW_W': 0.08, 'Quick_def': 0.04, 'Head_def': 0.10, 'Unpr_def': 0.12, 'Tech_def': 0.0, 'PNF': 0.88, 'PDIM': 0.15, 'Corner': 0.40, 'Experienced Fwd': 0.22, 'Inexperienced Def': -0.11, 'Tired Def': 0.0};
+const SE_XG_RATES = {'Quick_off': 0.17, 'Head_off': 0.14, 'Tech_off': 0.03, 'Unpr_IM': 0.05, 'Unpr_FW_W': 0.08, 'Quick_def': 0.04, 'Head_def': 0.10, 'Unpr_def': 0.12, 'Tech_def': 0.03, 'PNF': 0.88, 'PDIM': 0.15, 'Corner': 0.40, 'Experienced Fwd': 0.22, 'Inexperienced Def': -0.11, 'Tired Def': 0.0};
 const SE_EVENT_FREQUENCIES = {'Quick_off': 15, 'Head_off': 10, 'Tech_off': 5, 'Unpr_IM': 8, 'Unpr_FW_W': 8, 'Quick_def': 5, 'Head_def': 10, 'Unpr_def': 8, 'Corner': 15, 'Experienced Fwd': 5, 'Inexperienced Def': 5, 'Tired Def': 4};
 const SE_TIMING_PROBABILITY = [0.042, 0.048, 0.053, 0.057, 0.068, 0.079, 0.084, 0.038, 0.034, 0.043, 0.050, 0.057, 0.062, 0.050, 0.045];
 const IFK_CONVERSION_RATES = { "-23": 0.0, "-22": 0.002, "-21": 0.004, "-20": 0.002, "-19": 0.015, "-18": 0.026, "-17": 0.042, "-16": 0.037, "-15": 0.075, "-14": 0.075, "-13": 0.088, "-12": 0.107, "-11": 0.119, "-10": 0.145, "-9": 0.16, "-8": 0.178, "-7": 0.175, "-6": 0.213, "-5": 0.231, "-4": 0.262, "-3": 0.276, "-2": 0.316, "-1": 0.394, "0": 0.455, "1": 0.541, "2": 0.589, "3": 0.63, "4": 0.672, "5": 0.682, "6": 0.685, "7": 0.728, "8": 0.729, "9": 0.765, "10": 0.781, "11": 0.776, "12": 0.793, "13": 0.841, "14": 0.824, "15": 0.859, "16": 0.839, "17": 0.906, "18": 0.912, "19": 0.929, "20": 0.93, "21": 0.959, "22": 0.896, "23": 0.891, "24": 0.926, "25": 0.875, "26": 0.889, "27": 0.928 };
@@ -23,8 +23,8 @@ const PNF_TRIGGER_RATES = {1: 0.10, 2: 0.16, 3: 0.20};
 const PC_LEVEL_DATA = {
     // level: [OverallSEFreqVsNormal, SEPercentForPCTeam, SEFreqForPCTeamVsNormal, SEFreqForOppVsNormal]
     0:  [1.00, 0.50, 1.00, 1.00], // PC Level 0 behaves as Normal for SEs
-    7:  [1.51, 0.49, 1.46, 1.55], // Represents <8
-    8:  [1.65, 0.49, 1.62, 1.67],
+    7:  [1.51, 0.50, 1.51, 1.51], // Represents <8, adjusted for min 50% share
+    8:  [1.65, 0.50, 1.65, 1.65], // Adjusted for min 50% share
     9:  [1.67, 0.51, 1.70, 1.64],
     10: [1.75, 0.53, 1.86, 1.65],
     11: [1.85, 0.55, 2.04, 1.66],
@@ -265,32 +265,43 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
                 }
                 state.se_count++;
                 let se_attacker = null;
+                let home_base_pull, away_base_pull;
+
                 if (['Corner', 'Experienced Fwd', 'Inexperienced Def'].includes(chosen_event)) {
-                    se_attacker = Math.random() < (home_mid / (home_mid + away_mid + 1e-9)) ? home_team : away_team;
+                    home_base_pull = home_mid; // Use midfield strength for generic SEs
+                    away_base_pull = away_mid;
                 } else {
-                    let home_spec_component = Math.pow(home_specs[chosen_event] || 0.01, 3);
-                    let away_spec_component = Math.pow(away_specs[chosen_event] || 0.01, 3);
+                    // Specialty-driven SE
+                    home_base_pull = Math.pow(home_specs[chosen_event] || 0.01, 3);
+                    away_base_pull = Math.pow(away_specs[chosen_event] || 0.01, 3);
+                }
 
-                    // Apply PC bias for who gets the SE (using PC_LEVEL_DATA indices 2 and 3)
-                    let home_final_pull = home_spec_component * (home_is_pc ? getPcLevelValue(home_team.tactic_level, 2) : (away_is_pc ? getPcLevelValue(away_team.tactic_level, 3) : 1.0));
-                    let away_final_pull = away_spec_component * (away_is_pc ? getPcLevelValue(away_team.tactic_level, 2) : (home_is_pc ? getPcLevelValue(home_team.tactic_level, 3) : 1.0));
-                    
-                    if (home_is_pc && away_is_pc) {
-                        home_final_pull *= getPcLevelValue(home_team.tactic_level, 2);
-                        away_final_pull *= getPcLevelValue(away_team.tactic_level, 2);
-                    } else if (home_is_pc) { // Only home is PC
-                        home_final_pull *= getPcLevelValue(home_team.tactic_level, 2);
-                        away_final_pull *= getPcLevelValue(home_team.tactic_level, 3); // Away is opponent
-                    } else if (away_is_pc) { // Only away is PC
-                        away_final_pull *= getPcLevelValue(away_team.tactic_level, 2);
-                        home_final_pull *= getPcLevelValue(away_team.tactic_level, 3); // Home is opponent
-                    }
+                // Apply PC bias to the base pull factors
+                let home_final_pull = home_base_pull;
+                let away_final_pull = away_base_pull;
 
-                    if (home_final_pull + away_final_pull > 1e-9) {
-                        se_attacker = Math.random() < (home_final_pull / (home_final_pull + away_final_pull)) ? home_team : away_team;
-                    } else { // Fallback if both pulls are effectively zero
-                        se_attacker = Math.random() < (home_mid / (home_mid + away_mid + 1e-9)) ? home_team : away_team;
-                    }                }
+                if (home_is_pc && away_is_pc) {
+                    // Both PC: each gets their own PC team's bias (index 2 from PC_LEVEL_DATA)
+                    home_final_pull *= getPcLevelValue(home_team.tactic_level, 2);
+                    away_final_pull *= getPcLevelValue(away_team.tactic_level, 2);
+                } else if (home_is_pc) {
+                    // Only Home is PC: Home gets PC team bias (index 2), Away gets opponent-of-PC bias (index 3)
+                    home_final_pull *= getPcLevelValue(home_team.tactic_level, 2);
+                    away_final_pull *= getPcLevelValue(home_team.tactic_level, 3); 
+                } else if (away_is_pc) {
+                    // Only Away is PC: Away gets PC team bias (index 2), Home gets opponent-of-PC bias (index 3)
+                    away_final_pull *= getPcLevelValue(away_team.tactic_level, 2);
+                    home_final_pull *= getPcLevelValue(away_team.tactic_level, 3);
+                }
+
+                if (home_final_pull + away_final_pull > 1e-9) {
+                    se_attacker = Math.random() < (home_final_pull / (home_final_pull + away_final_pull)) ? home_team : away_team;
+                } else { 
+                    // Fallback if both pulls are effectively zero (e.g., 0 midfield and 0 relevant specialty)
+                    // Use midfield as the ultimate fallback, ensuring no division by zero.
+                    se_attacker = Math.random() < (home_mid / (Math.max(1e-9, home_mid) + Math.max(1e-9, away_mid))) ? home_team : away_team;
+                }
+
                 if (se_attacker && Math.random() < Math.abs(SE_XG_RATES[chosen_event] || 0)) {
                      const is_neg_event = SE_XG_RATES[chosen_event] < 0;
                      state[((se_attacker === home_team && !is_neg_event) || (se_attacker === away_team && is_neg_event)) ? 'home_score' : 'away_score']++;
