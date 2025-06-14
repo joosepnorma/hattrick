@@ -14,6 +14,16 @@ const PDIM_TRIGGER_RATES = {1: 0.10, 2: 0.16, 3: 0.20};
 const PDIM_SUCCESS_RATE = 0.625;
 const PNF_TRIGGER_RATES = {1: 0.10, 2: 0.16, 3: 0.20};
 
+const NTCA_TECH_DEF_TRIGGER_RATES = { // Num Tech_def players : trigger_chance
+    0: 0.0,
+    1: 0.017,    // 1.7%
+    2: 0.02025,  // 2.025%
+    3: 0.0235,   // 2.35%
+    4: 0.02675,  // 2.675%
+    5: 0.030     // 3.0% (and above)
+};
+const NTCA_FORMATION_SUCCESS_RATE = 0.9;
+
 // Data from the provided table for PC tactic effects
 // Indices for effect_type_idx:
 // 0: Overall SE Freq Multiplier (from "SE Freq vs '2 Others'")
@@ -50,6 +60,13 @@ const getPcLevelValue = (level, effect_type_idx) => {
     const values = PC_LEVEL_DATA[key_level];
     // Should always find a value due to mapping, but as a fallback:
     return values ? values[effect_type_idx] : PC_LEVEL_DATA[10][effect_type_idx]; 
+};
+
+// Helper function to get NTCA trigger rate
+const getNtcaTriggerRate = (techDefCount) => {
+    if (techDefCount <= 0) return 0.0;
+    if (techDefCount >= 5) return NTCA_TECH_DEF_TRIGGER_RATES[5];
+    return NTCA_TECH_DEF_TRIGGER_RATES[techDefCount] || 0.0;
 };
 
 // Distribution of total Special Events per match based on PC skill
@@ -353,18 +370,54 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
         } else {
             if (chance_type !== 'set_piece') {
                 state[attacker_is_home ? 'away_opp_miss' : 'home_opp_miss']++;
+                let pnf_scored_this_chance = false;
                 const pnf_count = attacker.specialties.PNF || 0;
                 if (pnf_count > 0 && Math.random() < (PNF_TRIGGER_RATES[pnf_count] || 0)) {
-                     if (Math.random() < SE_XG_RATES.PNF) { state[attacker_is_home ? 'home_score' : 'away_score']++; continue; }
+                     if (Math.random() < SE_XG_RATES.PNF) { 
+                         state[attacker_is_home ? 'home_score' : 'away_score']++; 
+                         pnf_scored_this_chance = true;
+                     }
                 }
+
+                if (pnf_scored_this_chance) {
+                    continue; // PNF scored, so this slot's action is done.
+                }
+
+                // NTCA (Non-Tactical Counter Attack / Tech CA) Check:
+                // Only if PNF didn't score and it's a normal chance (not long_shot, not set_piece).
+                // The 'chance_type !== 'set_piece'' is already true from the outer if.
+                if (chance_type !== 'long_shot') {
+                    const tech_def_count = defender.specialties.Tech_def || 0;
+                    if (tech_def_count > 0) {
+                        const ntca_trigger_prob = getNtcaTriggerRate(tech_def_count);
+                        if (Math.random() < ntca_trigger_prob) { // NTCA triggered
+                            if (Math.random() < NTCA_FORMATION_SUCCESS_RATE) { // NTCA formed
+                                const ntca_attacker_team = defender;
+                                const ntca_defender_team = attacker;
+                                // NTCAs are sudden, use original missed chance type, no goal_diff mods.
+                                const ntca_attack_mods = {
+                                    attacker_is_home: !attacker_is_home, // Roles are flipped
+                                    home_attack_mod: 1.0, home_defense_mod: 1.0,
+                                    away_attack_mod: 1.0, away_defense_mod: 1.0
+                                };
+                                if (_resolveAttack(chance_type, ntca_attacker_team, ntca_defender_team, ntca_attack_mods)) {
+                                    state[!attacker_is_home ? 'home_score' : 'away_score']++; // Score for the NTCA attacker
+                                }
+                                continue; // NTCA was formed and resolved (scored or missed), skip tactical CA.
+                            }
+                        }
+                    }
+                }
+
+                // Tactical CA Check (only if PNF didn't score AND NTCA didn't form and resolve)
                 if (defender.tactic === 'CA' && ((home_has_weaker_midfield && !attacker_is_home) || (!home_has_weaker_midfield && attacker_is_home))) {
-                    const [missed, succ, mod] = !attacker_is_home ? [state.home_opp_miss, state.home_ca_succ, home_team.ca_modifier] : [state.away_opp_miss, state.away_ca_succ, away_team.ca_modifier];
+                    const [missed, succ, ca_tactic_modifier] = !attacker_is_home ? [state.home_opp_miss, state.home_ca_succ, home_team.ca_modifier] : [state.away_opp_miss, state.away_ca_succ, away_team.ca_modifier];
                     const [row, col] = [Math.min(missed - 1, 7), Math.min(succ, 6)];
-                    if (Math.random() < CA_DYNAMIC_RATES[row][col] * mod) {
-                        const ca_mods = { ...mods, attacker_is_home: !attacker_is_home };
-                        if (_resolveAttack(chance_type, defender, attacker, ca_mods)) {
-                            state[!attacker_is_home ? 'home_score' : 'away_score']++;
-                            state[!attacker_is_home ? 'home_ca_succ' : 'away_ca_succ']++;
+                    if (Math.random() < CA_DYNAMIC_RATES[row][col] * ca_tactic_modifier) {
+                        const tactical_ca_mods = { ...mods, attacker_is_home: !attacker_is_home }; // Apply original goal_diff mods
+                        if (_resolveAttack(chance_type, defender, attacker, tactical_ca_mods)) {
+                            state[!attacker_is_home ? 'home_score' : 'away_score']++; // Score for tactical CA
+                            state[!attacker_is_home ? 'home_ca_succ' : 'away_ca_succ']++; // Increment tactical CA success
                         }
                     }
                 }

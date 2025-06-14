@@ -143,8 +143,8 @@
             <!-- Simulation Controls -->
             <div class="bg-gray-800 p-6 rounded-lg shadow-xl mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="flex items-center gap-4">
-                    <label for="sim_count" class="block text-sm font-medium text-gray-300">Simulations:</label>
-                    <input type="number" id="sim_count" value="1000" class="block w-32 bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                    <label for="sim_count" class="block text-sm font-medium text-gray-300">Simulations (max 100000):</label>
+                    <input type="number" id="sim_count" value="1000" max="100000" class="block w-32 bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
                 </div>
                  <div class="flex items-center gap-4">
                     <span class="text-sm font-medium text-gray-300">Match Type:</span>
@@ -221,7 +221,8 @@
                 setTimeout(() => {
                     const home_data = collectInputs('home');
                     const away_data = collectInputs('away');
-                    const sim_count = parseInt(document.getElementById('sim_count').value);
+                    let sim_count = parseInt(document.getElementById('sim_count').value);
+                    if (sim_count > 100000) sim_count = 100000; // Enforce max limit
                     const match_type = document.querySelector('input[name="match_type"]:checked').value;
                     
                     const home_team = precomputeRatings(home_data);
