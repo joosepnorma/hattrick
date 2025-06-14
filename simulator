@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hattrick Match Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .loader {
+            border-top-color: #4f46e5;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 p-4 sm:p-6 lg:p-8">
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-white">Hattrick Match Simulator</h1>
+            <p class="text-gray-400 mt-2">Enter your team ratings to simulate match outcomes.</p>
+        </header>
+
+        <main>
+            <!-- Input Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Home Team -->
+                <div id="home-team-card" class="bg-gray-800 p-6 rounded-lg shadow-xl space-y-4">
+                    <h2 class="text-2xl font-semibold text-white border-b border-gray-700 pb-2">Home Team</h2>
+                    <div>
+                        <label for="home_name" class="block text-sm font-medium text-gray-300">Team Name</label>
+                        <input type="text" id="home_name" value="Team 1" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300">Defense (R / C / L)</label>
+                        <div class="flex gap-2 mt-1">
+                            <input type="number" step="0.1" id="home_r_defense" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="home_c_defense" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="home_l_defense" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="home_midfield" class="block text-sm font-medium text-gray-300">Midfield</label>
+                        <input type="number" step="0.1" id="home_midfield" value="10.0" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2 text-center">
+                    </div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-300">Attack (R / C / L)</label>
+                        <div class="flex gap-2 mt-1">
+                            <input type="number" step="0.1" id="home_r_attack" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="home_c_attack" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="home_l_attack" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                        </div>
+                    </div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-300">ISP (Def / Att)</label>
+                        <div class="flex gap-2 mt-1">
+                            <input type="number" step="0.1" id="home_isp_def" value="10" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="home_isp_att" value="10" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                        </div>
+                    </div>
+                    <div>
+                         <label class="block text-sm font-medium text-gray-300">Tactic</label>
+                         <div class="flex gap-2 mt-1">
+                            <select id="home_tactic" class="block w-2/3 bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                                <option>Normal</option> <option>Pressing</option> <option>CA</option> <option>AIM</option> <option>AOW</option> <option>LS</option> <option>PC</option>
+                            </select>
+                            <input type="number" id="home_tactic_level" value="10" class="block w-1/3 bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Specialties</label>
+                        <div id="home_specialties" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <!-- Specialties will be populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Away Team -->
+                 <div id="away-team-card" class="bg-gray-800 p-6 rounded-lg shadow-xl space-y-4">
+                    <h2 class="text-2xl font-semibold text-white border-b border-gray-700 pb-2">Away Team</h2>
+                    <div>
+                        <label for="away_name" class="block text-sm font-medium text-gray-300">Team Name</label>
+                        <input type="text" id="away_name" value="Team 2" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300">Defense (R / C / L)</label>
+                        <div class="flex gap-2 mt-1">
+                            <input type="number" step="0.1" id="away_r_defense" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="away_c_defense" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="away_l_defense" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="away_midfield" class="block text-sm font-medium text-gray-300">Midfield</label>
+                        <input type="number" step="0.1" id="away_midfield" value="10.0" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2 text-center">
+                    </div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-300">Attack (R / C / L)</label>
+                        <div class="flex gap-2 mt-1">
+                            <input type="number" step="0.1" id="away_r_attack" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="away_c_attack" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="away_l_attack" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                        </div>
+                    </div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-300">ISP (Def / Att)</label>
+                        <div class="flex gap-2 mt-1">
+                            <input type="number" step="0.1" id="away_isp_def" value="10" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="away_isp_att" value="10" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                        </div>
+                    </div>
+                    <div>
+                         <label class="block text-sm font-medium text-gray-300">Tactic</label>
+                         <div class="flex gap-2 mt-1">
+                            <select id="away_tactic" class="block w-2/3 bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                                <option>Normal</option> <option>Pressing</option> <option>CA</option> <option>AIM</option> <option>AOW</option> <option>LS</option> <option>PC</option>
+                            </select>
+                            <input type="number" id="away_tactic_level" value="10" class="block w-1/3 bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Specialties</label>
+                        <div id="away_specialties" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                           <!-- Specialties will be populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Simulation Controls -->
+            <div class="bg-gray-800 p-6 rounded-lg shadow-xl mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <label for="sim_count" class="block text-sm font-medium text-gray-300">Simulations:</label>
+                    <input type="number" id="sim_count" value="1000" class="block w-32 bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                </div>
+                 <div class="flex items-center gap-4">
+                    <span class="text-sm font-medium text-gray-300">Match Type:</span>
+                    <label class="flex items-center"><input type="radio" name="match_type" value="league" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600" checked> <span class="ml-2 text-gray-300">League</span></label>
+                    <label class="flex items-center"><input type="radio" name="match_type" value="cup" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600"> <span class="ml-2 text-gray-300">Cup</span></label>
+                </div>
+                <button id="run_simulation" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out">
+                    Run Simulation
+                </button>
+                 <div id="loader" class="hidden loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8"></div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="bg-gray-800 p-6 rounded-lg shadow-xl min-h-[100px]">
+                 <p class="text-gray-400 text-center">Results will be displayed here.</p>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        // --- Full Hattrick Simulator Engine in JavaScript ---
+        
+        const TACTIC_RATES = { CA: { 1: 0.01, 2: 0.02, 3: 0.03, 4: 0.05, 5: 0.06, 6: 0.07, 7: 0.10, 8: 0.07, 9: 0.11, 10: 0.13, 11: 0.16, 12: 0.19, 13: 0.22, 14: 0.25, 15: 0.29, 16: 0.32, 17: 0.34, 18: 0.35, 19: 0.37, 20: 0.38, 21: 0.39, 22: 0.41, 23: 0.42, 24: 0.43, 25: 0.43, 26: 0.43, 27: 0.44, 28: 0.43, 29: 0.45, 30: 0.47 }, Pressing: { 1: 0.01, 2: 0.02, 3: 0.03, 4: 0.04, 5: 0.05, 6: 0.06, 7: 0.08, 8: 0.10, 9: 0.12, 10: 0.15, 11: 0.17, 12: 0.19, 13: 0.22, 14: 0.25, 15: 0.28, 16: 0.32, 17: 0.36, 18: 0.40, 19: 0.45, 20: 0.50 }, LS_Conv: { 2: 0.05, 5: 0.05, 6: 0.06, 7: 0.06, 8: 0.09, 9: 0.15, 10: 0.14, 11: 0.16, 12: 0.16, 13: 0.19, 14: 0.18, 15: 0.20, 16: 0.20, 17: 0.20, 18: 0.21, 19: 0.22, 20: 0.24, 21: 0.24, 22: 0.25, 23: 0.25, 24: 0.25, 25: 0.27, 26: 0.26, 27: 0.28, 29: 0.33 }, LS_Goal: { 2: 0.039, 3: 0.050, 4: 0.065, 5: 0.088, 6: 0.108, 7: 0.138, 8: 0.162, 9: 0.184, 10: 0.226, 11: 0.257, 12: 0.292, 13: 0.336, 14: 0.378, 15: 0.417, 16: 0.463, 17: 0.520, 18: 0.557, 19: 0.595, 20: 0.610, 21: 0.629, 22: 0.649, 23: 0.662, 24: 0.692, 25: 0.684, 26: 0.682, 27: 0.684, 28: 0.644, 29: 0.809, 30: 0.800 } };
+        const BASELINE_CA_RATE = TACTIC_RATES['CA'][18];
+        const CA_DYNAMIC_RATES = [ [0.34, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.44, 0.23, 0.0, 0.0, 0.0, 0.0, 0.0], [0.49, 0.31, 0.19, 0.0, 0.0, 0.0, 0.0], [0.50, 0.34, 0.18, 0.14, 0.0, 0.0, 0.0], [0.50, 0.35, 0.29, 0.13, 0.11, 0.0, 0.0], [0.49, 0.39, 0.33, 0.19, 0.09, 0.0, 0.0], [0.42, 0.41, 0.34, 0.26, 0.1, 0.13, 0.0], [0.49, 0.45, 0.36, 0.31, 0.2, 0.08, 0.0] ];
+        const AOW_DYNAMIC_RATES = {14: [0.49,0.23,0.15,0.50,0.50], 16: [0.58,0.32,0.17,0.15,0.00], 18: [0.63,0.33,0.25,0.21,0.11], 20: [0.69,0.33,0.21,0.21,0.25], 22: [0.73,0.37,0.22,0.19,0.27], 24: [0.71,0.37,0.23,0.18,0.00], 26: [0.72,0.39,0.24,0.23,0.00], 28: [0.73,0.44,0.27,0.24,0.00], 30: [0.70,0.49,0.29,0.25,0.00]};
+        const AIM_DYNAMIC_RATES = {18: [0.43,0.23,0.19,0.11], 20: [0.48,0.23,0.12,0.00], 22: [0.51,0.26,0.20,0.06], 24: [0.52,0.26,0.18,0.10], 26: [0.54,0.29,0.19,0.15], 28: [0.55,0.31,0.16,0.06], 30: [0.54,0.29,0.22,0.22]};
+        const SE_XG_RATES = {'Quick_off': 0.17, 'Head_off': 0.14, 'Tech_off': 0.03, 'Unpr_IM': 0.05, 'Unpr_FW_W': 0.08, 'Quick_def': 0.04, 'Head_def': 0.10, 'Unpr_def': 0.12, 'Tech_def': 0.0, 'PNF': 0.88, 'PDIM': 0.15, 'Corner': 0.40, 'Experienced Fwd': 0.22, 'Inexperienced Def': -0.11, 'Tired Def': 0.0};
+        const SE_EVENT_FREQUENCIES = {'Quick_off': 15, 'Head_off': 10, 'Tech_off': 5, 'Unpr_IM': 8, 'Unpr_FW_W': 8, 'Quick_def': 5, 'Head_def': 10, 'Unpr_def': 8, 'Corner': 15, 'Experienced Fwd': 5, 'Inexperienced Def': 5, 'Tired Def': 4};
+        const SE_TIMING_PROBABILITY = [0.042, 0.048, 0.053, 0.057, 0.068, 0.079, 0.084, 0.038, 0.034, 0.043, 0.050, 0.057, 0.062, 0.050, 0.045];
+        const IFK_CONVERSION_RATES = { "-23": 0.0, "-22": 0.002, "-21": 0.004, "-20": 0.002, "-19": 0.015, "-18": 0.026, "-17": 0.042, "-16": 0.037, "-15": 0.075, "-14": 0.075, "-13": 0.088, "-12": 0.107, "-11": 0.119, "-10": 0.145, "-9": 0.16, "-8": 0.178, "-7": 0.175, "-6": 0.213, "-5": 0.231, "-4": 0.262, "-3": 0.276, "-2": 0.316, "-1": 0.394, "0": 0.455, "1": 0.541, "2": 0.589, "3": 0.63, "4": 0.672, "5": 0.682, "6": 0.685, "7": 0.728, "8": 0.729, "9": 0.765, "10": 0.781, "11": 0.776, "12": 0.793, "13": 0.841, "14": 0.824, "15": 0.859, "16": 0.839, "17": 0.906, "18": 0.912, "19": 0.929, "20": 0.93, "21": 0.959, "22": 0.896, "23": 0.891, "24": 0.926, "25": 0.875, "26": 0.889, "27": 0.928 };
+        const PK_CONVERSION_RATES = { 8: 0.74, 9: 0.57, 10: 0.49, 11: 0.45, 12: 0.42, 13: 0.39, 14: 0.30 };
+        const PDIM_TRIGGER_RATES = {1: 0.10, 2: 0.16, 3: 0.20};
+        const PDIM_SUCCESS_RATE = 0.625;
+        const PNF_TRIGGER_RATES = {1: 0.10, 2: 0.16, 3: 0.20};
+        
+        const precomputeRatings = (teamData) => {
+            const computedData = {
+                name: teamData.name, attitude: teamData.attitude,
+                tactic: teamData.tactic || 'Normal', tactic_level: teamData.tactic_level || 0,
+                base_midfield: teamData.midfield, specialties: teamData.specialties || {},
+                isp_att: teamData.isp_att || 10, isp_def: teamData.isp_def || 10,
+                midfield_pow3: Math.pow(teamData.midfield, 3),
+                attack_pow3_5: {
+                    right: Math.pow(teamData.r_attack, 3.5),
+                    central: Math.pow(teamData.c_attack, 3.5),
+                    left: Math.pow(teamData.l_attack, 3.5)
+                },
+                defense_pow3_5: {
+                    right: Math.pow(teamData.r_defense, 3.5),
+                    central: Math.pow(teamData.c_defense, 3.5),
+                    left: Math.pow(teamData.l_defense, 3.5)
+                }
+            };
+            let ca_modifier = 0;
+            if (computedData.tactic === 'CA') {
+                const team_base_rate = TACTIC_RATES['CA'][computedData.tactic_level] || 0;
+                ca_modifier = BASELINE_CA_RATE > 0 ? team_base_rate / BASELINE_CA_RATE : 0;
+            }
+            computedData.ca_modifier = ca_modifier;
+            return computedData;
+        };
+
+        const getDynamicRate = (ratesTable, level, priors) => {
+            const levelKeys = Object.keys(ratesTable).map(Number).sort((a,b)=>a-b);
+            let row_key = levelKeys[0];
+            for (const key of levelKeys) {
+                if (level <= key) { row_key = key; break; }
+            }
+            if (level > levelKeys[levelKeys.length-1]) {
+                row_key = levelKeys[levelKeys.length-1];
+            }
+            const rate_list = ratesTable[row_key];
+            const col_idx = Math.min(priors, rate_list.length - 1);
+            return rate_list[col_idx];
+        };
+
+        const _getChanceType = (attacker, state, is_home) => {
+            const aim_conv = is_home ? state.home_aim_conv : state.away_aim_conv;
+            const aow_conv = is_home ? state.home_aow_conv : state.away_aow_conv;
+            
+            const chance_roll = Math.random();
+            let initial_type;
+            if (chance_roll < 0.13) return ['set_piece', false];
+            else if (chance_roll < 0.49) initial_type = 'central';
+            else if (chance_roll < 0.745) initial_type = 'left';
+            else initial_type = 'right';
+            
+            let final_type = initial_type;
+            const { tactic, tactic_level: level } = attacker;
+            
+            if (tactic === 'LS') {
+                if (Math.random() < (TACTIC_RATES.LS_Conv[level] || 0)) return ['long_shot', true];
+            } else if (tactic === 'AIM' && ['left', 'right'].includes(initial_type)) {
+                if (Math.random() < getDynamicRate(AIM_DYNAMIC_RATES, level, aim_conv)) final_type = 'central';
+            } else if (tactic === 'AOW' && initial_type === 'central') {
+                if (Math.random() < getDynamicRate(AOW_DYNAMIC_RATES, level, aow_conv)) final_type = Math.random() < 0.5 ? 'left' : 'right';
+            }
+            return [final_type, final_type !== initial_type];
+        };
+        
+        const _resolveAttack = (chance_type, attacker_team, defender_team, mods) => {
+            if (chance_type === 'long_shot') {
+                return Math.random() < (TACTIC_RATES.LS_Goal[attacker_team.tactic_level] || 0);
+            }
+            const defense_map = { right: 'left', central: 'central', left: 'right' };
+            const attack_sector = chance_type;
+            const defense_sector = defense_map[attack_sector];
+            const attack_rating = mods.attacker_is_home ? attacker_team.attack_pow3_5[attack_sector] * mods.home_attack_mod : attacker_team.attack_pow3_5[attack_sector] * mods.away_attack_mod;
+            const defense_rating = mods.attacker_is_home ? defender_team.defense_pow3_5[defense_sector] * mods.away_defense_mod : defender_team.defense_pow3_5[defense_sector] * mods.home_defense_mod;
+            return Math.random() < (0.92 * attack_rating) / (attack_rating + defense_rating + 1e-9);
+        };
+        
+        const _resolveSetPiece = (attacker, defender) => {
+            let goal_prob = 0;
+            if (Math.random() < 0.33) { // IFK
+                const diff = attacker.isp_att - defender.isp_def;
+                const closest_key = Object.keys(IFK_CONVERSION_RATES).reduce((a, b) => Math.abs(parseInt(b) - diff) < Math.abs(parseInt(a) - diff) ? b : a);
+                goal_prob = IFK_CONVERSION_RATES[closest_key];
+            } else { // DFK/PK
+                const def_isp = defender.isp_def;
+                const closest_key = Object.keys(PK_CONVERSION_RATES).reduce((a, b) => Math.abs(parseInt(b) - def_isp) < Math.abs(parseInt(a) - def_isp) ? b : a);
+                goal_prob = PK_CONVERSION_RATES[closest_key];
+            }
+            return Math.random() < goal_prob;
+        };
+
+        const _runPenaltyShootout = (home_team, away_team) => {
+            let home_pk_score = 0, away_pk_score = 0;
+            let home_momentum = 1.0, away_momentum = 1.0;
+            for(let i=0; i<5; i++){
+                if (Math.random() < (0.79 + (home_team.isp_att - away_team.isp_def) * 0.01) * home_momentum) { home_pk_score++; home_momentum=1.1; away_momentum=1.0; } else { home_momentum=1.0; away_momentum=1.1; }
+                if (Math.random() < (0.79 + (away_team.isp_att - home_team.isp_def) * 0.01) * away_momentum) { away_pk_score++; away_momentum=1.1; home_momentum=1.0; } else { away_momentum=1.0; home_momentum=1.1; }
+            }
+            if(home_pk_score === away_pk_score){
+                while(home_pk_score === away_pk_score){
+                    const home_scored = Math.random() < (0.79 + (home_team.isp_att - away_team.isp_def) * 0.01) * home_momentum;
+                    const away_scored = Math.random() < (0.79 + (away_team.isp_att - home_team.isp_def) * 0.01) * away_momentum;
+                    if(home_scored !== away_scored){
+                        if(home_scored) home_pk_score++; else away_pk_score++;
+                    }
+                }
+            }
+            return home_pk_score > away_pk_score ? 'home' : 'away';
+        };
+
+        const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
+            const state = {...initial_state};
+            const max_ses = 5 + (home_team.tactic === 'PC' ? 1 : 0) + (away_team.tactic === 'PC' ? 1 : 0);
+            const { midfield_pow3: home_mid, specialties: home_specs } = home_team;
+            const { midfield_pow3: away_mid, specialties: away_specs } = away_team;
+            const home_has_weaker_midfield = home_team.base_midfield < away_team.base_midfield;
+            const press_chance = (TACTIC_RATES.Pressing[home_team.tactic_level] || 0) + (TACTIC_RATES.Pressing[away_team.tactic_level] || 0);
+
+            for(let i=0; i < chance_slots.length; i++) {
+                // Phase A: Special Event
+                let base_se_prob = SE_TIMING_PROBABILITY[Math.min(i, SE_TIMING_PROBABILITY.length - 1)];
+                if (home_team.tactic === 'PC') base_se_prob *= 1.2;
+                if (away_team.tactic === 'PC') base_se_prob *= 1.2;
+                if (Math.random() < base_se_prob / (1 + (0.5 * state.se_count)) && state.se_count < max_ses) {
+                    const event_pool = [], weights = [];
+                    const total_specs = {};
+                    Object.keys(SE_XG_RATES).forEach(spec => { total_specs[spec] = (home_specs[spec] || 0) + (away_specs[spec] || 0); });
+                    for (const [event, base_freq] of Object.entries(SE_EVENT_FREQUENCIES)) {
+                        if (total_specs[event] > 0 || ['Corner', 'Experienced Fwd', 'Inexperienced Def'].includes(event)) {
+                            event_pool.push(event); weights.push(base_freq * (1 + total_specs[event] * 0.5));
+                        }
+                    }
+                    if (event_pool.length > 0) {
+                        const total_weight = weights.reduce((a, b) => a + b, 0);
+                        let random_num = Math.random() * total_weight;
+                        let chosen_event = event_pool[event_pool.length -1];
+                        for(let j=0; j<weights.length; j++) {
+                           if(random_num < weights[j]) { chosen_event = event_pool[j]; break; }
+                           random_num -= weights[j];
+                        }
+                        state.se_count++;
+                        let se_attacker = null;
+                        if (['Corner', 'Experienced Fwd', 'Inexperienced Def'].includes(chosen_event)) {
+                            se_attacker = Math.random() < (home_mid / (home_mid + away_mid + 1e-9)) ? home_team : away_team;
+                        } else {
+                            let h_spec = home_specs[chosen_event] || 0, a_spec = away_specs[chosen_event] || 0;
+                            if (home_team.tactic === 'PC') h_spec *= 1.5;
+                            if (away_team.tactic === 'PC') a_spec *= 1.5;
+                            if(h_spec + a_spec > 0) se_attacker = Math.random() < (Math.pow(h_spec, 3) / (Math.pow(h_spec, 3) + Math.pow(a_spec, 3) + 1e-9)) ? home_team : away_team;
+                        }
+                        if (se_attacker && Math.random() < Math.abs(SE_XG_RATES[chosen_event] || 0)) {
+                             const is_neg_event = SE_XG_RATES[chosen_event] < 0;
+                             state[((se_attacker === home_team && !is_neg_event) || (se_attacker === away_team && is_neg_event)) ? 'home_score' : 'away_score']++;
+                        }
+                    }
+                }
+
+                // Phase B: Regular Chance
+                if (press_chance > 0 && Math.random() < press_chance) continue;
+                let attacker_is_home = null;
+                const slot = chance_slots[i];
+                if (slot === 'open') { attacker_is_home = Math.random() >= (away_mid / (home_mid + away_mid + 1e-9)); }
+                else {
+                    const is_home_slot = (slot === 'home');
+                    const [stronger, weaker] = home_mid >= away_mid ? [home_mid, away_mid] : [away_mid, home_mid];
+                    if (Math.random() >= (weaker / (weaker + stronger + 1e-9))) {
+                        if ((home_mid >= away_mid) === is_home_slot) attacker_is_home = is_home_slot;
+                    } else {
+                        if ((home_mid < away_mid) === is_home_slot) attacker_is_home = is_home_slot;
+                    }
+                }
+                if (attacker_is_home === null) continue;
+                
+                const attacker = attacker_is_home ? home_team : away_team;
+                const defender = attacker_is_home ? away_team : home_team;
+                
+                const pdim_count = defender.specialties.PDIM || 0;
+                if (pdim_count > 0 && Math.random() < (PDIM_TRIGGER_RATES[pdim_count] || 0)) {
+                    if (Math.random() < PDIM_SUCCESS_RATE) continue;
+                }
+
+                const [chance_type, converted] = _getChanceType(attacker, state, attacker_is_home);
+                if(converted) { state[`${attacker_is_home ? 'home' : 'away'}_${attacker.tactic.toLowerCase()}_conv`]++; }
+                
+                const goal_diff = state.home_score - state.away_score;
+                const mods = { attacker_is_home, home_attack_mod: 1.0, home_defense_mod: 1.0, away_attack_mod: 1.0, away_defense_mod: 1.0 };
+                if (Math.abs(goal_diff) >= 2) {
+                    const penalty = 1 - (0.09 * (Math.min(Math.abs(goal_diff), 8) - 1));
+                    const boost = 1 + (0.075 * (Math.min(Math.abs(goal_diff), 8) - 1));
+                    if(goal_diff > 0 && home_team.attitude !== 'MOTS') { mods.home_attack_mod = penalty; mods.home_defense_mod = boost; }
+                    else if(goal_diff < 0 && away_team.attitude !== 'MOTS') { mods.away_attack_mod = penalty; mods.away_defense_mod = boost; }
+                }
+                
+                const goal_scored = chance_type === 'set_piece' ? _resolveSetPiece(attacker, defender) : _resolveAttack(chance_type, attacker, defender, mods);
+                
+                if (goal_scored) {
+                    state[attacker_is_home ? 'home_score' : 'away_score']++;
+                } else {
+                    if (chance_type !== 'set_piece') {
+                        state[attacker_is_home ? 'away_opp_miss' : 'home_opp_miss']++;
+                        const pnf_count = attacker.specialties.PNF || 0;
+                        if (pnf_count > 0 && Math.random() < (PNF_TRIGGER_RATES[pnf_count] || 0)) {
+                             if (Math.random() < SE_XG_RATES.PNF) { state[attacker_is_home ? 'home_score' : 'away_score']++; continue; }
+                        }
+                        if (defender.tactic === 'CA' && ((home_has_weaker_midfield && !attacker_is_home) || (!home_has_weaker_midfield && attacker_is_home))) {
+                            const [missed, succ, mod] = !attacker_is_home ? [state.home_opp_miss, state.home_ca_succ, home_team.ca_modifier] : [state.away_opp_miss, state.away_ca_succ, away_team.ca_modifier];
+                            const [row, col] = [Math.min(missed - 1, 7), Math.min(succ, 6)];
+                            if (Math.random() < CA_DYNAMIC_RATES[row][col] * mod) {
+                                const ca_mods = { ...mods, attacker_is_home: !attacker_is_home };
+                                if (_resolveAttack(chance_type, defender, attacker, ca_mods)) {
+                                    state[!attacker_is_home ? 'home_score' : 'away_score']++;
+                                    state[!attacker_is_home ? 'home_ca_succ' : 'away_ca_succ']++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return state;
+        };
+
+        const simulateMatch = (home_team, away_team, match_type = 'league') => {
+            const state = {'home_score': 0, 'away_score': 0, 'home_ca_succ': 0, 'away_ca_succ': 0, 'home_opp_miss': 0, 'away_opp_miss': 0, 'se_count': 0, 'home_aim_conv': 0, 'away_aim_conv': 0, 'home_aow_conv': 0, 'away_aow_conv': 0 };
+            const final_state = _runMatchPeriod(['home','home','home','home','home','away','away','away','away','away','open','open','open','open','open'], home_team, away_team, state);
+            const result = { normal_time_score: [final_state.home_score, final_state.away_score], extra_time_score: null, pk_winner: null };
+            if (match_type === 'cup' && final_state.home_score === final_state.away_score) {
+                const et_state = _runMatchPeriod(['home', 'away', 'open', 'open'], home_team, away_team, final_state);
+                result.extra_time_score = [et_state.home_score, et_state.away_score];
+                if (et_state.home_score === et_state.away_score) {
+                    result.pk_winner = _runPenaltyShootout(home_team, away_team);
+                }
+            }
+            return result;
+        };
+        
+        const populateSpecialties = () => {
+             const specList = {'Quick_off':'Quick_off', 'Head_off':'Head_off', 'Tech_off':'Tech_off', 'Unpr_IM':'Unpr_IM', 'Unpr_FW_W':'Unpr_FW_W', 'Quick_def':'Quick_def', 'Head_def':'Head_def', 'Unpr_def':'Unpr_def', 'PNF':'PNF', 'PDIM':'PDIM', 'Tech_def': 'Tech_def'};
+             const homeContainer = document.getElementById('home_specialties');
+             const awayContainer = document.getElementById('away_specialties');
+             homeContainer.innerHTML = '';
+             awayContainer.innerHTML = '';
+             for (const [label, key] of Object.entries(specList)) {
+                 homeContainer.innerHTML += `<div class="flex items-center justify-between"><label for="home_${key}" class="text-sm text-gray-400">${label}</label><input type="number" id="home_${key}" value="0" min="0" class="w-16 bg-gray-700 p-1 rounded-md text-center"></div>`;
+                 awayContainer.innerHTML += `<div class="flex items-center justify-between"><label for="away_${key}" class="text-sm text-gray-400">${label}</label><input type="number" id="away_${key}" value="0" min="0" class="w-16 bg-gray-700 p-1 rounded-md text-center"></div>`;
+             }
+        };
+        
+        const collectInputs = (teamPrefix) => {
+            const specialties = {};
+            document.querySelectorAll(`#${teamPrefix}_specialties input`).forEach(input => {
+                const key = input.id.replace(`${teamPrefix}_`, '');
+                specialties[key] = parseInt(input.value) || 0;
+            });
+            const ratings = {
+                midfield: parseFloat(document.getElementById(`${teamPrefix}_midfield`).value),
+                c_attack: parseFloat(document.getElementById(`${teamPrefix}_c_attack`).value),
+                l_attack: parseFloat(document.getElementById(`${teamPrefix}_l_attack`).value),
+                r_attack: parseFloat(document.getElementById(`${teamPrefix}_r_attack`).value),
+                c_defense: parseFloat(document.getElementById(`${teamPrefix}_c_defense`).value),
+                l_defense: parseFloat(document.getElementById(`${teamPrefix}_l_defense`).value),
+                r_defense: parseFloat(document.getElementById(`${teamPrefix}_r_defense`).value)
+            };
+            
+            return {
+                name: document.getElementById(`${teamPrefix}_name`).value,
+                midfield: ratings.midfield, r_attack: ratings.r_attack, c_attack: ratings.c_attack, l_attack: ratings.l_attack,
+                r_defense: ratings.r_defense, c_defense: ratings.c_defense, l_defense: ratings.l_defense,
+                isp_att: parseFloat(document.getElementById(`${teamPrefix}_isp_att`).value),
+                isp_def: parseFloat(document.getElementById(`${teamPrefix}_isp_def`).value),
+                tactic: document.getElementById(`${teamPrefix}_tactic`).value,
+                tactic_level: parseInt(document.getElementById(`${teamPrefix}_tactic_level`).value),
+                attitude: 'Normal',
+                specialties: specialties,
+            };
+        };
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            populateSpecialties();
+            document.getElementById('run_simulation').addEventListener('click', () => {
+                const loader = document.getElementById('loader');
+                const runButton = document.getElementById('run_simulation');
+                const resultsDiv = document.getElementById('results');
+                loader.classList.remove('hidden');
+                runButton.classList.add('hidden');
+                resultsDiv.innerHTML = '<p class="text-gray-400 text-center">Running simulations...</p>';
+                
+                setTimeout(() => {
+                    const home_data = collectInputs('home');
+                    const away_data = collectInputs('away');
+                    const sim_count = parseInt(document.getElementById('sim_count').value);
+                    const match_type = document.querySelector('input[name="match_type"]:checked').value;
+                    
+                    const home_team = precomputeRatings(home_data);
+                    const away_team = precomputeRatings(away_data);
+                    
+                    let results = {
+                        normal_time: { home_wins: 0, draws: 0, away_wins: 0, home_goals: 0, away_goals: 0 },
+                        extra_time: { home_wins: 0, draws: 0, away_wins: 0 },
+                        penalties: { home_wins: 0, away_wins: 0 }
+                    };
+
+                    for(let i = 0; i < sim_count; i++) {
+                        const sim_result = simulateMatch(home_team, away_team, match_type);
+                        const [h_nt, a_nt] = sim_result.normal_time_score;
+                        results.normal_time.home_goals += h_nt;
+                        results.normal_time.away_goals += a_nt;
+                        if (h_nt > a_nt) results.normal_time.home_wins++;
+                        else if (a_nt > h_nt) results.normal_time.away_wins++;
+                        else results.normal_time.draws++;
+
+                        if (sim_result.extra_time_score) {
+                            const [h_et, a_et] = sim_result.extra_time_score;
+                            if (h_et > a_et) results.extra_time.home_wins++;
+                            else if (a_et > h_et) results.extra_time.away_wins++;
+                            else results.extra_time.draws++;
+                        }
+
+                        if (sim_result.pk_winner) {
+                            if (sim_result.pk_winner === 'home') results.penalties.home_wins++;
+                            else results.penalties.away_wins++;
+                        }
+                    }
+
+                    const home_name = home_team.name;
+                    const away_name = away_team.name;
+
+                    let outputHTML = `<h2 class="text-2xl font-semibold mb-4 text-white">Simulation Complete</h2>`;
+                    const nt_h_wins = (results.normal_time.home_wins / sim_count) * 100;
+                    const nt_draws = (results.normal_time.draws / sim_count) * 100;
+                    const nt_a_wins = (results.normal_time.away_wins / sim_count) * 100;
+                    const nt_h_goals = results.normal_time.home_goals / sim_count;
+                    const nt_a_goals = results.normal_time.away_goals / sim_count;
+                    outputHTML += `<div class="mb-6 p-4 bg-gray-700/50 rounded-lg">
+                                      <h3 class="text-xl font-semibold mb-2 text-indigo-400">1) After Normal Time</h3>
+                                      <p>${home_name} Wins: <strong>${nt_h_wins.toFixed(1)}%</strong></p>
+                                      <p>Draws: <strong>${nt_draws.toFixed(1)}%</strong></p>
+                                      <p>${away_name} Wins: <strong>${nt_a_wins.toFixed(1)}%</strong></p>
+                                      <p class="mt-2">Expected Goals: <strong>${home_name} ${nt_h_goals.toFixed(2)} - ${nt_a_goals.toFixed(2)} ${away_name}</strong></p>
+                                   </div>`;
+                    if(match_type === 'cup') {
+                        const et_h_wins_cum = ((results.normal_time.home_wins + results.extra_time.home_wins) / sim_count) * 100;
+                        const et_a_wins_cum = ((results.normal_time.away_wins + results.extra_time.away_wins) / sim_count) * 100;
+                        const et_draws_pct = (results.extra_time.draws / sim_count) * 100;
+                         outputHTML += `<div class="mb-6 p-4 bg-gray-700/50 rounded-lg">
+                                          <h3 class="text-xl font-semibold mb-2 text-indigo-400">2) Cumulative after Extra Time</h3>
+                                          <p>${home_name} Wins: <strong>${et_h_wins_cum.toFixed(1)}%</strong></p>
+                                          <p>Draws (leading to penalties): <strong>${et_draws_pct.toFixed(1)}%</strong></p>
+                                          <p>${away_name} Wins: <strong>${et_a_wins_cum.toFixed(1)}%</strong></p>
+                                       </div>`;
+                        const final_h_wins = ((results.normal_time.home_wins + results.extra_time.home_wins + results.penalties.home_wins) / sim_count) * 100;
+                        const final_a_wins = ((results.normal_time.away_wins + results.extra_time.away_wins + results.penalties.away_wins) / sim_count) * 100;
+                         outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg">
+                                         <h3 class="text-xl font-semibold mb-2 text-indigo-400">3) Final Results (including Penalties)</h3>
+                                         <p>${home_name} Wins: <strong>${final_h_wins.toFixed(1)}%</strong></p>
+                                         <p>${away_name} Wins: <strong>${final_a_wins.toFixed(1)}%</strong></p>
+                                      </div>`;
+                    }
+
+                    resultsDiv.innerHTML = outputHTML;
+                    loader.classList.add('hidden');
+                    runButton.classList.remove('hidden');
+                }, 50);
+            });
+        });
+    </script>
+</body>
+</html>
