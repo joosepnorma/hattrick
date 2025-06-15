@@ -157,10 +157,35 @@
                  <div id="loader" class="hidden loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8"></div>
             </div>
 
+            <!-- Initial Match Conditions -->
+            <div class="bg-gray-800 p-6 rounded-lg shadow-xl mb-8 space-y-4">
+                <h3 class="text-xl font-semibold text-white border-b border-gray-700 pb-2">Initial Match Conditions</h3>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300">Chance Distribution (Home / Shared / Away)</label>
+                    <div class="flex gap-2 mt-1">
+                        <input type="number" id="initial_home_chances" value="5" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Home Team Chances">
+                        <input type="number" id="initial_shared_chances" value="5" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Shared Chances">
+                        <input type="number" id="initial_away_chances" value="5" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Away Team Chances">
+                    </div>
+                </div>
+                <div>
+                    <label for="initial_se_chances" class="block text-sm font-medium text-gray-300">Special Event Count (Default 5, set to 6 or 7 if a team plays PC)</label>
+                    <input type="number" id="initial_se_chances" value="5" min="0" placeholder="Tactic-based" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2 text-center" title="Number of Special Events to occur. Overrides tactic-based calculation.">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300">Starting Score (Home / Away)</label>
+                    <div class="flex gap-2 mt-1">
+                        <input type="number" id="initial_home_goals" value="0" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Initial Home Goals">
+                        <input type="number" id="initial_away_goals" value="0" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Initial Away Goals">
+                    </div>
+                </div>
+            </div>
+
             <!-- Results Section -->
             <div id="results" class="bg-gray-800 p-6 rounded-lg shadow-xl min-h-[100px]">
                  <p class="text-gray-400 text-center">Results will be displayed here.</p>
             </div>
+
         </main>
     </div>
 
@@ -218,6 +243,25 @@
                 runButton.classList.add('hidden');
                 resultsDiv.innerHTML = '<p class="text-gray-400 text-center">Running simulations...</p>';
                 
+                // Collect initial match conditions
+                const initialHomeChances = parseInt(document.getElementById('initial_home_chances').value) || 0;
+                const initialSharedChances = parseInt(document.getElementById('initial_shared_chances').value) || 0;
+                const initialAwayChances = parseInt(document.getElementById('initial_away_chances').value) || 0;
+                const initialHomeGoals = parseInt(document.getElementById('initial_home_goals').value) || 0;
+                const initialAwayGoals = parseInt(document.getElementById('initial_away_goals').value) || 0;
+
+                const initialSEChancesInput = document.getElementById('initial_se_chances').value;
+                let num_se_override_val;
+                if (initialSEChancesInput.trim() === "") {
+                    num_se_override_val = undefined; // Use tactic-based
+                } else {
+                    const parsedSE = parseInt(initialSEChancesInput);
+                    if (!isNaN(parsedSE) && parsedSE >= 0) {
+                        num_se_override_val = parsedSE;
+                    } else {
+                        num_se_override_val = undefined; // Invalid input, fallback to tactic-based
+                    }
+                }
                 setTimeout(() => {
                     const home_data = collectInputs('home');
                     const away_data = collectInputs('away');
@@ -227,6 +271,15 @@
                     
                     const home_team = precomputeRatings(home_data);
                     const away_team = precomputeRatings(away_data);
+
+                    const custom_conditions = {
+                        home_chances: initialHomeChances,
+                        shared_chances: initialSharedChances,
+                        away_chances: initialAwayChances,
+                        num_se_override: num_se_override_val,
+                        start_home_goals: initialHomeGoals,
+                        start_away_goals: initialAwayGoals
+                    };
                     
                     let results = {
                         normal_time: { home_wins: 0, draws: 0, away_wins: 0, home_goals: 0, away_goals: 0 },
@@ -241,7 +294,7 @@
                     };
 
                     for(let i = 0; i < sim_count; i++) {
-                        const sim_result = simulateMatch(home_team, away_team, match_type);
+                        const sim_result = simulateMatch(home_team, away_team, match_type, custom_conditions);
                         const [h_nt, a_nt] = sim_result.normal_time_score;
                         results.normal_time.home_goals += h_nt;
                         results.normal_time.away_goals += a_nt;

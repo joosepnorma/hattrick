@@ -31,6 +31,7 @@ const PDIM_SUCCESS_RATE = 0.625;
 const PNF_TRIGGER_RATES = {1: 0.10, 2: 0.16, 3: 0.20};
 
 const NTCA_TECH_DEF_TRIGGER_RATES = { // Num Tech_def players : trigger_chance
+    // ... (rest of the rates)
     0: 0.0,
     1: 0.017,    // 1.7%
     2: 0.02025,  // 2.025%
@@ -259,7 +260,7 @@ const determineTotalSEs = (home_team, away_team) => {
     return rollDistribution(distribution);
 };
 
-const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
+const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_se_override) => {
     const state = {...initial_state};
     const { midfield_pow3: home_mid, specialties: home_specs } = home_team;
     const { midfield_pow3: away_mid, specialties: away_specs } = away_team;
@@ -272,7 +273,28 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
         press_chance += (TACTIC_RATES.Pressing[away_team.tactic_level] || 0);
     }
 
-    const num_total_ses = determineTotalSEs(home_team, away_team);
+    const home_is_pc_tactic = home_team.tactic === 'PC';
+    const away_is_pc_tactic = away_team.tactic === 'PC';
+
+    let num_total_ses_intermediate = (num_se_override !== undefined)
+                               ? num_se_override
+                               : determineTotalSEs(home_team, away_team);
+
+    // Determine the dynamic hard cap for SEs based on PC tactics
+    let dynamic_max_se_cap;
+    if (home_is_pc_tactic && away_is_pc_tactic) {
+        dynamic_max_se_cap = 7;
+    } else if (home_is_pc_tactic || away_is_pc_tactic) {
+        dynamic_max_se_cap = 6;
+    } else {
+        dynamic_max_se_cap = 5;
+    }
+
+    // Apply the dynamic hard cap
+    num_total_ses_intermediate = Math.min(num_total_ses_intermediate, dynamic_max_se_cap);
+    // Then, cap SEs by the total number of available chance slots for this period
+    const num_total_ses = Math.min(num_total_ses_intermediate, chance_slots.length);
+
     const se_slot_indices = new Set();
     const available_slots = chance_slots.map((_, idx) => idx);
     for (let k = 0; k < num_total_ses && available_slots.length > 0; k++) {
@@ -281,8 +303,8 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
     }
 
     for(let i=0; i < chance_slots.length; i++) {
-        const home_is_pc = home_team.tactic === 'PC';
-        const away_is_pc = away_team.tactic === 'PC';
+        // home_is_pc_tactic and away_is_pc_tactic are already defined above
+        // for the SE cap logic, and can be reused here if needed for SE distribution.
 
         // Phase A: Special Event (if this slot was chosen for an SE)
         if (se_slot_indices.has(i)) {
@@ -320,13 +342,13 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
                 let home_final_pull = home_base_pull;
                 let away_final_pull = away_base_pull;
 
-                if (home_is_pc && away_is_pc) {
+                if (home_is_pc_tactic && away_is_pc_tactic) {
                     home_final_pull *= getPcLevelValue(home_team.tactic_level, 2);
                     away_final_pull *= getPcLevelValue(away_team.tactic_level, 2);
-                } else if (home_is_pc) {
+                } else if (home_is_pc_tactic) {
                     home_final_pull *= getPcLevelValue(home_team.tactic_level, 2);
                     away_final_pull *= getPcLevelValue(home_team.tactic_level, 3); 
-                } else if (away_is_pc) {
+                } else if (away_is_pc_tactic) {
                     away_final_pull *= getPcLevelValue(away_team.tactic_level, 2);
                     home_final_pull *= getPcLevelValue(away_team.tactic_level, 3);
                 }
@@ -478,9 +500,20 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state) => {
     return state;
 };
 
-export const simulateMatch = (home_team, away_team, match_type = 'league') => {
+export const simulateMatch = (home_team, away_team, match_type = 'league', custom_conditions = {}) => {
+    const {
+        home_chances = 5, 
+        shared_chances = 5,
+        away_chances = 5,
+        num_se_override, // Can be undefined, _runMatchPeriod will handle it
+        start_home_goals = 0,
+        start_away_goals = 0
+    } = custom_conditions;
+
     const initial_sim_state = {
-        'home_score': 0, 'away_score': 0, 
+        'home_score': start_home_goals, 'away_score': start_away_goals,
+        // These counters should always start at 0 for the simulation period itself,
+        // regardless of starting scores.
         'home_ca_succ': 0, 'away_ca_succ': 0, 
         'home_opp_miss': 0, 'away_opp_miss': 0, 
         'se_count': 0, 
@@ -493,9 +526,17 @@ export const simulateMatch = (home_team, away_team, match_type = 'league') => {
         'away_sp_goals': 0, 'away_se_goals': 0, 'away_pnf_goals': 0, 'away_ls_goals': 0
     };
 
+    const normal_time_chance_slots = [
+        ...Array(home_chances).fill('home'),
+        ...Array(shared_chances).fill('open'),
+        ...Array(away_chances).fill('away')
+    ];
+
     const nt_state = _runMatchPeriod(
-        ['home','home','home','home','home','away','away','away','away','away','open','open','open','open','open'], 
-        home_team, away_team, {...initial_sim_state} // Pass a copy for normal time
+        normal_time_chance_slots,
+        home_team, away_team, 
+        {...initial_sim_state}, // Pass a copy for normal time
+        num_se_override // Pass the SE override for normal time
     );
 
     let state_for_details = nt_state;
@@ -508,7 +549,14 @@ export const simulateMatch = (home_team, away_team, match_type = 'league') => {
 
     if (match_type === 'cup' && nt_state.home_score === nt_state.away_score) {
         // For ET, pass a copy of nt_state so its counters continue to accumulate
-        const et_state = _runMatchPeriod(['home', 'away', 'open', 'open'], home_team, away_team, {...nt_state});
+        // ET uses default chance slots and no SE override (tactic-based SEs for ET)
+        const et_chance_slots = ['home', 'away', 'open', 'open'];
+        const et_state = _runMatchPeriod(
+            et_chance_slots, 
+            home_team, away_team, 
+            {...nt_state}, // Pass accumulated state from normal time
+            undefined // No SE override for extra time
+        );
         result.extra_time_score = [et_state.home_score, et_state.away_score];
         state_for_details = et_state; // Use ET state for final goal details if ET was played
         if (et_state.home_score === et_state.away_score) {
