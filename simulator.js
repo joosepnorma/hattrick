@@ -15,7 +15,7 @@ const SE_XG_RATES = {
     'Head_def': 0.47,         // Updated from Head_Def 47%
     'Unpr_def': 0.37,         // Updated from Unpr_Def 37% (attacker scores)
     'Tech_def': 0.0,          // No data for defender scoring, assumed 0.0%
-    'PNF': 0.79,              // Unchanged
+    'PNF': 0.60,              // Unchanged
     'PDIM': 0.15,             // Unchanged
     'Corner': 0.39,           // Updated from CornerAnyone 39%
     'Experienced Fwd': 0.219, // From ExperienceFwd GoalConv 21.9%
