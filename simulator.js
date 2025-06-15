@@ -6,23 +6,54 @@ const CA_DYNAMIC_RATES = [ [0.34, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.44, 0.23, 0.
 const AOW_DYNAMIC_RATES = {14: [0.49,0.23,0.15,0.50,0.50], 16: [0.58,0.32,0.17,0.15,0.00], 18: [0.63,0.33,0.25,0.21,0.11], 20: [0.69,0.33,0.21,0.21,0.25], 22: [0.73,0.37,0.22,0.19,0.27], 24: [0.71,0.37,0.23,0.18,0.00], 26: [0.72,0.39,0.24,0.23,0.00], 28: [0.73,0.44,0.27,0.24,0.00], 30: [0.70,0.49,0.29,0.25,0.00]};
 const AIM_DYNAMIC_RATES = {18: [0.43,0.23,0.19,0.11], 20: [0.48,0.23,0.12,0.00], 22: [0.51,0.26,0.20,0.06], 24: [0.52,0.26,0.18,0.10], 26: [0.54,0.29,0.19,0.15], 28: [0.55,0.31,0.16,0.06], 30: [0.54,0.29,0.22,0.22]};
 const SE_XG_RATES = {
-    'Quick_off': 0.392,       // From QuickPass GoalConv 39.2%
-    'Head_off': 0.339,        // From TechHead GoalConv 33.9%
-    'Tech_off': 0.273,        // From UnpredSpecial GoalConv 27.3%
-    'Unpr_IM': 0.500,         // From UnpredScoreOwn GoalConv 50.0%
-    'Unpr_FW_W': 0.395,       // From UnpredLongPass GoalConv 39.5%
+    'Quick_off': 0.36,        // Updated from Quick_Off 36%
+    'Head_off': 0.36,         // Updated from Head_Off 36%
+    'Tech_off': 0.33,         // Updated from Tech_Off 33%
+    'Unpr_IM': 0.26,          // Updated from Unpr_IM 26%
+    'Unpr_FW_W': 0.27,        // Updated from Unpr_FW_W 27%
     'Quick_def': 0.0,         // From QuickStop GoalConv 0.0%
-    'Head_def': 0.0,          // No data for defender scoring, assumed 0.0%
-    'Unpr_def': 0.250,        // From UnpredMistake GoalConv 25.0% (attacker scores)
+    'Head_def': 0.47,         // Updated from Head_Def 47%
+    'Unpr_def': 0.37,         // Updated from Unpr_Def 37% (attacker scores)
     'Tech_def': 0.0,          // No data for defender scoring, assumed 0.0%
     'PNF': 0.79,              // Unchanged
     'PDIM': 0.15,             // Unchanged
-    'Corner': 0.398,          // From CornerAnyone GoalConv 39.8%
+    'Corner': 0.39,           // Updated from CornerAnyone 39%
     'Experienced Fwd': 0.219, // From ExperienceFwd GoalConv 21.9%
     'Inexperienced Def': -0.107,// From InexpDef GoalConv 10.7% (negative as defender has SE, attacker scores)
     'Tired Def': 0.0          // Unchanged
 };
-const SE_EVENT_FREQUENCIES = {'Quick_off': 15, 'Head_off': 10, 'Tech_off': 5, 'Unpr_IM': 8, 'Unpr_FW_W': 8, 'Quick_def': 5, 'Head_def': 10, 'Unpr_def': 8, 'Corner': 15, 'Experienced Fwd': 5, 'Inexperienced Def': 5, 'Tired Def': 4};
+// Add a placeholder XG for AnyPlayer if it's a new generic event type
+SE_XG_RATES['AnyPlayer_XG'] = 0.52; // Updated from AnyPlayer 52%
+
+const SE_GENERATION_CHANCE_PER_SLOT = 0.05;
+const MAX_SE_PER_NORMAL_GAME_DEFAULT = 5;
+const MAX_SE_PER_ET_PERIOD = 2; // Cap for extra time SEs
+
+const SE_EVENT_WEIGHTS_CONFIG = {
+    'Head_Off':    { initial_players: 0,  weight_per_player: 12 },
+    'Head_Def':    { initial_players: 0,  weight_per_player: 5  },
+    'Quick_Off':   { initial_players: 0,  weight_per_player: 21 },
+    'Tech_Off':    { initial_players: 0,  weight_per_player: 10 },
+    'Unpr_Def':    { initial_players: 0,  weight_per_player: 13 },
+    'Unpr_IM':     { initial_players: 0,  weight_per_player: 10 },
+    'Unpr_FW_W':   { initial_players: 0,  weight_per_player: 11 },
+    'CornerAnyone':{ initial_players: 20, weight_per_player: 14 },
+    'AnyPlayer':   { initial_players: 20, weight_per_player: 4  }
+};
+
+// Mapping from SE_EVENT_WEIGHTS_CONFIG keys to SE_XG_RATES keys and specialty keys (used in home_specs/away_specs)
+const SE_KEY_MAPPINGS = {
+    'Head_Off':     { xg_key: 'Head_off', spec_key: 'Head_off' },
+    'Head_Def':     { xg_key: 'Head_def', spec_key: 'Head_def' },
+    'Quick_Off':    { xg_key: 'Quick_off', spec_key: 'Quick_off' },
+    'Tech_Off':     { xg_key: 'Tech_off', spec_key: 'Tech_off' },
+    'Unpr_Def':     { xg_key: 'Unpr_def', spec_key: 'Unpr_def' },
+    'Unpr_IM':      { xg_key: 'Unpr_IM', spec_key: 'Unpr_IM' },
+    'Unpr_FW_W':    { xg_key: 'Unpr_FW_W', spec_key: 'Unpr_FW_W' },
+    'CornerAnyone': { xg_key: 'Corner', spec_key: 'Corner' },
+    'AnyPlayer':    { xg_key: 'AnyPlayer_XG', spec_key: 'AnyPlayer_Spec' } // 'AnyPlayer_Spec' is a placeholder
+};
+
 const SE_TIMING_PROBABILITY = [0.042, 0.048, 0.053, 0.057, 0.068, 0.079, 0.084, 0.038, 0.034, 0.043, 0.050, 0.057, 0.062, 0.050, 0.045];
 const IFK_CONVERSION_RATES = { "-23": 0.0, "-22": 0.002, "-21": 0.004, "-20": 0.002, "-19": 0.015, "-18": 0.026, "-17": 0.042, "-16": 0.037, "-15": 0.075, "-14": 0.075, "-13": 0.088, "-12": 0.107, "-11": 0.119, "-10": 0.145, "-9": 0.16, "-8": 0.178, "-7": 0.175, "-6": 0.213, "-5": 0.231, "-4": 0.262, "-3": 0.276, "-2": 0.316, "-1": 0.394, "0": 0.455, "1": 0.541, "2": 0.589, "3": 0.63, "4": 0.672, "5": 0.682, "6": 0.685, "7": 0.728, "8": 0.729, "9": 0.765, "10": 0.781, "11": 0.776, "12": 0.793, "13": 0.841, "14": 0.824, "15": 0.859, "16": 0.839, "17": 0.906, "18": 0.912, "19": 0.929, "20": 0.93, "21": 0.959, "22": 0.896, "23": 0.891, "24": 0.926, "25": 0.875, "26": 0.889, "27": 0.928 };
 const PK_CONVERSION_RATES = { 8: 0.74, 9: 0.57, 10: 0.49, 11: 0.45, 12: 0.42, 13: 0.39, 14: 0.30 };
@@ -86,30 +117,7 @@ const getNtcaTriggerRate = (techDefCount) => {
     return NTCA_TECH_DEF_TRIGGER_RATES[techDefCount] || 0.0;
 };
 
-// Distribution of total Special Events per match based on PC skill
-// Keys: 6 (<7), 7-22, 23 (23+)
-// Values: Array of probabilities for [0 SEs, 1 SE, 2 SEs, 3 SEs, 4 SEs, 5 SEs, 6 SEs]
-const PC_SE_COUNT_DISTRIBUTION = {
-    6:  [0.222, 0.405, 0.270, 0.087, 0.014, 0.002, 0.000], // <7
-    7:  [0.210, 0.383, 0.294, 0.101, 0.009, 0.002, 0.000],
-    8:  [0.171, 0.384, 0.316, 0.107, 0.019, 0.002, 0.000],
-    9:  [0.183, 0.371, 0.297, 0.120, 0.027, 0.002, 0.000],
-    10: [0.157, 0.364, 0.314, 0.135, 0.027, 0.002, 0.000],
-    11: [0.140, 0.349, 0.326, 0.148, 0.033, 0.004, 0.000],
-    12: [0.129, 0.332, 0.332, 0.160, 0.041, 0.004, 0.000],
-    13: [0.121, 0.317, 0.343, 0.170, 0.044, 0.006, 0.000],
-    14: [0.111, 0.309, 0.346, 0.176, 0.050, 0.008, 0.000],
-    15: [0.096, 0.298, 0.337, 0.202, 0.060, 0.008, 0.000],
-    16: [0.090, 0.279, 0.348, 0.206, 0.067, 0.011, 0.000],
-    17: [0.081, 0.256, 0.346, 0.227, 0.077, 0.013, 0.000],
-    18: [0.069, 0.236, 0.335, 0.243, 0.098, 0.018, 0.002],
-    19: [0.056, 0.215, 0.344, 0.256, 0.107, 0.019, 0.003],
-    20: [0.035, 0.182, 0.336, 0.294, 0.126, 0.025, 0.003],
-    21: [0.029, 0.151, 0.293, 0.293, 0.174, 0.055, 0.004],
-    22: [0.023, 0.133, 0.270, 0.326, 0.187, 0.052, 0.009],
-    23: [0.013, 0.104, 0.200, 0.340, 0.248, 0.079, 0.017]  // 23+
-};
-const NORMAL_SE_COUNT_DISTRIBUTION = [0.400, 0.350, 0.200, 0.050, 0.000, 0.000, 0.000]; // Approx. avg 0.9 SEs
+// PC_SE_COUNT_DISTRIBUTION, NORMAL_SE_COUNT_DISTRIBUTION, and old SE_EVENT_FREQUENCIES are no longer used.
 
 export const precomputeRatings = (teamData) => {
     const computedData = {
@@ -202,25 +210,6 @@ const _resolveSetPiece = (attacker, defender) => {
     return Math.random() < goal_prob;
 };
 
-const _runPenaltyShootout = (home_team, away_team) => {
-    let home_pk_score = 0, away_pk_score = 0;
-    let home_momentum = 1.0, away_momentum = 1.0;
-    for(let i=0; i<5; i++){
-        if (Math.random() < (0.79 + (home_team.isp_att - away_team.isp_def) * 0.01) * home_momentum) { home_pk_score++; home_momentum=1.1; away_momentum=1.0; } else { home_momentum=1.0; away_momentum=1.1; }
-        if (Math.random() < (0.79 + (away_team.isp_att - home_team.isp_def) * 0.01) * away_momentum) { away_pk_score++; away_momentum=1.1; home_momentum=1.0; } else { away_momentum=1.0; home_momentum=1.1; }
-    }
-    if(home_pk_score === away_pk_score){
-        while(home_pk_score === away_pk_score){
-            const home_scored = Math.random() < (0.79 + (home_team.isp_att - away_team.isp_def) * 0.01) * home_momentum;
-            const away_scored = Math.random() < (0.79 + (away_team.isp_att - home_team.isp_def) * 0.01) * away_momentum;
-            if(home_scored !== away_scored){
-                if(home_scored) home_pk_score++; else away_pk_score++;
-            }
-        }
-    }
-    return home_pk_score > away_pk_score ? 'home' : 'away';
-};
-
 // Helper to roll against a probability distribution array for SE counts
 const rollDistribution = (distArray) => {
     const roll = Math.random();
@@ -232,32 +221,6 @@ const rollDistribution = (distArray) => {
         }
     }
     return distArray.length - 1; // Fallback if probabilities don't sum to 1 (should be rare)
-};
-
-const getPcSEDistributionForSkill = (skill_level) => {
-    let key = skill_level;
-    if (skill_level < 7) key = 6;       // Map skills <7 to key '6'
-    else if (skill_level > 22) key = 23; // Map skills 23+ to key '23'
-    // else key is skill_level itself (7-22)
-    return PC_SE_COUNT_DISTRIBUTION[key] || PC_SE_COUNT_DISTRIBUTION[10]; // Fallback
-};
-
-const determineTotalSEs = (home_team, away_team) => {
-    const home_is_pc = home_team.tactic === 'PC';
-    const away_is_pc = away_team.tactic === 'PC';
-    let distribution;
-
-    if (home_is_pc && away_is_pc) {
-        const effective_skill = Math.max(home_team.tactic_level, away_team.tactic_level);
-        distribution = getPcSEDistributionForSkill(effective_skill);
-    } else if (home_is_pc) {
-        distribution = getPcSEDistributionForSkill(home_team.tactic_level);
-    } else if (away_is_pc) {
-        distribution = getPcSEDistributionForSkill(away_team.tactic_level);
-    } else {
-        distribution = NORMAL_SE_COUNT_DISTRIBUTION;
-    }
-    return rollDistribution(distribution);
 };
 
 const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_se_override) => {
@@ -273,99 +236,125 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
         press_chance += (TACTIC_RATES.Pressing[away_team.tactic_level] || 0);
     }
 
-    const home_is_pc_tactic = home_team.tactic === 'PC';
-    const away_is_pc_tactic = away_team.tactic === 'PC';
+    const home_is_pc = home_team.tactic === 'PC';
+    const away_is_pc = away_team.tactic === 'PC';
+    const home_pc_level = home_is_pc ? home_team.tactic_level : 0;
+    const away_pc_level = away_is_pc ? away_team.tactic_level : 0;
 
-    let num_total_ses_intermediate = (num_se_override !== undefined)
-                               ? num_se_override
-                               : determineTotalSEs(home_team, away_team);
-
-    // Determine the dynamic hard cap for SEs based on PC tactics
-    let dynamic_max_se_cap;
-    if (home_is_pc_tactic && away_is_pc_tactic) {
-        dynamic_max_se_cap = 7;
-    } else if (home_is_pc_tactic || away_is_pc_tactic) {
-        dynamic_max_se_cap = 6;
-    } else {
-        dynamic_max_se_cap = 5;
+    let se_generated_this_period = 0;
+    let base_max_se_this_period = state.is_extra_time ? MAX_SE_PER_ET_PERIOD : MAX_SE_PER_NORMAL_GAME_DEFAULT;
+    if (home_is_pc || away_is_pc) { // PC increases max SE cap by 1
+        base_max_se_this_period += 1;
     }
+    const max_se_for_this_period = (num_se_override !== undefined) ? num_se_override : base_max_se_this_period;
 
-    // Apply the dynamic hard cap
-    num_total_ses_intermediate = Math.min(num_total_ses_intermediate, dynamic_max_se_cap);
-    // Then, cap SEs by the total number of available chance slots for this period
-    const num_total_ses = Math.min(num_total_ses_intermediate, chance_slots.length);
-
-    const se_slot_indices = new Set();
-    const available_slots = chance_slots.map((_, idx) => idx);
-    for (let k = 0; k < num_total_ses && available_slots.length > 0; k++) {
-        const random_idx_in_available = Math.floor(Math.random() * available_slots.length);
-        se_slot_indices.add(available_slots.splice(random_idx_in_available, 1)[0]);
+    let current_se_generation_chance = SE_GENERATION_CHANCE_PER_SLOT;
+    if (home_is_pc || away_is_pc) {
+        const stronger_pc_level = Math.max(home_pc_level, away_pc_level);
+        // Use PC_LEVEL_DATA index 0 for overall SE frequency multiplier
+        let generation_multiplier = 1.0;
+        if (home_is_pc && away_is_pc) { // Both play PC, use the stronger PC's overall effect
+            generation_multiplier = getPcLevelValue(stronger_pc_level, 0);
+        } else if (home_is_pc) { generation_multiplier = getPcLevelValue(home_pc_level, 0);
+        } else if (away_is_pc) { generation_multiplier = getPcLevelValue(away_pc_level, 0); }
+        current_se_generation_chance *= generation_multiplier;
     }
 
     for(let i=0; i < chance_slots.length; i++) {
-        // home_is_pc_tactic and away_is_pc_tactic are already defined above
-        // for the SE cap logic, and can be reused here if needed for SE distribution.
+        // Phase A: Special Event Generation Attempt
+        if (se_generated_this_period < max_se_for_this_period && Math.random() < current_se_generation_chance) {
+            se_generated_this_period++;
+            state.se_count++; 
 
-        // Phase A: Special Event (if this slot was chosen for an SE)
-        if (se_slot_indices.has(i)) {
-            const event_pool = [], weights = [];
-            const total_specs = {};
-            Object.keys(SE_XG_RATES).forEach(spec => { total_specs[spec] = (home_specs[spec] || 0) + (away_specs[spec] || 0); });
-            for (const [event, base_freq] of Object.entries(SE_EVENT_FREQUENCIES)) {
-                if (total_specs[event] > 0 || ['Corner', 'Experienced Fwd', 'Inexperienced Def'].includes(event)) {
-                    event_pool.push(event); weights.push(base_freq * (1 + total_specs[event] * 0.5));
+            // 1. SE Type Selection
+            const event_pool = [];
+            const weights = [];
+            for (const [event_name_config, config_params] of Object.entries(SE_EVENT_WEIGHTS_CONFIG)) {
+                const mapping = SE_KEY_MAPPINGS[event_name_config];
+                if (!mapping) continue; 
+
+                const home_spec_players = mapping.spec_key ? (home_specs[mapping.spec_key] || 0) : 0;
+                const away_spec_players = mapping.spec_key ? (away_specs[mapping.spec_key] || 0) : 0;
+
+                let effective_count_for_weighting;
+                if (event_name_config === 'CornerAnyone' || event_name_config === 'AnyPlayer') {
+                    effective_count_for_weighting = config_params.initial_players;
+                } else {
+                    effective_count_for_weighting = config_params.initial_players + home_spec_players + away_spec_players;
+                }
+                
+                const current_event_weight = effective_count_for_weighting * config_params.weight_per_player;
+
+                if (current_event_weight > 0) {
+                    event_pool.push(event_name_config);
+                    weights.push(current_event_weight);
                 }
             }
+
             if (event_pool.length > 0) {
                 const total_weight = weights.reduce((a, b) => a + b, 0);
                 let random_num = Math.random() * total_weight;
-                let chosen_event = event_pool[event_pool.length -1];
-                for(let j=0; j<weights.length; j++) {
-                   if(random_num < weights[j]) { chosen_event = event_pool[j]; break; }
-                   random_num -= weights[j];
+                let chosen_event_config_key = event_pool[event_pool.length - 1]; // Fallback
+                for (let j = 0; j < weights.length; j++) {
+                    if (random_num < weights[j]) {
+                        chosen_event_config_key = event_pool[j];
+                        break;
+                    }
+                    random_num -= weights[j];
                 }
-                state.se_count++;
+
+                const chosen_event_mapping = SE_KEY_MAPPINGS[chosen_event_config_key];
+                const chosen_event_xg_key = chosen_event_mapping.xg_key;
+                const chosen_event_spec_key = chosen_event_mapping.spec_key;
+
+                // 2. SE Attacker Determination
                 let se_attacker = null;
-                let home_base_pull, away_base_pull;
+                let prob_home_gets_se;
 
-                const scoring_team_is_home_for_se = (attacker_team) => attacker_team === home_team; // Simplified for SE context
+                const home_val_for_dist = chosen_event_spec_key ? (home_specs[chosen_event_spec_key] || 0) : 0;
+                const away_val_for_dist = chosen_event_spec_key ? (away_specs[chosen_event_spec_key] || 0) : 0;
 
-                if (['Corner', 'Experienced Fwd', 'Inexperienced Def'].includes(chosen_event)) {
-                    home_base_pull = home_mid; // Use midfield strength for generic SEs
-                    away_base_pull = away_mid;
+                let home_pull, away_pull;
+
+                if (chosen_event_config_key === 'CornerAnyone' || chosen_event_config_key === 'Head_Def') {
+                    home_pull = home_mid;
+                    away_pull = away_mid;
+                } else if (chosen_event_config_key === 'AnyPlayer') {
+                    home_pull = 0.5;
+                    away_pull = 0.5;
+                } else { // Player-count driven SEs
+                    home_pull = Math.pow(home_val_for_dist + 1, 3);
+                    away_pull = Math.pow(away_val_for_dist + 1, 3);
+                }
+                
+                // Apply PC multipliers to pulls
+                if (home_is_pc && away_is_pc) {
+                    home_pull *= getPcLevelValue(home_pc_level, 2);
+                    away_pull *= getPcLevelValue(away_pc_level, 2);
+                } else if (home_is_pc) {
+                    home_pull *= getPcLevelValue(home_pc_level, 2);
+                    away_pull *= getPcLevelValue(home_pc_level, 3); // Opponent effect
+                } else if (away_is_pc) {
+                    away_pull *= getPcLevelValue(away_pc_level, 2);
+                    home_pull *= getPcLevelValue(away_pc_level, 3); // Opponent effect
+                }
+
+                const total_pull = home_pull + away_pull;
+                if (total_pull < 1e-9) { // Avoid division by zero or if pulls are tiny
+                    prob_home_gets_se = 0.5; // Fallback
                 } else {
-                    // Specialty-driven SE
-                    home_base_pull = Math.pow(home_specs[chosen_event] || 0.01, 3);
-                    away_base_pull = Math.pow(away_specs[chosen_event] || 0.01, 3);
+                    prob_home_gets_se = home_pull / total_pull;
                 }
-
-                let home_final_pull = home_base_pull;
-                let away_final_pull = away_base_pull;
-
-                if (home_is_pc_tactic && away_is_pc_tactic) {
-                    home_final_pull *= getPcLevelValue(home_team.tactic_level, 2);
-                    away_final_pull *= getPcLevelValue(away_team.tactic_level, 2);
-                } else if (home_is_pc_tactic) {
-                    home_final_pull *= getPcLevelValue(home_team.tactic_level, 2);
-                    away_final_pull *= getPcLevelValue(home_team.tactic_level, 3); 
-                } else if (away_is_pc_tactic) {
-                    away_final_pull *= getPcLevelValue(away_team.tactic_level, 2);
-                    home_final_pull *= getPcLevelValue(away_team.tactic_level, 3);
-                }
-
-                if (home_final_pull + away_final_pull > 1e-9) {
-                    se_attacker = Math.random() < (home_final_pull / (home_final_pull + away_final_pull)) ? home_team : away_team;
-                } else { 
-                    se_attacker = Math.random() < (home_mid / (Math.max(1e-9, home_mid) + Math.max(1e-9, away_mid))) ? home_team : away_team;
-                }
+                
+                se_attacker = Math.random() < prob_home_gets_se ? home_team : away_team;
 
                 if (se_attacker) {
-                    let se_goal_prob = SE_XG_RATES[chosen_event] || 0;
+                    let se_goal_prob = SE_XG_RATES[chosen_event_xg_key] || 0;
                     const se_defender = (se_attacker === home_team) ? away_team : home_team;
 
-                    if (chosen_event === 'Quick_off') {
+                    if (chosen_event_xg_key === 'Quick_off') {
                         const quick_def_count = se_defender.specialties['Quick_def'] || 0;
-                        const reduction_per_player = 0.20; // 20% reduction per Quick_def player
+                        const reduction_per_player = 0.225; // 22.5% reduction per Quick_def player
                         const total_reduction_factor = Math.min(1.0, quick_def_count * reduction_per_player); // Cap at 100%
                         se_goal_prob *= (1.0 - total_reduction_factor);
                     }
@@ -377,8 +366,7 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
                         state[scoring_team_home ? 'home_se_goals' : 'away_se_goals']++;
                     }
                 }
-                // By removing the 'continue;' statement here, a normal chance can still be processed
-                // for this slot even if an SE occurred.
+                // SE processed (or attempted). Normal chance will also be processed for this slot.
             }
         }
 
@@ -523,8 +511,9 @@ export const simulateMatch = (home_team, away_team, match_type = 'league', custo
         'home_l_attack_goals': 0, 'home_c_attack_goals': 0, 'home_r_attack_goals': 0,
         'home_sp_goals': 0, 'home_se_goals': 0, 'home_pnf_goals': 0, 'home_ls_goals': 0,
         'away_l_attack_goals': 0, 'away_c_attack_goals': 0, 'away_r_attack_goals': 0,
-        'away_sp_goals': 0, 'away_se_goals': 0, 'away_pnf_goals': 0, 'away_ls_goals': 0
-    };
+        'away_sp_goals': 0, 'away_se_goals': 0, 'away_pnf_goals': 0, 'away_ls_goals': 0,
+        'is_extra_time': false // Flag for _runMatchPeriod to know context for SE cap
+    }; 
 
     const normal_time_chance_slots = [
         ...Array(home_chances).fill('home'),
@@ -554,7 +543,7 @@ export const simulateMatch = (home_team, away_team, match_type = 'league', custo
         const et_state = _runMatchPeriod(
             et_chance_slots, 
             home_team, away_team, 
-            {...nt_state}, // Pass accumulated state from normal time
+            {...nt_state, is_extra_time: true}, // Pass accumulated state and set ET flag
             undefined // No SE override for extra time
         );
         result.extra_time_score = [et_state.home_score, et_state.away_score];
@@ -573,4 +562,24 @@ export const simulateMatch = (home_team, away_team, match_type = 'league', custo
     };
 
     return result;
+};
+
+// Penalty Shootout Logic (ensured it exists)
+const _runPenaltyShootout = (home_team, away_team) => {
+    let home_pk_score = 0, away_pk_score = 0;
+    let home_momentum = 1.0, away_momentum = 1.0; 
+    for(let i=0; i<5; i++){
+        if (Math.random() < (0.79 + (home_team.isp_att - away_team.isp_def) * 0.01) * home_momentum) { home_pk_score++; home_momentum=1.1; away_momentum=1.0; } else { home_momentum=1.0; away_momentum=1.1; }
+        if (Math.random() < (0.79 + (away_team.isp_att - home_team.isp_def) * 0.01) * away_momentum) { away_pk_score++; away_momentum=1.1; home_momentum=1.0; } else { away_momentum=1.0; home_momentum=1.1; }
+    }
+    if(home_pk_score === away_pk_score){ 
+        while(home_pk_score === away_pk_score){
+            const home_scored_sd = Math.random() < (0.79 + (home_team.isp_att - away_team.isp_def) * 0.01) * home_momentum;
+            const away_scored_sd = Math.random() < (0.79 + (away_team.isp_att - home_team.isp_def) * 0.01) * away_momentum;
+            if(home_scored_sd !== away_scored_sd){
+                if(home_scored_sd) home_pk_score++; else away_pk_score++;
+            }
+        }
+    }
+    return home_pk_score > away_pk_score ? 'home' : 'away';
 };
