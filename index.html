@@ -158,28 +158,33 @@
             </div>
 
             <!-- Initial Match Conditions -->
-            <div class="bg-gray-800 p-6 rounded-lg shadow-xl mb-8 space-y-4">
-                <h3 class="text-xl font-semibold text-white border-b border-gray-700 pb-2">Initial Match Conditions</h3>
-                <div>
-                    <label class="block text-sm font-medium text-gray-300">Chance Distribution (Home / Shared / Away)</label>
-                    <div class="flex gap-2 mt-1">
-                        <input type="number" id="initial_home_chances" value="5" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Home Team Chances">
-                        <input type="number" id="initial_shared_chances" value="5" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Shared Chances">
-                        <input type="number" id="initial_away_chances" value="5" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Away Team Chances">
+            <details class="bg-gray-800 rounded-lg shadow-xl mb-8 group">
+                <summary class="text-xl font-semibold text-white p-6 cursor-pointer list-none flex justify-between items-center group-open:border-b group-open:border-gray-700">
+                    Initial Match Conditions (Optional)
+                    <span class="text-lg text-indigo-300 group-open:text-indigo-200 bg-indigo-600 group-open:bg-indigo-700 px-2 py-1 rounded-md group-open:rotate-90 transform transition-all duration-200">&#9656;</span>
+                </summary>
+                <div class="p-6 pt-4 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300">Chance Distribution (Home / Shared / Away)</label>
+                        <div class="flex gap-2 mt-1">
+                            <input type="number" id="initial_home_chances" value="5" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Home Team Chances">
+                            <input type="number" id="initial_shared_chances" value="5" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Shared Chances">
+                            <input type="number" id="initial_away_chances" value="5" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Away Team Chances">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="initial_se_chances" class="block text-sm font-medium text-gray-300">Special Event Count (Default 5, set to 6 or 7 if a team plays PC)</label>
+                        <input type="number" id="initial_se_chances" value="5" min="0" placeholder="Tactic-based" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2 text-center" title="Number of Special Events to occur. Overrides tactic-based calculation.">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300">Starting Score (Home / Away)</label>
+                        <div class="flex gap-2 mt-1">
+                            <input type="number" id="initial_home_goals" value="0" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Initial Home Goals">
+                            <input type="number" id="initial_away_goals" value="0" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Initial Away Goals">
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <label for="initial_se_chances" class="block text-sm font-medium text-gray-300">Special Event Count (Default 5, set to 6 or 7 if a team plays PC)</label>
-                    <input type="number" id="initial_se_chances" value="5" min="0" placeholder="Tactic-based" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2 text-center" title="Number of Special Events to occur. Overrides tactic-based calculation.">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-300">Starting Score (Home / Away)</label>
-                    <div class="flex gap-2 mt-1">
-                        <input type="number" id="initial_home_goals" value="0" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Initial Home Goals">
-                        <input type="number" id="initial_away_goals" value="0" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Initial Away Goals">
-                    </div>
-                </div>
-            </div>
+            </details>
 
             <!-- Results Section -->
             <div id="results" class="bg-gray-800 p-6 rounded-lg shadow-xl min-h-[100px]">
