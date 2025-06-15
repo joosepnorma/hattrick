@@ -110,6 +110,45 @@ const getPcLevelValue = (level, effect_type_idx) => {
     return values ? values[effect_type_idx] : PC_LEVEL_DATA[10][effect_type_idx]; 
 };
 
+// Table for Long Shots Pressed %
+// Rows: LS Skill of attacker, Columns: Pressing Skill of defender
+const LS_PRESSED_CHANCE_TABLE = {
+    // Pressing Skill: '<7', '7', '8', '9', '10', '11', '12', '13+'
+    '<7':  [0.65, 0.77, 0.88, 0.86, 0.68, 0.87, 1.00, 0.50],
+    '7':   [0.66, 0.67, 0.69, 0.55, 0.72, 0.54, 0.83, 0.83],
+    '10':  [0.57, 0.62, 0.60, 0.64, 0.61, 0.57, 0.73, 0.70],
+    '14':  [0.49, 0.56, 0.54, 0.53, 0.60, 0.60, 0.56, 0.71],
+    '16':  [0.51, 0.51, 0.54, 0.55, 0.56, 0.57, 0.69, 0.67],
+    '18':  [0.47, 0.51, 0.54, 0.53, 0.57, 0.54, 0.58, 0.62],
+    '20':  [0.45, 0.50, 0.52, 0.50, 0.53, 0.58, 0.59, 0.59],
+    '22':  [0.47, 0.50, 0.50, 0.51, 0.56, 0.54, 0.58, 0.55],
+    '24+': [0.49, 0.51, 0.46, 0.46, 0.49, 0.54, 0.53, 0.54]
+};
+
+const getLsPressedChance = (lsSkill, pressingSkill) => {
+    const lsSkillKeys = ['<7', '7', '10', '14', '16', '18', '20', '22', '24+'];
+    const pressingSkillKeys = ['<7', '7', '8', '9', '10', '11', '12', '13+']; // Column indices
+
+    const mapSkillToKey = (skill, keys, isMaxPlus = false) => {
+        if (skill < 7) return keys[0]; // '<7'
+        for (let i = 1; i < keys.length; i++) {
+            if (isMaxPlus && i === keys.length - 1 && skill >= parseInt(keys[i-1])) return keys[i]; // For '24+' or '13+'
+            if (skill <= parseInt(keys[i])) return keys[i];
+        }
+        return keys[keys.length - 1]; // Default to max key if somehow above
+    };
+
+    const lsRowKey = mapSkillToKey(lsSkill, lsSkillKeys.map(k => k.replace('+', '')), true);
+    const pressColKey = mapSkillToKey(pressingSkill, pressingSkillKeys.map(k => k.replace('+', '')), true);
+    
+    const pressColIndex = pressingSkillKeys.indexOf(pressColKey);
+
+    if (LS_PRESSED_CHANCE_TABLE[lsRowKey] && pressColIndex !== -1) {
+        return LS_PRESSED_CHANCE_TABLE[lsRowKey][pressColIndex] || 0.53; // Default to overall average if lookup fails
+    }
+    return 0.53; // Overall average as a fallback
+};
+
 // Helper function to get NTCA trigger rate
 const getNtcaTriggerRate = (techDefCount) => {
     if (techDefCount <= 0) return 0.0;
@@ -186,8 +225,19 @@ const _getChanceType = (attacker, state, is_home) => {
 
 const _resolveAttack = (chance_type, attacker_team, defender_team, mods) => {
     if (chance_type === 'long_shot') {
+        // Check if the defender is using Pressing tactic
+        if (defender_team.tactic === 'Pressing' && defender_team.tactic_level > 0) {
+            const lsSkill = attacker_team.tactic_level; // LS skill is the tactic_level of the LS tactic
+            const pressingSkill = defender_team.tactic_level;
+            const pressed_chance = getLsPressedChance(lsSkill, pressingSkill);
+            if (Math.random() < pressed_chance) {
+                return false; // Long Shot is pressed, no goal
+            }
+        }
+        // If not pressed, or defender not using Pressing, proceed to goal conversion
         return Math.random() < (TACTIC_RATES.LS_Goal[attacker_team.tactic_level] || 0);
     }
+
     const defense_map = { right: 'left', central: 'central', left: 'right' };
     const attack_sector = chance_type;
     const defense_sector = defense_map[attack_sector];
