@@ -434,21 +434,23 @@
                     outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg">
                                       <h3 class="text-xl font-semibold mb-2 text-indigo-400">Average SE Generated (by Type)</h3>
                                       <p>Total Avg. SEs Generated: <strong>${avg_total_se_events.toFixed(4)}</strong></p>`;
-                    for (const type in avg_se_type_counts) {
+                    const sorted_se_types_generated = Object.keys(avg_se_type_counts).sort();
+                    for (const type of sorted_se_types_generated) {
                         const percentage = avg_total_se_events > 0 ? (avg_se_type_counts[type] / avg_total_se_events * 100).toFixed(1) : "0.0";
                         outputHTML += `<p>${type}: <strong>${avg_se_type_counts[type].toFixed(4)}</strong> (${percentage}%)</p>`;
                     }
-                    if (Object.keys(avg_se_type_counts).length === 0) outputHTML += `<p class="text-gray-400">No SEs generated in simulations.</p>`;
+                    if (sorted_se_types_generated.length === 0) outputHTML += `<p class="text-gray-400">No SEs generated in simulations.</p>`;
                     outputHTML += `</div>`;
 
                     outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg">
                                       <h3 class="text-xl font-semibold mb-2 text-indigo-400">Average SE Goals (by Type)</h3>
                                       <p>Total Avg. SE Goals: <strong>${avg_total_se_goals.toFixed(4)}</strong></p>`;
-                    for (const type in avg_se_type_goal_counts) {
+                    const sorted_se_types_goals = Object.keys(avg_se_type_goal_counts).sort();
+                    for (const type of sorted_se_types_goals) {
                         const percentage = avg_total_se_goals > 0 ? (avg_se_type_goal_counts[type] / avg_total_se_goals * 100).toFixed(1) : "0.0";
                         outputHTML += `<p>${type}: <strong>${avg_se_type_goal_counts[type].toFixed(4)}</strong> (${percentage}%)</p>`;
                     }
-                     if (Object.keys(avg_se_type_goal_counts).length === 0) outputHTML += `<p class="text-gray-400">No SE goals scored in simulations.</p>`;
+                     if (sorted_se_types_goals.length === 0) outputHTML += `<p class="text-gray-400">No SE goals scored in simulations.</p>`;
                     outputHTML += `</div>`;
                     outputHTML += `</div>`;
 

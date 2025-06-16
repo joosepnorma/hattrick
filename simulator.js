@@ -37,8 +37,8 @@ const SE_EVENT_WEIGHTS_CONFIG = {
     'Unpr_Def':    { initial_players: 0,  weight_per_player: 13 },
     'Unpr_IM':     { initial_players: 0,  weight_per_player: 10 },
     'Unpr_FW_W':   { initial_players: 0,  weight_per_player: 11 },
-    'CornerAnyone':{ initial_players: 10, weight_per_player: 4 },
-    'NonSpecSE':   { initial_players: 5, weight_per_player: 4 }
+    'CornerAnyone':{ initial_players: 1, weight_per_player: 40 },
+    'NonSpecSE':   { initial_players: 1, weight_per_player: 20 }
 };
 
 // Mapping from SE_EVENT_WEIGHTS_CONFIG keys to SE_XG_RATES keys and specialty keys (used in home_specs/away_specs)
@@ -299,16 +299,19 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
     const max_se_for_this_period = (num_se_override !== undefined) ? num_se_override : base_max_se_this_period;
 
     let current_se_generation_chance = SE_GENERATION_CHANCE_PER_SLOT;
-    if (home_is_pc || away_is_pc) {
-        const stronger_pc_level = Math.max(home_pc_level, away_pc_level);
-        // Use PC_LEVEL_DATA index 0 for overall SE frequency multiplier
-        let generation_multiplier = 1.0;
-        if (home_is_pc && away_is_pc) { // Both play PC, use the stronger PC's overall effect
-            generation_multiplier = getPcLevelValue(stronger_pc_level, 0);
-        } else if (home_is_pc) { generation_multiplier = getPcLevelValue(home_pc_level, 0);
-        } else if (away_is_pc) { generation_multiplier = getPcLevelValue(away_pc_level, 0); }
-        current_se_generation_chance *= generation_multiplier;
+    let se_generation_multiplier = 1.0;
+
+    if (home_is_pc && away_is_pc) {
+        const home_pc_factor = getPcLevelValue(home_pc_level, 0); // Index 0 is OverallSEFreqVsNormal
+        const away_pc_factor = getPcLevelValue(away_pc_level, 0); // Index 0 is OverallSEFreqVsNormal
+        // Sum the increases: (1 + (home_factor-1) + (away_factor-1)) = home_factor + away_factor - 1
+        se_generation_multiplier = home_pc_factor + away_pc_factor - 1.0;
+    } else if (home_is_pc) {
+        se_generation_multiplier = getPcLevelValue(home_pc_level, 0);
+    } else if (away_is_pc) {
+        se_generation_multiplier = getPcLevelValue(away_pc_level, 0);
     }
+    current_se_generation_chance *= se_generation_multiplier;
 
     for(let i=0; i < chance_slots.length; i++) {
         // Phase A: Special Event Generation Attempt
