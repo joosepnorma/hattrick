@@ -295,7 +295,11 @@
                             home_sp_goals: 0, home_se_goals: 0, home_pnf_goals: 0, home_ls_goals: 0,
                             away_l_attack_goals: 0, away_c_attack_goals: 0, away_r_attack_goals: 0,
                             away_sp_goals: 0, away_se_goals: 0, away_pnf_goals: 0, away_ls_goals: 0
-                        }
+                        },
+                        total_simulated_se_events: 0,
+                        total_simulated_se_goals: 0,
+                        se_type_counts_sum: {},
+                        se_type_goal_counts_sum: {}
                     };
 
                     for(let i = 0; i < sim_count; i++) {
@@ -325,6 +329,21 @@
                                 if (sim_result.goal_details.hasOwnProperty(key)) {
                                     results.goal_details_sum[key] += sim_result.goal_details[key];
                                 }
+                            }
+                        }
+
+                        // Accumulate total SE counts and detailed SE type counts
+                        results.total_simulated_se_events += sim_result.simulated_se_events_count || 0;
+                        results.total_simulated_se_goals += sim_result.simulated_se_goals_count || 0;
+
+                        if (sim_result.se_type_counts) {
+                            for (const type in sim_result.se_type_counts) {
+                                results.se_type_counts_sum[type] = (results.se_type_counts_sum[type] || 0) + sim_result.se_type_counts[type];
+                            }
+                        }
+                        if (sim_result.se_type_goal_counts) {
+                            for (const type in sim_result.se_type_goal_counts) {
+                                results.se_type_goal_counts_sum[type] = (results.se_type_goal_counts_sum[type] || 0) + sim_result.se_type_goal_counts[type];
                             }
                         }
                     }
@@ -397,6 +416,42 @@
                                       <p>Long Shots: <strong>${avg_goal_details.away_ls_goals.toFixed(2)}</strong> (${((avg_goal_details.away_ls_goals / Math.max(0.01, away_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
                                    </div>`;
                     outputHTML += `</div>`;
+
+                    // Calculate and display average SE type counts
+                    const avg_total_se_events = results.total_simulated_se_events / sim_count;
+                    const avg_total_se_goals = results.total_simulated_se_goals / sim_count;
+
+                    const avg_se_type_counts = {};
+                    for (const type in results.se_type_counts_sum) {
+                        avg_se_type_counts[type] = results.se_type_counts_sum[type] / sim_count;
+                    }
+                    const avg_se_type_goal_counts = {};
+                    for (const type in results.se_type_goal_counts_sum) {
+                        avg_se_type_goal_counts[type] = results.se_type_goal_counts_sum[type] / sim_count;
+                    }
+
+                    outputHTML += `<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">`;
+                    outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg">
+                                      <h3 class="text-xl font-semibold mb-2 text-indigo-400">Average SE Generated (by Type)</h3>
+                                      <p>Total Avg. SEs Generated: <strong>${avg_total_se_events.toFixed(4)}</strong></p>`;
+                    for (const type in avg_se_type_counts) {
+                        const percentage = avg_total_se_events > 0 ? (avg_se_type_counts[type] / avg_total_se_events * 100).toFixed(1) : "0.0";
+                        outputHTML += `<p>${type}: <strong>${avg_se_type_counts[type].toFixed(4)}</strong> (${percentage}%)</p>`;
+                    }
+                    if (Object.keys(avg_se_type_counts).length === 0) outputHTML += `<p class="text-gray-400">No SEs generated in simulations.</p>`;
+                    outputHTML += `</div>`;
+
+                    outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg">
+                                      <h3 class="text-xl font-semibold mb-2 text-indigo-400">Average SE Goals (by Type)</h3>
+                                      <p>Total Avg. SE Goals: <strong>${avg_total_se_goals.toFixed(4)}</strong></p>`;
+                    for (const type in avg_se_type_goal_counts) {
+                        const percentage = avg_total_se_goals > 0 ? (avg_se_type_goal_counts[type] / avg_total_se_goals * 100).toFixed(1) : "0.0";
+                        outputHTML += `<p>${type}: <strong>${avg_se_type_goal_counts[type].toFixed(4)}</strong> (${percentage}%)</p>`;
+                    }
+                     if (Object.keys(avg_se_type_goal_counts).length === 0) outputHTML += `<p class="text-gray-400">No SE goals scored in simulations.</p>`;
+                    outputHTML += `</div>`;
+                    outputHTML += `</div>`;
+
 
                     resultsDiv.innerHTML = outputHTML;
                     loader.classList.add('hidden');

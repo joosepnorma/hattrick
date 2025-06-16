@@ -23,7 +23,7 @@ const SE_XG_RATES = {
     'Tired Def': 0.0          // Unchanged
 };
 // Add a placeholder XG for AnyPlayer if it's a new generic event type
-SE_XG_RATES['AnyPlayer_XG'] = 0.52; // Updated from AnyPlayer 52%
+SE_XG_RATES['NonSpecSE_XG'] = 0.52; // Updated from NonSpecSE 52%
 
 const SE_GENERATION_CHANCE_PER_SLOT = 0.05;
 const MAX_SE_PER_NORMAL_GAME_DEFAULT = 5;
@@ -37,8 +37,8 @@ const SE_EVENT_WEIGHTS_CONFIG = {
     'Unpr_Def':    { initial_players: 0,  weight_per_player: 13 },
     'Unpr_IM':     { initial_players: 0,  weight_per_player: 10 },
     'Unpr_FW_W':   { initial_players: 0,  weight_per_player: 11 },
-    'CornerAnyone':{ initial_players: 20, weight_per_player: 14 },
-    'AnyPlayer':   { initial_players: 20, weight_per_player: 4  }
+    'CornerAnyone':{ initial_players: 10, weight_per_player: 4 },
+    'NonSpecSE':   { initial_players: 5, weight_per_player: 4 }
 };
 
 // Mapping from SE_EVENT_WEIGHTS_CONFIG keys to SE_XG_RATES keys and specialty keys (used in home_specs/away_specs)
@@ -51,7 +51,7 @@ const SE_KEY_MAPPINGS = {
     'Unpr_IM':      { xg_key: 'Unpr_IM', spec_key: 'Unpr_IM' },
     'Unpr_FW_W':    { xg_key: 'Unpr_FW_W', spec_key: 'Unpr_FW_W' },
     'CornerAnyone': { xg_key: 'Corner', spec_key: 'Corner' },
-    'AnyPlayer':    { xg_key: 'AnyPlayer_XG', spec_key: 'AnyPlayer_Spec' } // 'AnyPlayer_Spec' is a placeholder
+    'NonSpecSE':    { xg_key: 'NonSpecSE_XG', spec_key: 'NonSpecSE_Spec' } // 'NonSpecSE_Spec' is a placeholder
 };
 
 const SE_TIMING_PROBABILITY = [0.042, 0.048, 0.053, 0.057, 0.068, 0.079, 0.084, 0.038, 0.034, 0.043, 0.050, 0.057, 0.062, 0.050, 0.045];
@@ -327,7 +327,7 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
                 const away_spec_players = mapping.spec_key ? (away_specs[mapping.spec_key] || 0) : 0;
 
                 let effective_count_for_weighting;
-                if (event_name_config === 'CornerAnyone' || event_name_config === 'AnyPlayer') {
+                if (event_name_config === 'CornerAnyone' || event_name_config === 'NonSpecSE') {
                     effective_count_for_weighting = config_params.initial_players;
                 } else {
                     effective_count_for_weighting = config_params.initial_players + home_spec_players + away_spec_players;
@@ -353,6 +353,10 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
                     random_num -= weights[j];
                 }
 
+                // Increment SE type count *after* the type is chosen
+                state.se_type_counts[chosen_event_config_key] = (state.se_type_counts[chosen_event_config_key] || 0) + 1;
+                // console.log(`[DEBUG] SE Generated: ${chosen_event_config_key}, current se_type_counts:`, JSON.parse(JSON.stringify(state.se_type_counts)));
+
                 const chosen_event_mapping = SE_KEY_MAPPINGS[chosen_event_config_key];
                 const chosen_event_xg_key = chosen_event_mapping.xg_key;
                 const chosen_event_spec_key = chosen_event_mapping.spec_key;
@@ -369,7 +373,7 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
                 if (chosen_event_config_key === 'CornerAnyone' || chosen_event_config_key === 'Head_Def') {
                     home_pull = home_mid;
                     away_pull = away_mid;
-                } else if (chosen_event_config_key === 'AnyPlayer') {
+                } else if (chosen_event_config_key === 'NonSpecSE') {
                     home_pull = 0.5;
                     away_pull = 0.5;
                 } else { // Player-count driven SEs
@@ -414,12 +418,13 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
                         const scoring_team_home = (se_attacker === home_team && !is_neg_event) || (se_attacker === away_team && is_neg_event);
                         state[scoring_team_home ? 'home_score' : 'away_score']++;
                         state[scoring_team_home ? 'home_se_goals' : 'away_se_goals']++;
+                        state.se_type_goal_counts[chosen_event_config_key] = (state.se_type_goal_counts[chosen_event_config_key] || 0) + 1;
+                        // console.log(`[DEBUG] SE Goal: ${chosen_event_config_key}, current se_type_goal_counts:`, JSON.parse(JSON.stringify(state.se_type_goal_counts)));
                     }
                 }
                 // SE processed (or attempted). Normal chance will also be processed for this slot.
             }
         }
-
         // Phase B: Regular Chance
         if (press_chance > 0 && Math.random() < press_chance) continue;
         let attacker_is_home = null;
@@ -535,6 +540,7 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
             }
         }
     }
+    // console.log(`[DEBUG] Exiting _runMatchPeriod. se_count: ${state.se_count}, se_type_counts:`, JSON.parse(JSON.stringify(state.se_type_counts)), `home_se_goals: ${state.home_se_goals}, away_se_goals: ${state.away_se_goals}`);
     return state;
 };
 
@@ -562,7 +568,8 @@ export const simulateMatch = (home_team, away_team, match_type = 'league', custo
         'home_sp_goals': 0, 'home_se_goals': 0, 'home_pnf_goals': 0, 'home_ls_goals': 0,
         'away_l_attack_goals': 0, 'away_c_attack_goals': 0, 'away_r_attack_goals': 0,
         'away_sp_goals': 0, 'away_se_goals': 0, 'away_pnf_goals': 0, 'away_ls_goals': 0,
-        'is_extra_time': false // Flag for _runMatchPeriod to know context for SE cap
+        'is_extra_time': false, // Flag for _runMatchPeriod to know context for SE cap
+        'se_type_counts': {}, 'se_type_goal_counts': {} // For detailed SE type tracking
     }; 
 
     const normal_time_chance_slots = [
@@ -583,7 +590,11 @@ export const simulateMatch = (home_team, away_team, match_type = 'league', custo
         normal_time_score: [nt_state.home_score, nt_state.away_score], 
         extra_time_score: null, 
         pk_winner: null,
-        goal_details: {} 
+        goal_details: {},
+        simulated_se_events_count: 0, 
+        simulated_se_goals_count: 0,
+        se_type_counts: {},
+        se_type_goal_counts: {}
     };
 
     if (match_type === 'cup' && nt_state.home_score === nt_state.away_score) {
@@ -611,6 +622,14 @@ export const simulateMatch = (home_team, away_team, match_type = 'league', custo
         away_sp_goals: state_for_details.away_sp_goals, away_se_goals: state_for_details.away_se_goals, away_pnf_goals: state_for_details.away_pnf_goals, away_ls_goals: state_for_details.away_ls_goals,
     };
 
+    // console.log(`[DEBUG] In simulateMatch, state_for_details.se_count: ${state_for_details.se_count}, state_for_details.se_type_counts:`, JSON.parse(JSON.stringify(state_for_details.se_type_counts || {})));
+    // Populate total SE counts and detailed SE type counts from the final state
+    result.simulated_se_events_count = state_for_details.se_count;
+    result.simulated_se_goals_count = state_for_details.home_se_goals + state_for_details.away_se_goals;
+    result.se_type_counts = state_for_details.se_type_counts || {};
+    result.se_type_goal_counts = state_for_details.se_type_goal_counts || {};
+
+    // console.log(`[DEBUG] Exiting simulateMatch. result.simulated_se_events_count: ${result.simulated_se_events_count}, result.se_type_counts:`, JSON.parse(JSON.stringify(result.se_type_counts || {})));
     return result;
 };
 
