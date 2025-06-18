@@ -45,7 +45,7 @@
                         <input type="text" id="home_name" value="Team A" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-300">Defense (R / C / L)</label>
+                        <label for="home_r_defense" class="block text-sm font-medium text-gray-300">Defense (R / C / L)</label>
                         <div class="flex gap-2 mt-1">
                             <input type="number" step="0.1" id="home_r_defense" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                             <input type="number" step="0.1" id="home_c_defense" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
@@ -57,7 +57,7 @@
                         <input type="number" step="0.1" id="home_midfield" value="10.0" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2 text-center">
                     </div>
                      <div>
-                        <label class="block text-sm font-medium text-gray-300">Attack (R / C / L)</label>
+                        <label for="home_r_attack" class="block text-sm font-medium text-gray-300">Attack (R / C / L)</label>
                         <div class="flex gap-2 mt-1">
                             <input type="number" step="0.1" id="home_r_attack" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                             <input type="number" step="0.1" id="home_c_attack" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
@@ -65,14 +65,14 @@
                         </div>
                     </div>
                      <div>
-                        <label class="block text-sm font-medium text-gray-300">ISP (Def / Att)</label>
+                        <label for="home_isp_def" class="block text-sm font-medium text-gray-300">ISP (Def / Att)</label>
                         <div class="flex gap-2 mt-1">
                             <input type="number" step="0.1" id="home_isp_def" value="10" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                             <input type="number" step="0.1" id="home_isp_att" value="10" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                         </div>
                     </div>
                     <div>
-                         <label class="block text-sm font-medium text-gray-300">Tactic</label>
+                         <label for="home_tactic" class="block text-sm font-medium text-gray-300">Tactic</label>
                          <div class="flex gap-2 mt-1">
                             <select id="home_tactic" class="block w-2/3 bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
                                 <option>Normal</option> <option>Pressing</option> <option>CA</option> <option>AIM</option> <option>AOW</option> <option>LS</option> <option>PC</option>
@@ -81,7 +81,7 @@
                         </div>
                     </div>
                     <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Specialties</label>
+                        <div class="block text-sm font-medium text-gray-300 mb-2">Specialties</div>
                         <div id="home_specialties" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                             <!-- Specialties will be populated by JS -->
                         </div>
@@ -96,7 +96,7 @@
                         <input type="text" id="away_name" value="Team B" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-300">Defense (R / C / L)</label>
+                        <label for="away_r_defense" class="block text-sm font-medium text-gray-300">Defense (R / C / L)</label>
                         <div class="flex gap-2 mt-1">
                             <input type="number" step="0.1" id="away_r_defense" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                             <input type="number" step="0.1" id="away_c_defense" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
@@ -108,7 +108,7 @@
                         <input type="number" step="0.1" id="away_midfield" value="10.0" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2 text-center">
                     </div>
                      <div>
-                        <label class="block text-sm font-medium text-gray-300">Attack (R / C / L)</label>
+                        <label for="away_r_attack" class="block text-sm font-medium text-gray-300">Attack (R / C / L)</label>
                         <div class="flex gap-2 mt-1">
                             <input type="number" step="0.1" id="away_r_attack" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                             <input type="number" step="0.1" id="away_c_attack" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
@@ -116,14 +116,14 @@
                         </div>
                     </div>
                      <div>
-                        <label class="block text-sm font-medium text-gray-300">ISP (Def / Att)</label>
+                        <label for="away_isp_def" class="block text-sm font-medium text-gray-300">ISP (Def / Att)</label>
                         <div class="flex gap-2 mt-1">
                             <input type="number" step="0.1" id="away_isp_def" value="10" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                             <input type="number" step="0.1" id="away_isp_att" value="10" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                         </div>
                     </div>
                     <div>
-                         <label class="block text-sm font-medium text-gray-300">Tactic</label>
+                         <label for="away_tactic" class="block text-sm font-medium text-gray-300">Tactic</label>
                          <div class="flex gap-2 mt-1">
                             <select id="away_tactic" class="block w-2/3 bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
                                 <option>Normal</option> <option>Pressing</option> <option>CA</option> <option>AIM</option> <option>AOW</option> <option>LS</option> <option>PC</option>
@@ -132,13 +132,40 @@
                         </div>
                     </div>
                     <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Specialties</label>
+                        <div class="block text-sm font-medium text-gray-300 mb-2">Specialties</div>
                         <div id="away_specialties" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                            <!-- Specialties will be populated by JS -->
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- BBCode Input Section -->
+            <details class="bg-gray-800 rounded-lg shadow-xl mb-8 group">
+                <summary class="text-xl font-semibold text-white p-6 cursor-pointer list-none flex justify-between items-center group-open:border-b group-open:border-gray-700">
+                    Paste BBCode Ratings (Optional)
+                    <span class="text-lg text-indigo-300 group-open:text-indigo-200 bg-indigo-600 group-open:bg-indigo-700 px-2 py-1 rounded-md group-open:rotate-90 transform transition-all duration-200">&#9656;</span>
+                </summary>
+                <div class="p-6 pt-4 space-y-4">
+                    <div>
+                        <label for="bbcode_team_select" class="block text-sm font-medium text-gray-300">Populate Team:</label>
+                        <select id="bbcode_team_select" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                            <option value="both">Both Teams</option>
+                            <option value="home">Home Team</option>
+                            <option value="away">Away Team</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="bbcode_input" class="block text-sm font-medium text-gray-300">Paste BBCode Here:</label>
+                        <textarea id="bbcode_input" rows="8" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2"></textarea>
+                    </div>
+                    <button id="parse_bbcode" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-300 ease-in-out">
+                        Parse and Populate
+                    </button>
+                     <div id="bbcode_status" class="mt-2 text-sm text-gray-400"></div>
+                </div>
+            </details>
+
 
             <!-- Simulation Controls -->
             <div class="bg-gray-800 p-6 rounded-lg shadow-xl mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -165,7 +192,7 @@
                 </summary>
                 <div class="p-6 pt-4 space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-300">Chance Distribution (Home / Shared / Away)</label>
+                        <label for="initial_home_chances" class="block text-sm font-medium text-gray-300">Chance Distribution (Home / Shared / Away)</label>
                         <div class="flex gap-2 mt-1">
                             <input type="number" id="initial_home_chances" value="5" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Home Team Chances">
                             <input type="number" id="initial_shared_chances" value="5" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Shared Chances">
@@ -177,7 +204,7 @@
                         <input type="number" id="initial_se_chances" value="5" min="0" placeholder="Tactic-based" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2 text-center" title="Number of Special Events to occur. Overrides tactic-based calculation.">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-300">Starting Score (Home / Away)</label>
+                        <label for="initial_home_goals" class="block text-sm font-medium text-gray-300">Starting Score (Home / Away)</label>
                         <div class="flex gap-2 mt-1">
                             <input type="number" id="initial_home_goals" value="0" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Initial Home Goals">
                             <input type="number" id="initial_away_goals" value="0" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Initial Away Goals">
@@ -240,6 +267,279 @@
         
         document.addEventListener('DOMContentLoaded', () => {
             populateSpecialties();
+
+            const parseBBCode = (bbcode) => {
+                const mapping = {
+                    "Midfield": "midfield",
+                    "Right defence": "r_defense",
+                    "Central defence": "c_defense",
+                    "Left defence": "l_defense",
+                    "Right attack": "r_attack",
+                    "Central attack": "c_attack",
+                    "Left attack": "l_attack",
+                    "ISP Defence": "isp_def", // Custom key for ISP Defence
+                    "ISP Attack": "isp_att", // Custom key for ISP Attack
+                    "Tactic": "tactic",
+                    "Tactic skill": "tactic_level"
+                };
+
+                const parsedHome = {};
+                const parsedAway = {};
+                // const lines = bbcode.split('[/tr]').map(line => line.trim()).filter(line => line.startsWith('[tr]'));
+                const raw_rows = bbcode.match(/\[tr\].*?\[\/tr\]/g);
+                if (!raw_rows) {
+                    console.warn("BBCode does not contain valid [tr]...[/tr] rows.");
+                    return { home: null, away: null };
+                }
+                // Now each element in 'lines' is a full "[tr]...[/tr]" string
+                const lines = raw_rows.map(row => row.trim()); 
+
+                let isISPSection = false;
+                let reportType = null; // 'single', 'both', or null if undetermined initially
+
+                // First pass: Determine report type and team names from header
+                const headerLine = lines.find(line => line.includes('[matchid='));
+                if (headerLine) {
+                    // Regex adjusted for headerLine starting with [tr] and containing matchid info before team names
+                    const bothTeamsNameMatch = headerLine.match(/\[tr\].*?\[th colspan=2\](.*?)(?: - \d+)?(?: \[teamid=\d+\])?\[\/th\]\s*\[th colspan=2\](.*?)(?: - \d+)?(?: \[teamid=\d+\])?\[\/th\]/);
+                    if (bothTeamsNameMatch) {
+                        reportType = 'both';
+                        parsedHome.name = bothTeamsNameMatch[1].trim();
+                        parsedAway.name = bothTeamsNameMatch[2].trim();
+                    }
+                    // If bothTeamsNameMatch fails, reportType remains null.
+                    // Content-based inference will run next. If it determines 'single', we can try to get a name then.
+                }
+
+                // If reportType is still null, try to infer from a rating line structure
+                if (reportType === null) {
+                    let hasTwoValueColumns = false;
+                    let hasOneValueColumn = false; // To prefer 'both' if ambiguous
+                    const reportTypeDetectionTags = "(?:Midfield|Right defence|Central defence|Left defence|Right attack|Central attack|Left attack|Defence|Attack|Tactic skill)";
+                    // Use a flexible td align=right pattern, similar to value extraction
+                    const tdAlignRightPatternForDetection = `\\[td\\s+align\\s*=\\s*["']?right["']?\\s*\\]`;
+                    const valueContentPatternForDetection = `[^<]+`; // We just need to match content, not capture it here.
+
+                    for (const line of lines) {
+                        // Check for two distinct value columns for a known rating
+                        const twoColRegex = new RegExp(`\\[th\\]${reportTypeDetectionTags}\\[\\/th\\].*?${tdAlignRightPatternForDetection}${valueContentPatternForDetection}\\[\\/td\\].*?${tdAlignRightPatternForDetection}${valueContentPatternForDetection}\\[\\/td\\]`);
+                        if (line.match(twoColRegex)) {
+                            hasTwoValueColumns = true;
+                            break;
+                        }
+                        // Check for a single value column for a known rating
+                        const oneColRegex = new RegExp(`\\[th\\]${reportTypeDetectionTags}\\[\\/th\\].*?${tdAlignRightPatternForDetection}${valueContentPatternForDetection}\\\\/td\\`);
+                        if (line.match(oneColRegex)) {
+                            hasOneValueColumn = true;
+                        }
+                    }
+                    if (hasTwoValueColumns) {
+                        reportType = 'both';
+                    } else if (hasOneValueColumn) {
+                        reportType = 'single';
+                    }
+
+                    // If content analysis determined 'single' and we have a headerLine but no home name yet (because bothTeamsNameMatch failed)
+                    if (reportType === 'single' && headerLine && !parsedHome.name) {
+                        const singleTeamNameMatch = headerLine.match(/\[tr\].*?\[th colspan=2\](.*?)(?: - \d+)?(?: \[teamid=\d+\])?\[\/th\](?!.*\s*\[th colspan=2\])/);
+                        if (singleTeamNameMatch) {
+                            parsedHome.name = singleTeamNameMatch[1].trim();
+                        } else { // Fallback to simpler match if the specific one fails
+                            const simplerSingleNameMatch = headerLine.match(/\[tr\].*?\[th colspan=2\](.*?)(?: - \d+)?(?: \[teamid=\d+\])?\[\/th\]/);
+                            if (simplerSingleNameMatch) parsedHome.name = simplerSingleNameMatch[1].trim();
+                        }
+                    }
+                }
+                 // Default assumption if reportType could not be determined (e.g. very short/malformed BBCode)
+                if (reportType === null) {
+                    console.warn("Could not determine BBCode report type (single/both), defaulting to 'single'. Parsing might be incomplete.");
+                    reportType = 'single';
+                }
+
+                for (const line of lines) {
+                    // console.log('Processing line:', line); // General log for each line
+                    const isISPHeaderBoth = reportType === 'both' && line.includes('[th colspan=5]Indirect set pieces[/th]');
+                    const isISPHeaderSingle = reportType === 'single' && line.includes('[th colspan=3]Indirect set pieces[/th]');
+
+                    if (isISPHeaderBoth || isISPHeaderSingle) {
+                        isISPSection = true;
+                        continue;
+                    } else if (line.includes(reportType === 'both' ? '[th colspan=5]' : '[th colspan=3]')) { // Other headers reset ISP flag
+                        isISPSection = false;
+                    }
+
+                    const thMatch = line.match(/\[tr\]\[th\]([^<]+)\[\/th\]/);
+                    if (!thMatch) continue;
+
+                    let bbKey = thMatch[1].trim();
+                    let formKey;
+
+                    if (isISPSection) {
+                        if (bbKey === "Defence") formKey = mapping["ISP Defence"];
+                        else if (bbKey === "Attack") formKey = mapping["ISP Attack"];
+                        else formKey = mapping[bbKey]; // Should not happen for valid ISP section
+                    } else {
+                        formKey = mapping[bbKey];
+                    }
+
+                    if (!formKey) continue;
+
+                    if (formKey === "tactic") {
+                        const twoTacticsMatch = line.match(/\[td colspan=2\](.*?)\[\/td\]\[td colspan=2\](.*?)\[\/td\]/);
+                        const oneTacticMatch = line.match(/\[td colspan=2\](.*?)\[\/td\](?!.*?\[td colspan=2\])/);
+
+                        if (reportType === 'both' && twoTacticsMatch) {
+                            parsedHome.tactic = twoTacticsMatch[1].trim();
+                            parsedAway.tactic = twoTacticsMatch[2].trim();
+                        } else if (oneTacticMatch) {
+                            parsedHome.tactic = oneTacticMatch[1].trim();
+                        }
+                    } else { // Numeric values (ratings, tactic skill)
+                        // Make regex for [td align=right] more flexible
+                        const valueCellGlobalRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]([^<]+?)\[\/td\]/g; // Added ? for non-greedy match of content
+                        const valueCellSingleRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]([^<]+?)\[\/td\]/; // Added ? for non-greedy match of content
+                        const valueCells = line.match(valueCellGlobalRegex);
+                        
+                        // Log for numeric parsing section
+                        // console.log(`[DEBUG] Numeric Parse: Line: "${line}"`);
+                        // console.log(`[DEBUG] Numeric Parse: FormKey: "${formKey}", ReportType: "${reportType}"`);
+                        // console.log(`[DEBUG] Numeric Parse: ValueCells found:`, valueCells);
+
+                        if (valueCells) {
+                            const values = valueCells.map(cell => cell.match(valueCellSingleRegex)[1].trim().replace(',', '.'));
+                            // console.log(`[DEBUG] Numeric Parse: Extracted values array:`, values);
+
+                            if (reportType === 'both' && values.length >= 2) {
+                                // console.log(`[DEBUG] Numeric Parse: reportType is 'both' and values.length >= 2 is TRUE`);
+                                const valHome = formKey === "tactic_level" ? parseInt(values[0]) : parseFloat(values[0]);
+                                const valAway = formKey === "tactic_level" ? parseInt(values[1]) : parseFloat(values[1]); // Corrected typo formKez to formKey
+                                // console.log(`[DEBUG] Numeric Parse: valHome = ${valHome}, valAway = ${valAway}`);
+                                if (!isNaN(valHome)) parsedHome[formKey] = valHome;
+                                if (!isNaN(valAway)) parsedAway[formKey] = valAway;
+                            } else if (values.length >= 1) {
+                                // console.log(`[DEBUG] Numeric Parse: Fallback to single value parsing (values.length=${values.length})`);
+                                const val = formKey === "tactic_level" ? parseInt(values[0]) : parseFloat(values[0]);
+                                if (!isNaN(val)) parsedHome[formKey] = val;
+                            }
+                        }
+                    }
+                }
+
+                return {
+                    home: Object.keys(parsedHome).length > 0 ? parsedHome : null,
+                    away: Object.keys(parsedAway).length > 0 ? parsedAway : null,
+                };
+            };
+
+            const populateForm = (data, teamPrefix) => {
+                const tacticNameMapping = {
+                    "Pressing": "Pressing", // Assuming 'Pressing' is the same in BBCode and dropdown
+                    "Counter-attacks": "CA",
+                    "Attack in the Middle": "AIM", // Changed 'middle' to 'Middle'
+                    "Attack on wings": "AOW",
+                    "Long shots": "LS", // Changed 'Shots' to 'shots'
+                    "Play creatively": "PC",
+                    "Normal": "Normal" // Assuming 'Normal' is the same
+                };
+
+                for (const key in data) {
+                    const inputElement = document.getElementById(`${teamPrefix}_${key}`);
+                    if (inputElement) {
+                        if (inputElement.tagName === 'INPUT') {
+                            if (data[key] !== undefined) { // Only update if data[key] has a defined value
+                                inputElement.value = data[key];
+                            }
+                        } else if (inputElement.tagName === 'SELECT') {
+                            const bbCodeTacticName = data[key];
+                            const dropdownTacticValue = tacticNameMapping[bbCodeTacticName] || bbCodeTacticName; // Fallback to original if not in map
+                            // Find the option that matches the tactic name
+                            let optionFound = false;
+                            for (let i = 0; i < inputElement.options.length; i++) {
+                                if (inputElement.options[i].text === dropdownTacticValue) {
+                                    inputElement.value = inputElement.options[i].value; 
+                                    optionFound = true;
+                                    break;
+                                }
+                            }
+                            // If tactic name from BBCode doesn't match options, select default or first
+                            if (!optionFound) {
+                                 console.warn(`Tactic "${bbCodeTacticName}" (mapped to "${dropdownTacticValue}") not found in dropdown options. Setting to default.`);
+                                 inputElement.selectedIndex = 0; // Set to the first option (usually Normal)
+                            }
+                        }
+                    }
+                }
+            };
+
+            // Add event listener for the new button
+            document.getElementById('parse_bbcode').addEventListener('click', () => {
+                const bbcodeInput = document.getElementById('bbcode_input');
+                const teamSelect = document.getElementById('bbcode_team_select');
+                const statusDiv = document.getElementById('bbcode_status');
+                const bbcode = bbcodeInput.value;
+                const selectedTarget = teamSelect.value; // 'home', 'away', or 'both'
+
+                statusDiv.textContent = 'Parsing...';
+                statusDiv.classList.remove('text-gray-400', 'text-green-500', 'text-red-500');
+                statusDiv.classList.add('text-yellow-500');
+
+                try {
+                    const { home: parsedHomeData, away: parsedAwayData } = parseBBCode(bbcode);
+                    let populatedHome = false;
+                    let populatedAway = false;
+                    let message = '';
+
+                    if (selectedTarget === 'both') {
+                        if (parsedHomeData) {
+                            populateForm(parsedHomeData, 'home');
+                            populatedHome = true;
+                        }
+                        if (parsedAwayData) {
+                            populateForm(parsedAwayData, 'away');
+                            populatedAway = true;
+                        }
+                        if (populatedHome && populatedAway) message = 'Successfully populated both teams.';
+                        else if (populatedHome) message = 'Populated Home team. Away data not found/parsed from BBCode.';
+                        else if (populatedAway) message = 'Populated Away team. Home data not found/parsed from BBCode.';
+                        else message = 'Could not parse data for either team from the BBCode.';
+
+                    } else if (selectedTarget === 'home') {
+                        if (parsedHomeData) {
+                            populateForm(parsedHomeData, 'home');
+                            populatedHome = true;
+                            message = 'Successfully populated Home team data.';
+                        } else {
+                            message = 'Could not parse Home team data from the BBCode.';
+                        }
+                    } else if (selectedTarget === 'away') {
+                        // If "Away" is selected, prioritize parsedAwayData.
+                        // If BBCode was single-team, it's in parsedHomeData; use that for the away form.
+                        if (parsedAwayData) {
+                            populateForm(parsedAwayData, 'away');
+                            populatedAway = true;
+                            message = 'Successfully populated Away team data (from two-team BBCode).';
+                        } else if (parsedHomeData) { // BBCode was single-team or away part of two-team was missing
+                            populateForm(parsedHomeData, 'away');
+                            populatedAway = true;
+                            message = 'Successfully populated Away team data (from single-team BBCode).';
+                        } else {
+                            message = 'Could not parse Away team data from the BBCode.';
+                        }
+                    }
+
+                    statusDiv.textContent = message;
+                    if (populatedHome || populatedAway) {
+                        statusDiv.classList.replace('text-yellow-500', 'text-green-500');
+                    } else {
+                        statusDiv.classList.replace('text-yellow-500', 'text-red-500');
+                    }
+                } catch (error) {
+                    console.error("BBCode parsing error:", error);
+                    statusDiv.textContent = `Error parsing BBCode: ${error.message}`;
+                    statusDiv.classList.replace('text-yellow-500', 'text-red-500');
+                }
+            });
+
             document.getElementById('run_simulation').addEventListener('click', () => {
                 const loader = document.getElementById('loader');
                 const runButton = document.getElementById('run_simulation');
