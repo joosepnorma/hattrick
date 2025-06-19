@@ -269,33 +269,18 @@
             populateSpecialties();
 
             const parseBBCode = (bbcode) => {
-                const mapping = {
-                    "Midfield": "midfield",
-                    "Right defence": "r_defense",
-                    "Central defence": "c_defense",
-                    "Left defence": "l_defense",
-                    "Right attack": "r_attack",
-                    "Central attack": "c_attack",
-                    "Left attack": "l_attack",
-                    "ISP Defence": "isp_def", // Custom key for ISP Defence
-                    "ISP Attack": "isp_att", // Custom key for ISP Attack
-                    "Tactic": "tactic",
-                    "Tactic skill": "tactic_level"
-                };
-
                 const parsedHome = {};
                 const parsedAway = {};
-                // const lines = bbcode.split('[/tr]').map(line => line.trim()).filter(line => line.startsWith('[tr]'));
+
                 const raw_rows = bbcode.match(/\[tr\].*?\[\/tr\]/g);
                 if (!raw_rows) {
                     console.warn("BBCode does not contain valid [tr]...[/tr] rows.");
                     return { home: null, away: null };
                 }
-                // Now each element in 'lines' is a full "[tr]...[/tr]" string
-                const lines = raw_rows.map(row => row.trim()); 
+                const lines = raw_rows.map(row => row.trim());
 
-                let isISPSection = false;
                 let reportType = null; // 'single', 'both', or null if undetermined initially
+                let headerLineProcessed = false;
 
                 // First pass: Determine report type and team names from header
                 const headerLine = lines.find(line => line.includes('[matchid=') || line.includes('[tournamentmatchid='));
@@ -307,8 +292,7 @@
                         parsedHome.name = bothTeamsNameMatch[1].trim();
                         parsedAway.name = bothTeamsNameMatch[2].trim();
                     }
-                    // If bothTeamsNameMatch fails, reportType remains null.
-                    // Content-based inference will run next. If it determines 'single', we can try to get a name then.
+                    headerLineProcessed = true;
                 }
 
                 // If reportType is still null, try to infer from a rating line structure
@@ -316,20 +300,20 @@
                     let hasTwoValueColumns = false;
                     let hasOneValueColumn = false; // To prefer 'both' if ambiguous
                     const reportTypeDetectionTags = "(?:Midfield|Right defence|Central defence|Left defence|Right attack|Central attack|Left attack|Defence|Attack|Tactic skill)";
-                    // Use a flexible td align=right pattern, similar to value extraction
+                    // For language independence, we can't rely on reportTypeDetectionTags.
+                    // Instead, we look for the pattern of [th]label[/th] followed by 1 or 2 value cells.
                     const tdAlignRightPatternForDetection = `\\[td\\s+align\\s*=\\s*["']?right["']?\\s*\\]`;
                     const valueContentPatternForDetection = `[^<]+`; // We just need to match content, not capture it here.
 
                     for (const line of lines) {
                         // Check for two distinct value columns for a known rating
                         const twoColRegex = new RegExp(`\\[th\\]${reportTypeDetectionTags}\\[\\/th\\].*?${tdAlignRightPatternForDetection}${valueContentPatternForDetection}\\[\\/td\\].*?${tdAlignRightPatternForDetection}${valueContentPatternForDetection}\\[\\/td\\]`);
-                        if (line.match(twoColRegex)) {
+                        if (line.match(/\[th\].*?\[\/th\].*?\[td\s+align\s*=\s*['"]?right['"]?\s*\][^<]+\[\/td\].*?\[td\s+align\s*=\s*['"]?right['"]?\s*\][^<]+\[\/td\]/i)) {
                             hasTwoValueColumns = true;
                             break;
                         }
                         // Check for a single value column for a known rating
-                        const oneColRegex = new RegExp(`\\[th\\]${reportTypeDetectionTags}\\[\\/th\\].*?${tdAlignRightPatternForDetection}${valueContentPatternForDetection}\\[\\/td\\]`);
-                        if (line.match(oneColRegex)) {
+                        if (line.match(/\[th\].*?\[\/th\].*?\[td\s+align\s*=\s*['"]?right['"]?\s*\][^<]+\[\/td\](?!.*?\[td\s+align\s*=\s*['"]?right['"]?\s*\])/i)) {
                             hasOneValueColumn = true;
                         }
                     }
@@ -356,132 +340,174 @@
                     reportType = 'single';
                 }
 
+                const mainRatingFormKeys = ["midfield", "r_defense", "c_defense", "l_defense", "r_attack", "c_attack", "l_attack"];
+                const ispRatingFormKeys = ["isp_def", "isp_att"];
+                let mainRatingIdx = 0;
+                let ispRatingIdx = 0;
+
+                let state = headerLineProcessed ? 'EXPECT_MAIN_RATING' : 'EXPECT_TEAM_NAMES';
+
+                const parseNumericValuesForRow = (line, reportType, formKey, parsedHome, parsedAway, isInteger) => {
+                    const valueCellGlobalRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]([^<]+?)\[\/td\]/g;
+                    const valueCellSingleRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]([^<]+?)\[\/td\]/;
+                    const valueCells = line.match(valueCellGlobalRegex);
+                    if (valueCells) {
+                        const values = valueCells.map(cell => cell.match(valueCellSingleRegex)[1].trim().replace(',', '.'));
+                        const convert = valStr => isInteger ? parseInt(valStr) : parseFloat(valStr);
+
+                        if (reportType === 'both' && values.length >= 2) {
+                            const valHome = convert(values[0]);
+                            const valAway = convert(values[1]);
+                            if (!isNaN(valHome)) parsedHome[formKey] = valHome;
+                            if (!isNaN(valAway)) parsedAway[formKey] = valAway;
+                        } else if (values.length >= 1) {
+                            const val = convert(values[0]);
+                            if (!isNaN(val)) parsedHome[formKey] = val;
+                        }
+                        return true;
+                    }
+                    return false;
+                };
+
+                const parseTacticSkillForRow = (line, reportType, parsedHome, parsedAway) => {
+                    // Corrected regex:
+                    // - Match [th]...[/th]
+                    // - Capture everything after [/th] until [/tr] into group 1
+                    // - Properly escape the forward slash in [/th]
+                    const cellsContentMatch = line.match(/\[th\].*?\[\/th\](.*?)\[\/tr\]/i);
+                    if (cellsContentMatch) {
+                        const cellsStr = cellsContentMatch[1].trim(); 
+                        const noTacticTextVariations = "(no tactic|keine Taktik|pas de tactique|ei taktikat|taktikata)"; // Added "taktikata"
+
+                        const numericCellRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]\s*(\d+)\s*\[\/td\]/g;
+                        const allNumericMatches = Array.from(cellsStr.matchAll(numericCellRegex));
+                        const numericValues = allNumericMatches.map(m => parseInt(m[1].trim()));
+
+                        const homeIsColspanNoTactic = new RegExp(`^\\s*\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]`, "i").test(cellsStr);
+                        const awayIsColspanNoTacticSuffix = new RegExp(`\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]\\s*$`, "i");
+
+                        if (reportType === 'both') {
+                            if (numericValues.length === 0) {
+                                if (homeIsColspanNoTactic) parsedHome.tactic_level = 0;
+                                let awayCanBeNoTactic = true;
+                                let awayCellsForCheck = cellsStr;
+                                if (homeIsColspanNoTactic) {
+                                    const homePartMatch = cellsStr.match(new RegExp(`^\\s*\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]`, "i"));
+                                    if (homePartMatch && homePartMatch[0].length < cellsStr.length) {
+                                        awayCellsForCheck = cellsStr.substring(homePartMatch[0].length);
+                                    } else if (homePartMatch && homePartMatch[0].length === cellsStr.length) {
+                                        awayCanBeNoTactic = false;
+                                    }
+                                }
+                                if (awayCanBeNoTactic && new RegExp(`^\\s*\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]`, "i").test(awayCellsForCheck.trim())) {
+                                    parsedAway.tactic_level = 0;
+                                }
+                            } else if (numericValues.length === 1) {
+                                const skill = numericValues[0];
+                                if (homeIsColspanNoTactic) {
+                                    parsedHome.tactic_level = 0;
+                                    if (!isNaN(skill)) parsedAway.tactic_level = skill;
+                                } else {
+                                    if (!isNaN(skill)) parsedHome.tactic_level = skill;
+                                    if (awayIsColspanNoTacticSuffix.test(cellsStr)) {
+                                        const homeValueCellPattern = /\[td\s+align\s*=\s*["']?right["']?\s*\]\s*\d+\s*\[\/td\]/i;
+                                        if (homeValueCellPattern.test(cellsStr.substring(0, cellsStr.search(awayIsColspanNoTacticSuffix)))) {
+                                            parsedAway.tactic_level = 0;
+                                        }
+                                    }
+                                }
+                            } else if (numericValues.length >= 2) {
+                                if (!isNaN(numericValues[0])) parsedHome.tactic_level = numericValues[0];
+                                if (!isNaN(numericValues[1])) parsedAway.tactic_level = numericValues[1];
+                            }
+                        } else { // Single report
+                            if (numericValues.length > 0 && !isNaN(numericValues[0])) {
+                                parsedHome.tactic_level = numericValues[0];
+                            } else if (new RegExp(`\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]`, "i").test(cellsStr) || new RegExp(`\\(${noTacticTextVariations}\\)`, "i").test(cellsStr)) {
+                                parsedHome.tactic_level = 0;
+                            }
+                        }
+                        return true; // Parsing attempted
+                    }
+                    return false; // Not a tactic skill line structure
+                };
+
                 for (const line of lines) {
-                    // console.log('Processing line:', line); // General log for each line
-                    const isISPHeaderBoth = reportType === 'both' && line.includes('[th colspan=5]Indirect set pieces[/th]');
-                    const isISPHeaderSingle = reportType === 'single' && line.includes('[th colspan=3]Indirect set pieces[/th]');
+                    if (state === 'EXPECT_TEAM_NAMES') {
+                        if (line.includes('[matchid=') || line.includes('[tournamentmatchid=')) {
+                            // Team name parsing already done if headerLine was found.
+                            // This state is mainly if headerLine wasn't the very first in `lines`.
+                            state = 'EXPECT_MAIN_RATING';
+                            continue;
+                        }
+                    }
 
-                    if (isISPHeaderBoth || isISPHeaderSingle) {
-                        isISPSection = true;
+                    const colspanHeaderMatch = line.match(/\[th\s+colspan=(["']?(?:3|5)["']?)\]/i);
+                    if (colspanHeaderMatch) {
+                        if (state === 'EXPECT_MAIN_RATING' || state === 'IN_MAIN_RATINGS') {
+                            state = 'EXPECT_ISP_RATING'; // Next line will be first ISP rating
+                        } else if (state === 'EXPECT_ISP_RATING' || state === 'IN_ISP_RATINGS') {
+                            state = 'EXPECT_ATTITUDE_ROW'; // Next line will be attitude
+                        } else if (state === 'EXPECT_TACTIC_SKILL_ROW' || state === 'IN_TACTIC_SKILL') {
+                            state = 'DONE_RELEVANT_SECTIONS';
+                        }
                         continue;
-                    } else if (line.includes(reportType === 'both' ? '[th colspan=5]' : '[th colspan=3]')) { // Other headers reset ISP flag
-                        isISPSection = false;
                     }
 
-                    const thMatch = line.match(/\[tr\]\[th\]([^<]+)\[\/th\]/);
-                    if (!thMatch) continue;
-
-                    let bbKey = thMatch[1].trim();
-                    let formKey;
-
-                    if (isISPSection) {
-                        if (bbKey === "Defence") formKey = mapping["ISP Defence"];
-                        else if (bbKey === "Attack") formKey = mapping["ISP Attack"];
-                        else formKey = mapping[bbKey]; // Should not happen for valid ISP section
-                    } else {
-                        formKey = mapping[bbKey];
-                    }
-
-                    if (!formKey) continue;
-
-                    if (formKey === "tactic") {
-                        const twoTacticsMatch = line.match(/\[td colspan=2\](.*?)\[\/td\]\[td colspan=2\](.*?)\[\/td\]/);
-                        const oneTacticMatch = line.match(/\[td colspan=2\](.*?)\[\/td\](?!.*?\[td colspan=2\])/);
-                        if (reportType === 'both' && twoTacticsMatch) {
-                            parsedHome.tactic = twoTacticsMatch[1].trim();
-                            parsedAway.tactic = twoTacticsMatch[2].trim();
-                        } else if (oneTacticMatch) {
-                            parsedHome.tactic = oneTacticMatch[1].trim();
-                        }
-                    } else if (formKey === "tactic_level") {
-                        const cellsContentMatch = line.match(/\[th\]\s*Tactic skill\s*\[\/th\](.*?)\[\/tr\]/i);
-                        if (cellsContentMatch) {
-                            const cellsStr = cellsContentMatch[1].trim();
-                            const noTacticTextVariations = "(no tactic|keine Taktik|pas de tactique)"; // Add other languages as needed
-
-                            const numericCellRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]\s*(\d+)\s*\[\/td\]/g; // Tactic skill is integer
-                            const allNumericMatches = Array.from(cellsStr.matchAll(numericCellRegex));
-                            const numericValues = allNumericMatches.map(m => parseInt(m[1].trim()));
-
-                            // Pattern for a team having "(no tactic)" in a colspan=2 cell.
-                            const homeIsColspanNoTactic = new RegExp(`^\\s*\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]`, "i").test(cellsStr);
-                            // For away, it must be at the end of cellsStr, or after home's part.
-                            const awayIsColspanNoTacticSuffix = new RegExp(`\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]\\s*$`, "i");
-
-                            if (reportType === 'both') {
-                                if (numericValues.length === 0) { // No numeric values found
-                                    if (homeIsColspanNoTactic) parsedHome.tactic_level = 0;
-
-                                    let awayCanBeNoTactic = true;
-                                    let awayCellsForCheck = cellsStr;
-                                    if (homeIsColspanNoTactic) {
-                                        const homePartMatch = cellsStr.match(new RegExp(`^\\s*\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]`, "i"));
-                                        if (homePartMatch && homePartMatch[0].length < cellsStr.length) {
-                                            awayCellsForCheck = cellsStr.substring(homePartMatch[0].length);
-                                        } else if (homePartMatch && homePartMatch[0].length === cellsStr.length) {
-                                            awayCanBeNoTactic = false; // Only home's (NT) colspan is present
-                                        }
-                                    }
-                                    if (awayCanBeNoTactic && new RegExp(`^\\s*\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]`, "i").test(awayCellsForCheck.trim())) {
-                                        parsedAway.tactic_level = 0;
-                                    }
-
-                                } else if (numericValues.length === 1) {
-                                    const skill = numericValues[0];
-                                    if (homeIsColspanNoTactic) { // Home is (no tactic), so value is for Away
-                                        parsedHome.tactic_level = 0;
-                                        if (!isNaN(skill)) parsedAway.tactic_level = skill;
-                                    } else { // Home is not (no tactic) via colspan, so value is for Home. Away might be (no tactic).
-                                        if (!isNaN(skill)) parsedHome.tactic_level = skill;
-                                        // Check if away part is colspan no tactic
-                                        if (awayIsColspanNoTacticSuffix.test(cellsStr)) {
-                                             // Ensure it's not matching home's if home also has a value
-                                            const homeValueCellPattern = /\[td\s+align\s*=\s*["']?right["']?\s*\]\s*\d+\s*\[\/td\]/i;
-                                            if (homeValueCellPattern.test(cellsStr.substring(0, cellsStr.search(awayIsColspanNoTacticSuffix)))) {
-                                                parsedAway.tactic_level = 0;
-                                            }
-                                        }
-                                    }
-                                } else if (numericValues.length >= 2) { // Two values, assume Home then Away
-                                    if (!isNaN(numericValues[0])) parsedHome.tactic_level = numericValues[0];
-                                    if (!isNaN(numericValues[1])) parsedAway.tactic_level = numericValues[1];
-                                }
-                            } else { // Single report
-                                if (numericValues.length > 0 && !isNaN(numericValues[0])) {
-                                    parsedHome.tactic_level = numericValues[0];
-                                } else if (new RegExp(`\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]`, "i").test(cellsStr) || new RegExp(`\\(${noTacticTextVariations}\\)`, "i").test(cellsStr) ) {
-                                    parsedHome.tactic_level = 0; // If "(no tactic)" text or colspan pattern is present and no number, skill is 0
+                    switch (state) {
+                        case 'EXPECT_MAIN_RATING':
+                        case 'IN_MAIN_RATINGS':
+                            state = 'IN_MAIN_RATINGS';
+                            if (mainRatingIdx < mainRatingFormKeys.length) {
+                                const formKey = mainRatingFormKeys[mainRatingIdx];
+                                if (parseNumericValuesForRow(line, reportType, formKey, parsedHome, parsedAway, false)) {
+                                   mainRatingIdx++;
                                 }
                             }
-                        }
-                    } else { // Numeric values (ratings, tactic skill)
-                        // Make regex for [td align=right] more flexible
-                        const valueCellGlobalRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]([^<]+?)\[\/td\]/g; // Added ? for non-greedy match of content
-                        const valueCellSingleRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]([^<]+?)\[\/td\]/; // Added ? for non-greedy match of content
-                        const valueCells = line.match(valueCellGlobalRegex);
-                        
-                        // Log for numeric parsing section
-                        // console.log(`[DEBUG] Numeric Parse: Line: "${line}"`);
-                        // console.log(`[DEBUG] Numeric Parse: FormKey: "${formKey}", ReportType: "${reportType}"`);
-                        // console.log(`[DEBUG] Numeric Parse: ValueCells found:`, valueCells);
-
-                        if (valueCells) {
-                            const values = valueCells.map(cell => cell.match(valueCellSingleRegex)[1].trim().replace(',', '.'));
-                            // console.log(`[DEBUG] Numeric Parse: Extracted values array:`, values);
-
-                            if (reportType === 'both' && values.length >= 2) {
-                                // console.log(`[DEBUG] Numeric Parse: reportType is 'both' and values.length >= 2 is TRUE`);
-                                const valHome = formKey === "tactic_level" ? parseInt(values[0]) : parseFloat(values[0]);
-                                const valAway = formKey === "tactic_level" ? parseInt(values[1]) : parseFloat(values[1]); // Corrected typo formKez to formKey
-                                // console.log(`[DEBUG] Numeric Parse: valHome = ${valHome}, valAway = ${valAway}`);
-                                if (!isNaN(valHome)) parsedHome[formKey] = valHome;
-                                if (!isNaN(valAway)) parsedAway[formKey] = valAway;
-                            } else if (values.length >= 1) {
-                                // console.log(`[DEBUG] Numeric Parse: Fallback to single value parsing (values.length=${values.length})`);
-                                const val = formKey === "tactic_level" ? parseInt(values[0]) : parseFloat(values[0]);
-                                if (!isNaN(val)) parsedHome[formKey] = val;
+                            break;
+                        case 'EXPECT_ISP_RATING':
+                        case 'IN_ISP_RATINGS':
+                            state = 'IN_ISP_RATINGS';
+                            if (ispRatingIdx < ispRatingFormKeys.length) {
+                                const formKey = ispRatingFormKeys[ispRatingIdx];
+                                if(parseNumericValuesForRow(line, reportType, formKey, parsedHome, parsedAway, false)){
+                                    ispRatingIdx++;
+                                }
                             }
-                        }
+                            break;
+                        case 'EXPECT_ATTITUDE_ROW':
+                            // This line is attitude. We skip it for now.
+                            state = 'EXPECT_TACTIC_NAME_ROW';
+                            break; // Consume this line, next iteration for tactic name
+                        case 'EXPECT_TACTIC_NAME_ROW':
+                            // Corrected regexes for tactic names:
+                            // - Match [td colspan=2]...[/td]
+                            // - Capture the content inside the tags
+                            // - Removed erroneous \t
+                            const twoTacticsMatch = line.match(/\[td colspan=2\]([^<]+?)\[\/td\]\s*\[td colspan=2\]([^<]+?)\[\/td\]/i);
+                            const oneTacticMatch = line.match(/\[td colspan=2\]([^<]+?)\[\/td\](?!.*?\[td colspan=2\])/i);
+                            let tacticFoundThisLine = false;
+                            if (reportType === 'both' && twoTacticsMatch) {
+                                parsedHome.tactic = twoTacticsMatch[1].trim();
+                                parsedAway.tactic = twoTacticsMatch[2].trim();
+                                tacticFoundThisLine = true;
+                            } else if (oneTacticMatch) {
+                                parsedHome.tactic = oneTacticMatch[1].trim();
+                                tacticFoundThisLine = true;
+                            }
+                            if (tacticFoundThisLine) {
+                                state = 'EXPECT_TACTIC_SKILL_ROW';
+                            }
+                            break;
+                        case 'EXPECT_TACTIC_SKILL_ROW':
+                             state = 'IN_TACTIC_SKILL'; // Mark as in this state
+                            if (parseTacticSkillForRow(line, reportType, parsedHome, parsedAway)) {
+                                state = 'DONE_RELEVANT_SECTIONS';
+                            }
+                            break;
+                        case 'DONE_RELEVANT_SECTIONS':
+                            // Skip remaining lines
+                            break;
                     }
                 }
 
@@ -493,13 +519,25 @@
 
             const populateForm = (data, teamPrefix) => {
                 const tacticNameMapping = {
-                    "Pressing": "Pressing", // Assuming 'Pressing' is the same in BBCode and dropdown
+                    // English
+                    "Normal": "Normal",
+                    "Pressing": "Pressing",
                     "Counter-attacks": "CA",
-                    "Attack in the Middle": "AIM", // Changed 'middle' to 'Middle'
+                    "Attack in the Middle": "AIM",
                     "Attack on wings": "AOW",
-                    "Long shots": "LS", // Changed 'Shots' to 'shots'
+                    "Long shots": "LS",
                     "Play creatively": "PC",
-                    "Normal": "Normal" // Assuming 'Normal' is the same
+                    // Estonian
+                    "Normaalne": "Normal",
+                    "Surumine": "Pressing",
+                    "Vasturünnakud": "CA", // Assuming this is the BBCode output for CA
+                    "Rünnak keskele": "AIM", 
+                    "Ründa keskelt": "AIM", // Added
+                    "Rünnak äär(t)elt": "AOW",
+                    "Ründa äärtelt": "AOW", // Added
+                    "Kauglöögid": "LS",
+                    "Loovalt mängimine": "PC", // Assuming
+                    "Mängi loovalt": "PC" // Assuming
                 };
 
                 for (const key in data) {
@@ -512,11 +550,10 @@
                         } else if (inputElement.tagName === 'SELECT') {
                             const bbCodeTacticName = data[key];
                             const dropdownTacticValue = tacticNameMapping[bbCodeTacticName] || bbCodeTacticName; // Fallback to original if not in map
-                            // Find the option that matches the tactic name
                             let optionFound = false;
                             for (let i = 0; i < inputElement.options.length; i++) {
-                                if (inputElement.options[i].text === dropdownTacticValue) {
-                                    inputElement.value = inputElement.options[i].value; 
+                                if (inputElement.options[i].value === dropdownTacticValue || inputElement.options[i].text === dropdownTacticValue) {
+                                    inputElement.value = inputElement.options[i].value; // Use .value for setting
                                     optionFound = true;
                                     break;
                                 }
@@ -524,7 +561,7 @@
                             // If tactic name from BBCode doesn't match options, select default or first
                             if (!optionFound) {
                                  console.warn(`Tactic "${bbCodeTacticName}" (mapped to "${dropdownTacticValue}") not found in dropdown options. Setting to default.`);
-                                 inputElement.selectedIndex = 0; // Set to the first option (usually Normal)
+                                 inputElement.selectedIndex = 0; // Default to "Normal" or first option
                             }
                         }
                     }
