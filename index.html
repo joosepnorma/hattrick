@@ -35,9 +35,7 @@
         </header>
 
         <main>
-            <!-- Input Section -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                <!-- Home Team -->
                 <div id="home-team-card" class="bg-gray-800 p-6 rounded-lg shadow-xl space-y-4">
                     <h2 class="text-2xl font-semibold text-white border-b border-gray-700 pb-2">Home Team</h2>
                     <div>
@@ -83,13 +81,11 @@
                     <div class="mt-4">
                         <div class="block text-sm font-medium text-gray-300 mb-2">Specialties</div>
                         <div id="home_specialties" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                            <!-- Specialties will be populated by JS -->
-                        </div>
+                            </div>
                     </div>
                 </div>
 
-                <!-- Away Team -->
-                 <div id="away-team-card" class="bg-gray-800 p-6 rounded-lg shadow-xl space-y-4">
+                <div id="away-team-card" class="bg-gray-800 p-6 rounded-lg shadow-xl space-y-4">
                     <h2 class="text-2xl font-semibold text-white border-b border-gray-700 pb-2">Away Team</h2>
                     <div>
                         <label for="away_name" class="block text-sm font-medium text-gray-300">Team Name</label>
@@ -134,13 +130,11 @@
                     <div class="mt-4">
                         <div class="block text-sm font-medium text-gray-300 mb-2">Specialties</div>
                         <div id="away_specialties" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                           <!-- Specialties will be populated by JS -->
-                        </div>
+                           </div>
                     </div>
                 </div>
             </div>
 
-            <!-- BBCode Input Section -->
             <details class="bg-gray-800 rounded-lg shadow-xl mb-8 group">
                 <summary class="text-xl font-semibold text-white p-6 cursor-pointer list-none flex justify-between items-center group-open:border-b group-open:border-gray-700">
                     Paste BBCode Ratings (Optional)
@@ -167,24 +161,32 @@
             </details>
 
 
-            <!-- Simulation Controls -->
-            <div class="bg-gray-800 p-6 rounded-lg shadow-xl mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <label for="sim_count" class="block text-sm font-medium text-gray-300">Simulations (max 100000):</label>
-                    <input type="number" id="sim_count" value="1000" max="100000" class="block w-32 bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+            <div class="bg-gray-800 p-6 rounded-lg shadow-xl mb-8 space-y-4">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                     <div class="flex items-center gap-4">
+                        <label for="sim_count" class="block text-sm font-medium text-gray-300">Simulations:</label>
+                        <input type="number" id="sim_count" value="1000" max="100000" class="block w-28 bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
+                    </div>
+                     <div class="flex items-center gap-4">
+                        <span class="text-sm font-medium text-gray-300">Match Type:</span>
+                        <label class="flex items-center"><input type="radio" name="match_type" value="league" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600" checked> <span class="ml-2 text-gray-300">League</span></label>
+                        <label class="flex items-center"><input type="radio" name="match_type" value="cup" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600"> <span class="ml-2 text-gray-300">Cup</span></label>
+                    </div>
+                     <div class="flex items-center gap-4">
+                        <label for="baseline_select" class="block text-sm font-medium text-gray-300">Compare with:</label>
+                        <select id="baseline_select" class="block w-36 bg-gray-700 border-gray-600 rounded-md p-2">
+                            <option value="none">None</option>
+                        </select>
+                    </div>
                 </div>
-                 <div class="flex items-center gap-4">
-                    <span class="text-sm font-medium text-gray-300">Match Type:</span>
-                    <label class="flex items-center"><input type="radio" name="match_type" value="league" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600" checked> <span class="ml-2 text-gray-300">League</span></label>
-                    <label class="flex items-center"><input type="radio" name="match_type" value="cup" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600"> <span class="ml-2 text-gray-300">Cup</span></label>
-                </div>
-                <button id="run_simulation" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out">
-                    Run Simulation
-                </button>
-                 <div id="loader" class="hidden loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8"></div>
+                 <div class="flex items-center justify-center gap-4 pt-4 border-t border-gray-700">
+                    <button id="run_simulation" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out">
+                        Run Simulation
+                    </button>
+                     <div id="loader" class="hidden loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8"></div>
+                 </div>
             </div>
 
-            <!-- Initial Match Conditions -->
             <details class="bg-gray-800 rounded-lg shadow-xl mb-8 group">
                 <summary class="text-xl font-semibold text-white p-6 cursor-pointer list-none flex justify-between items-center group-open:border-b group-open:border-gray-700">
                     Initial Match Conditions (Optional)
@@ -213,9 +215,15 @@
                 </div>
             </details>
 
-            <!-- Results Section -->
             <div id="results" class="bg-gray-800 p-6 rounded-lg shadow-xl min-h-[100px]">
                  <p class="text-gray-400 text-center">Results will be displayed here.</p>
+            </div>
+
+            <div id="saved_baselines_container" class="mt-8">
+                <h2 class="text-2xl font-semibold text-white mb-4">Saved Baselines</h2>
+                <div id="saved_baselines_list" class="bg-gray-800 p-6 rounded-lg shadow-xl">
+                    <p class="text-gray-400">No baselines saved yet.</p>
+                </div>
             </div>
 
         </main>
@@ -224,6 +232,9 @@
     <script type="module">
         import { precomputeRatings, simulateMatch } from './simulator.js';
         
+        let savedBaselines = {};
+        let lastFullResults = null;
+
         const populateSpecialties = () => {
              const specList = {'Quick_off':'Quick_off', 'Head_off':'Head_off', 'Tech_off':'Tech_off', 'Unpr_IM':'Unpr_IM', 'Unpr_FW_W':'Unpr_FW_W', 'Quick_def':'Quick_def', 'Head_def':'Head_def', 'Unpr_def':'Unpr_def', 'PNF':'PNF', 'PDIM':'PDIM', 'Tech_def': 'Tech_def'};
              const homeContainer = document.getElementById('home_specialties');
@@ -234,6 +245,58 @@
                  homeContainer.innerHTML += `<div class="flex items-center justify-between"><label for="home_${key}" class="text-sm text-gray-400">${label}</label><input type="number" id="home_${key}" value="0" min="0" class="w-16 bg-gray-700 p-1 rounded-md text-center"></div>`;
                  awayContainer.innerHTML += `<div class="flex items-center justify-between"><label for="away_${key}" class="text-sm text-gray-400">${label}</label><input type="number" id="away_${key}" value="0" min="0" class="w-16 bg-gray-700 p-1 rounded-md text-center"></div>`;
              }
+        };
+
+        const updateBaselinesUI = () => {
+            const select = document.getElementById('baseline_select');
+            const listDiv = document.getElementById('saved_baselines_list');
+            
+            // --- Update Dropdown ---
+            // Store current selection
+            const currentSelection = select.value;
+            // Clear existing options (sparing "None")
+            Array.from(select.options).forEach(option => {
+                if (option.value !== 'none') {
+                    option.remove();
+                }
+            });
+            // Add new options
+            for (const name in savedBaselines) {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                select.appendChild(option);
+            }
+            // Restore selection if it still exists
+            select.value = savedBaselines[currentSelection] ? currentSelection : 'none';
+
+
+            // --- Update List ---
+            listDiv.innerHTML = ''; // Clear list
+            if (Object.keys(savedBaselines).length === 0) {
+                listDiv.innerHTML = '<p class="text-gray-400">No baselines saved yet.</p>';
+                return;
+            }
+            for (const name in savedBaselines) {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center p-2 bg-gray-700 rounded mb-2';
+                div.innerHTML = `
+                    <span class="text-white">${name}</span>
+                    <button data-name="${name}" class="delete-baseline-btn bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded">Delete</button>
+                `;
+                listDiv.appendChild(div);
+            }
+        };
+
+        const getComparisonHTML = (newValue, baseValue, isPercentage) => {
+            if (baseValue === undefined || baseValue === null) return '';
+
+            const diff = newValue - baseValue;
+            const sign = diff >= 0 ? '+' : '-';
+            const formattedDiff = isPercentage ? Math.abs(diff).toFixed(1) : Math.abs(diff).toFixed(2);
+            const colorClass = diff >= 0 ? 'text-green-400' : 'text-red-400';
+
+            return `<span class="${colorClass}">[${sign}${formattedDiff}${isPercentage ? '%' : ''}]</span>`;
         };
         
         const collectInputs = (teamPrefix) => {
@@ -267,6 +330,7 @@
         
         document.addEventListener('DOMContentLoaded', () => {
             populateSpecialties();
+            updateBaselinesUI();
 
             const parseBBCode = (bbcode) => {
                 const parsedHome = {};
@@ -677,7 +741,6 @@
                 }
             };
 
-            // Add event listener for the new button
             document.getElementById('parse_bbcode').addEventListener('click', () => {
                 const bbcodeInput = document.getElementById('bbcode_input');
                 const teamSelect = document.getElementById('bbcode_team_select');
@@ -718,8 +781,6 @@
                             message = 'Could not parse Home team data from the BBCode.';
                         }
                     } else if (selectedTarget === 'away') {
-                        // If "Away" is selected, prioritize parsedAwayData.
-                        // If BBCode was single-team, it's in parsedHomeData; use that for the away form.
                         if (parsedAwayData) {
                             populateForm(parsedAwayData, 'away');
                             populatedAway = true;
@@ -754,45 +815,31 @@
                 runButton.classList.add('hidden');
                 resultsDiv.innerHTML = '<p class="text-gray-400 text-center">Running simulations...</p>';
                 
-                // Collect initial match conditions
                 const initialHomeChances = parseInt(document.getElementById('initial_home_chances').value) || 0;
                 const initialSharedChances = parseInt(document.getElementById('initial_shared_chances').value) || 0;
                 const initialAwayChances = parseInt(document.getElementById('initial_away_chances').value) || 0;
                 const initialHomeGoals = parseInt(document.getElementById('initial_home_goals').value) || 0;
                 const initialAwayGoals = parseInt(document.getElementById('initial_away_goals').value) || 0;
-
                 const initialSEChancesInput = document.getElementById('initial_se_chances').value;
-                let num_se_override_val;
-                if (initialSEChancesInput.trim() === "") {
-                    num_se_override_val = undefined; // Use tactic-based
-                } else {
-                    const parsedSE = parseInt(initialSEChancesInput);
-                    if (!isNaN(parsedSE) && parsedSE >= 0) {
-                        num_se_override_val = parsedSE;
-                    } else {
-                        num_se_override_val = undefined; // Invalid input, fallback to tactic-based
-                    }
-                }
+                let num_se_override_val = initialSEChancesInput.trim() === "" ? undefined : (parseInt(initialSEChancesInput) >= 0 ? parseInt(initialSEChancesInput) : undefined);
+                
                 setTimeout(() => {
                     const home_data = collectInputs('home');
                     const away_data = collectInputs('away');
-                    let sim_count = parseInt(document.getElementById('sim_count').value);
-                    if (sim_count > 100000) sim_count = 100000; // Enforce max limit
+                    let sim_count = parseInt(document.getElementById('sim_count').value) || 1000;
+                    if (sim_count > 100000) sim_count = 100000;
                     const match_type = document.querySelector('input[name="match_type"]:checked').value;
                     
                     const home_team = precomputeRatings(home_data);
                     const away_team = precomputeRatings(away_data);
 
                     const custom_conditions = {
-                        home_chances: initialHomeChances,
-                        shared_chances: initialSharedChances,
-                        away_chances: initialAwayChances,
+                        home_chances: initialHomeChances, shared_chances: initialSharedChances, away_chances: initialAwayChances,
                         num_se_override: num_se_override_val,
-                        start_home_goals: initialHomeGoals,
-                        start_away_goals: initialAwayGoals
+                        start_home_goals: initialHomeGoals, start_away_goals: initialAwayGoals
                     };
                     
-                    let results = {
+                    let results_raw = {
                         normal_time: { home_wins: 0, draws: 0, away_wins: 0, home_goals: 0, away_goals: 0 },
                         extra_time: { home_wins: 0, draws: 0, away_wins: 0 },
                         penalties: { home_wins: 0, away_wins: 0 },
@@ -802,170 +849,184 @@
                             away_l_attack_goals: 0, away_c_attack_goals: 0, away_r_attack_goals: 0,
                             away_sp_goals: 0, away_se_goals: 0, away_pnf_goals: 0, away_ls_goals: 0
                         },
-                        total_simulated_se_events: 0,
-                        total_simulated_se_goals: 0,
-                        se_type_counts_sum: {},
-                        se_type_goal_counts_sum: {}
+                        total_simulated_se_events: 0, total_simulated_se_goals: 0,
+                        se_type_counts_sum: {}, se_type_goal_counts_sum: {}
                     };
 
                     for(let i = 0; i < sim_count; i++) {
                         const sim_result = simulateMatch(home_team, away_team, match_type, custom_conditions);
                         const [h_nt, a_nt] = sim_result.normal_time_score;
-                        results.normal_time.home_goals += h_nt;
-                        results.normal_time.away_goals += a_nt;
-                        if (h_nt > a_nt) results.normal_time.home_wins++;
-                        else if (a_nt > h_nt) results.normal_time.away_wins++;
-                        else results.normal_time.draws++;
+                        results_raw.normal_time.home_goals += h_nt;
+                        results_raw.normal_time.away_goals += a_nt;
+                        if (h_nt > a_nt) results_raw.normal_time.home_wins++;
+                        else if (a_nt > h_nt) results_raw.normal_time.away_wins++;
+                        else results_raw.normal_time.draws++;
 
                         if (sim_result.extra_time_score) {
                             const [h_et, a_et] = sim_result.extra_time_score;
-                            if (h_et > a_et) results.extra_time.home_wins++;
-                            else if (a_et > h_et) results.extra_time.away_wins++;
-                            else results.extra_time.draws++;
+                            if (h_et > a_et) results_raw.extra_time.home_wins++;
+                            else if (a_et > h_et) results_raw.extra_time.away_wins++;
+                            else results_raw.extra_time.draws++;
                         }
-
                         if (sim_result.pk_winner) {
-                            if (sim_result.pk_winner === 'home') results.penalties.home_wins++;
-                            else results.penalties.away_wins++;
+                            if (sim_result.pk_winner === 'home') results_raw.penalties.home_wins++;
+                            else results_raw.penalties.away_wins++;
                         }
-
-                        // Accumulate goal details
-                        if (sim_result.goal_details) {
-                            for (const key in results.goal_details_sum) {
-                                if (sim_result.goal_details.hasOwnProperty(key)) {
-                                    results.goal_details_sum[key] += sim_result.goal_details[key];
-                                }
-                            }
+                        for (const key in results_raw.goal_details_sum) {
+                            if (sim_result.goal_details.hasOwnProperty(key)) results_raw.goal_details_sum[key] += sim_result.goal_details[key];
                         }
-
-                        // Accumulate total SE counts and detailed SE type counts
-                        results.total_simulated_se_events += sim_result.simulated_se_events_count || 0;
-                        results.total_simulated_se_goals += sim_result.simulated_se_goals_count || 0;
-
-                        if (sim_result.se_type_counts) {
-                            for (const type in sim_result.se_type_counts) {
-                                results.se_type_counts_sum[type] = (results.se_type_counts_sum[type] || 0) + sim_result.se_type_counts[type];
-                            }
-                        }
-                        if (sim_result.se_type_goal_counts) {
-                            for (const type in sim_result.se_type_goal_counts) {
-                                results.se_type_goal_counts_sum[type] = (results.se_type_goal_counts_sum[type] || 0) + sim_result.se_type_goal_counts[type];
-                            }
-                        }
+                        results_raw.total_simulated_se_events += sim_result.simulated_se_events_count || 0;
+                        results_raw.total_simulated_se_goals += sim_result.simulated_se_goals_count || 0;
+                        if (sim_result.se_type_counts) for (const type in sim_result.se_type_counts) results_raw.se_type_counts_sum[type] = (results_raw.se_type_counts_sum[type] || 0) + sim_result.se_type_counts[type];
+                        if (sim_result.se_type_goal_counts) for (const type in sim_result.se_type_goal_counts) results_raw.se_type_goal_counts_sum[type] = (results_raw.se_type_goal_counts_sum[type] || 0) + sim_result.se_type_goal_counts[type];
                     }
+
+                    // --- Process raw results into final, savable object ---
+                    const finalResults = {
+                        nt_home_wins_pct: (results_raw.normal_time.home_wins / sim_count) * 100,
+                        nt_draws_pct: (results_raw.normal_time.draws / sim_count) * 100,
+                        nt_away_wins_pct: (results_raw.normal_time.away_wins / sim_count) * 100,
+                        nt_avg_home_goals: results_raw.normal_time.home_goals / sim_count,
+                        nt_avg_away_goals: results_raw.normal_time.away_goals / sim_count,
+                        avg_goal_details: {},
+                        avg_se_details: { generated: {}, goals: {} },
+                    };
+                    lastFullResults = finalResults; // Store for saving
+
+                    // --- Get baseline for comparison ---
+                    const baselineName = document.getElementById('baseline_select').value;
+                    const baseline = baselineName !== 'none' ? savedBaselines[baselineName] : null;
 
                     const home_name = home_team.name;
                     const away_name = away_team.name;
 
                     let outputHTML = `<h2 class="text-2xl font-semibold mb-4 text-white">Simulation Complete</h2>`;
-                    const nt_h_wins = (results.normal_time.home_wins / sim_count) * 100;
-                    const nt_draws = (results.normal_time.draws / sim_count) * 100;
-                    const nt_a_wins = (results.normal_time.away_wins / sim_count) * 100;
-                    const nt_h_goals = results.normal_time.home_goals / sim_count;
-                    const nt_a_goals = results.normal_time.away_goals / sim_count;
                     outputHTML += `<div class="mb-6 p-4 bg-gray-700/50 rounded-lg">
                                       <h3 class="text-xl font-semibold mb-2 text-indigo-400">1) After Normal Time</h3>
-                                      <p>${home_name} Wins: <strong>${nt_h_wins.toFixed(1)}%</strong></p>
-                                      <p>Draws: <strong>${nt_draws.toFixed(1)}%</strong></p>
-                                      <p>${away_name} Wins: <strong>${nt_a_wins.toFixed(1)}%</strong></p>
-                                      <p class="mt-2">Expected Goals: <strong>${home_name} ${nt_h_goals.toFixed(2)} - ${nt_a_goals.toFixed(2)} ${away_name}</strong></p>
+                                      <p>${home_name} Wins: <strong>${finalResults.nt_home_wins_pct.toFixed(1)}%</strong> ${getComparisonHTML(finalResults.nt_home_wins_pct, baseline?.nt_home_wins_pct, true)}</p>
+                                      <p>Draws: <strong>${finalResults.nt_draws_pct.toFixed(1)}%</strong> ${getComparisonHTML(finalResults.nt_draws_pct, baseline?.nt_draws_pct, true)}</p>
+                                      <p>${away_name} Wins: <strong>${finalResults.nt_away_wins_pct.toFixed(1)}%</strong> ${getComparisonHTML(finalResults.nt_away_wins_pct, baseline?.nt_away_wins_pct, true)}</p>
+                                      <p class="mt-2">Expected Goals: <strong>${home_name} ${finalResults.nt_avg_home_goals.toFixed(2)} ${getComparisonHTML(finalResults.nt_avg_home_goals, baseline?.nt_avg_home_goals)} - ${finalResults.nt_avg_away_goals.toFixed(2)} ${getComparisonHTML(finalResults.nt_avg_away_goals, baseline?.nt_avg_away_goals)} ${away_name}</strong></p>
                                    </div>`;
+
                     if(match_type === 'cup') {
-                        const et_h_wins_cum = ((results.normal_time.home_wins + results.extra_time.home_wins) / sim_count) * 100;
-                        const et_a_wins_cum = ((results.normal_time.away_wins + results.extra_time.away_wins) / sim_count) * 100;
-                        const et_draws_pct = (results.extra_time.draws / sim_count) * 100;
+                        finalResults.et_home_wins_cum_pct = ((results_raw.normal_time.home_wins + results_raw.extra_time.home_wins) / sim_count) * 100;
+                        finalResults.et_away_wins_cum_pct = ((results_raw.normal_time.away_wins + results_raw.extra_time.away_wins) / sim_count) * 100;
+                        finalResults.et_draws_pct = (results_raw.extra_time.draws / sim_count) * 100;
+                        finalResults.final_home_wins_pct = ((results_raw.normal_time.home_wins + results_raw.extra_time.home_wins + results_raw.penalties.home_wins) / sim_count) * 100;
+                        finalResults.final_away_wins_pct = ((results_raw.normal_time.away_wins + results_raw.extra_time.away_wins + results_raw.penalties.away_wins) / sim_count) * 100;
+
                          outputHTML += `<div class="mb-6 p-4 bg-gray-700/50 rounded-lg">
                                           <h3 class="text-xl font-semibold mb-2 text-indigo-400">2) Cumulative after Extra Time</h3>
-                                          <p>${home_name} Wins: <strong>${et_h_wins_cum.toFixed(1)}%</strong></p>
-                                          <p>Draws (leading to penalties): <strong>${et_draws_pct.toFixed(1)}%</strong></p>
-                                          <p>${away_name} Wins: <strong>${et_a_wins_cum.toFixed(1)}%</strong></p>
+                                          <p>${home_name} Wins: <strong>${finalResults.et_home_wins_cum_pct.toFixed(1)}%</strong> ${getComparisonHTML(finalResults.et_home_wins_cum_pct, baseline?.et_home_wins_cum_pct, true)}</p>
+                                          <p>Draws (leading to penalties): <strong>${finalResults.et_draws_pct.toFixed(1)}%</strong> ${getComparisonHTML(finalResults.et_draws_pct, baseline?.et_draws_pct, true)}</p>
+                                          <p>${away_name} Wins: <strong>${finalResults.et_away_wins_cum_pct.toFixed(1)}%</strong> ${getComparisonHTML(finalResults.et_away_wins_cum_pct, baseline?.et_away_wins_cum_pct, true)}</p>
                                        </div>`;
-                        const final_h_wins = ((results.normal_time.home_wins + results.extra_time.home_wins + results.penalties.home_wins) / sim_count) * 100;
-                        const final_a_wins = ((results.normal_time.away_wins + results.extra_time.away_wins + results.penalties.away_wins) / sim_count) * 100;
                          outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg">
                                          <h3 class="text-xl font-semibold mb-2 text-indigo-400">3) Final Results (including Penalties)</h3>
-                                         <p>${home_name} Wins: <strong>${final_h_wins.toFixed(1)}%</strong></p>
-                                         <p>${away_name} Wins: <strong>${final_a_wins.toFixed(1)}%</strong></p>
+                                         <p>${home_name} Wins: <strong>${finalResults.final_home_wins_pct.toFixed(1)}%</strong> ${getComparisonHTML(finalResults.final_home_wins_pct, baseline?.final_home_wins_pct, true)}</p>
+                                         <p>${away_name} Wins: <strong>${finalResults.final_away_wins_pct.toFixed(1)}%</strong> ${getComparisonHTML(finalResults.final_away_wins_pct, baseline?.final_away_wins_pct, true)}</p>
                                       </div>`;
                     }
                     
-                    // Calculate averages for goal details
-                    const avg_goal_details = {};
-                    for (const key in results.goal_details_sum) {
-                        avg_goal_details[key] = results.goal_details_sum[key] / sim_count;
+                    for (const key in results_raw.goal_details_sum) {
+                        finalResults.avg_goal_details[key] = results_raw.goal_details_sum[key] / sim_count;
                     }
 
-                    const home_total_avg_goals_for_breakdown = avg_goal_details.home_l_attack_goals + avg_goal_details.home_c_attack_goals + avg_goal_details.home_r_attack_goals + avg_goal_details.home_sp_goals + avg_goal_details.home_se_goals + avg_goal_details.home_pnf_goals + avg_goal_details.home_ls_goals;
-                    const away_total_avg_goals_for_breakdown = avg_goal_details.away_l_attack_goals + avg_goal_details.away_c_attack_goals + avg_goal_details.away_r_attack_goals + avg_goal_details.away_sp_goals + avg_goal_details.away_se_goals + avg_goal_details.away_pnf_goals + avg_goal_details.away_ls_goals;
+                    const home_total_avg_goals = finalResults.avg_goal_details.home_l_attack_goals + finalResults.avg_goal_details.home_c_attack_goals + finalResults.avg_goal_details.home_r_attack_goals + finalResults.avg_goal_details.home_sp_goals + finalResults.avg_goal_details.home_se_goals + finalResults.avg_goal_details.home_pnf_goals + finalResults.avg_goal_details.home_ls_goals;
+                    const away_total_avg_goals = finalResults.avg_goal_details.away_l_attack_goals + finalResults.avg_goal_details.away_c_attack_goals + finalResults.avg_goal_details.away_r_attack_goals + finalResults.avg_goal_details.away_sp_goals + finalResults.avg_goal_details.away_se_goals + finalResults.avg_goal_details.away_pnf_goals + finalResults.avg_goal_details.away_ls_goals;
+                    finalResults.avg_goal_details['home_total_avg_goals'] = home_total_avg_goals;
+                    finalResults.avg_goal_details['away_total_avg_goals'] = away_total_avg_goals;
 
                     outputHTML += `<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">`;
-                    outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg">
+                    outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg space-y-1">
                                       <h3 class="text-xl font-semibold mb-2 text-indigo-400">${home_name} - Goal Breakdown</h3>
-                                      <p>Total Expected Goals (Overall): <strong>${home_total_avg_goals_for_breakdown.toFixed(2)}</strong></p>
-                                      <p>Left Attack: <strong>${avg_goal_details.home_l_attack_goals.toFixed(2)}</strong> (${((avg_goal_details.home_l_attack_goals / Math.max(0.01, home_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
-                                      <p>Central Attack: <strong>${avg_goal_details.home_c_attack_goals.toFixed(2)}</strong> (${((avg_goal_details.home_c_attack_goals / Math.max(0.01, home_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
-                                      <p>Right Attack: <strong>${avg_goal_details.home_r_attack_goals.toFixed(2)}</strong> (${((avg_goal_details.home_r_attack_goals / Math.max(0.01, home_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
-                                      <p>Set Pieces: <strong>${avg_goal_details.home_sp_goals.toFixed(2)}</strong> (${((avg_goal_details.home_sp_goals / Math.max(0.01, home_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
-                                      <p>Special Events: <strong>${avg_goal_details.home_se_goals.toFixed(2)}</strong> (${((avg_goal_details.home_se_goals / Math.max(0.01, home_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
-                                      <p>PNF: <strong>${avg_goal_details.home_pnf_goals.toFixed(2)}</strong> (${((avg_goal_details.home_pnf_goals / Math.max(0.01, home_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
-                                      <p>Long Shots: <strong>${avg_goal_details.home_ls_goals.toFixed(2)}</strong> (${((avg_goal_details.home_ls_goals / Math.max(0.01, home_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
+                                      <p>Total Expected Goals: <strong>${home_total_avg_goals.toFixed(2)}</strong> ${getComparisonHTML(home_total_avg_goals, baseline?.avg_goal_details.home_total_avg_goals)}</p>
+                                      <p>Left Attack: <strong>${finalResults.avg_goal_details.home_l_attack_goals.toFixed(2)}</strong> (${((finalResults.avg_goal_details.home_l_attack_goals / Math.max(0.01, home_total_avg_goals)) * 100).toFixed(1)}%) ${getComparisonHTML(finalResults.avg_goal_details.home_l_attack_goals, baseline?.avg_goal_details.home_l_attack_goals)}</p>
+                                      <p>Central Attack: <strong>${finalResults.avg_goal_details.home_c_attack_goals.toFixed(2)}</strong> (${((finalResults.avg_goal_details.home_c_attack_goals / Math.max(0.01, home_total_avg_goals)) * 100).toFixed(1)}%) ${getComparisonHTML(finalResults.avg_goal_details.home_c_attack_goals, baseline?.avg_goal_details.home_c_attack_goals)}</p>
+                                      <p>Right Attack: <strong>${finalResults.avg_goal_details.home_r_attack_goals.toFixed(2)}</strong> (${((finalResults.avg_goal_details.home_r_attack_goals / Math.max(0.01, home_total_avg_goals)) * 100).toFixed(1)}%) ${getComparisonHTML(finalResults.avg_goal_details.home_r_attack_goals, baseline?.avg_goal_details.home_r_attack_goals)}</p>
+                                      <p>Set Pieces: <strong>${finalResults.avg_goal_details.home_sp_goals.toFixed(2)}</strong> (${((finalResults.avg_goal_details.home_sp_goals / Math.max(0.01, home_total_avg_goals)) * 100).toFixed(1)}%) ${getComparisonHTML(finalResults.avg_goal_details.home_sp_goals, baseline?.avg_goal_details.home_sp_goals)}</p>
+                                      <p>Special Events: <strong>${finalResults.avg_goal_details.home_se_goals.toFixed(2)}</strong> (${((finalResults.avg_goal_details.home_se_goals / Math.max(0.01, home_total_avg_goals)) * 100).toFixed(1)}%) ${getComparisonHTML(finalResults.avg_goal_details.home_se_goals, baseline?.avg_goal_details.home_se_goals)}</p>
+                                      <p>PNF: <strong>${finalResults.avg_goal_details.home_pnf_goals.toFixed(2)}</strong> (${((finalResults.avg_goal_details.home_pnf_goals / Math.max(0.01, home_total_avg_goals)) * 100).toFixed(1)}%) ${getComparisonHTML(finalResults.avg_goal_details.home_pnf_goals, baseline?.avg_goal_details.home_pnf_goals)}</p>
+                                      <p>Long Shots: <strong>${finalResults.avg_goal_details.home_ls_goals.toFixed(2)}</strong> (${((finalResults.avg_goal_details.home_ls_goals / Math.max(0.01, home_total_avg_goals)) * 100).toFixed(1)}%) ${getComparisonHTML(finalResults.avg_goal_details.home_ls_goals, baseline?.avg_goal_details.home_ls_goals)}</p>
                                    </div>`;
-                    outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg">
+                    outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg space-y-1">
                                       <h3 class="text-xl font-semibold mb-2 text-indigo-400">${away_name} - Goal Breakdown</h3>
-                                      <p>Total Expected Goals (Overall): <strong>${away_total_avg_goals_for_breakdown.toFixed(2)}</strong></p>
-                                      <p>Left Attack: <strong>${avg_goal_details.away_l_attack_goals.toFixed(2)}</strong> (${((avg_goal_details.away_l_attack_goals / Math.max(0.01, away_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
-                                      <p>Central Attack: <strong>${avg_goal_details.away_c_attack_goals.toFixed(2)}</strong> (${((avg_goal_details.away_c_attack_goals / Math.max(0.01, away_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
-                                      <p>Right Attack: <strong>${avg_goal_details.away_r_attack_goals.toFixed(2)}</strong> (${((avg_goal_details.away_r_attack_goals / Math.max(0.01, away_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
-                                      <p>Set Pieces: <strong>${avg_goal_details.away_sp_goals.toFixed(2)}</strong> (${((avg_goal_details.away_sp_goals / Math.max(0.01, away_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
-                                      <p>Special Events: <strong>${avg_goal_details.away_se_goals.toFixed(2)}</strong> (${((avg_goal_details.away_se_goals / Math.max(0.01, away_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
-                                      <p>PNF: <strong>${avg_goal_details.away_pnf_goals.toFixed(2)}</strong> (${((avg_goal_details.away_pnf_goals / Math.max(0.01, away_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
-                                      <p>Long Shots: <strong>${avg_goal_details.away_ls_goals.toFixed(2)}</strong> (${((avg_goal_details.away_ls_goals / Math.max(0.01, away_total_avg_goals_for_breakdown)) * 100).toFixed(1)}%)</p>
+                                      <p>Total Expected Goals: <strong>${away_total_avg_goals.toFixed(2)}</strong> ${getComparisonHTML(away_total_avg_goals, baseline?.avg_goal_details.away_total_avg_goals)}</p>
+                                      <p>Left Attack: <strong>${finalResults.avg_goal_details.away_l_attack_goals.toFixed(2)}</strong> (${((finalResults.avg_goal_details.away_l_attack_goals / Math.max(0.01, away_total_avg_goals)) * 100).toFixed(1)}%) ${getComparisonHTML(finalResults.avg_goal_details.away_l_attack_goals, baseline?.avg_goal_details.away_l_attack_goals)}</p>
+                                      <p>Central Attack: <strong>${finalResults.avg_goal_details.away_c_attack_goals.toFixed(2)}</strong> (${((finalResults.avg_goal_details.away_c_attack_goals / Math.max(0.01, away_total_avg_goals)) * 100).toFixed(1)}%) ${getComparisonHTML(finalResults.avg_goal_details.away_c_attack_goals, baseline?.avg_goal_details.away_c_attack_goals)}</p>
+                                      <p>Right Attack: <strong>${finalResults.avg_goal_details.away_r_attack_goals.toFixed(2)}</strong> (${((finalResults.avg_goal_details.away_r_attack_goals / Math.max(0.01, away_total_avg_goals)) * 100).toFixed(1)}%) ${getComparisonHTML(finalResults.avg_goal_details.away_r_attack_goals, baseline?.avg_goal_details.away_r_attack_goals)}</p>
+                                      <p>Set Pieces: <strong>${finalResults.avg_goal_details.away_sp_goals.toFixed(2)}</strong> (${((finalResults.avg_goal_details.away_sp_goals / Math.max(0.01, away_total_avg_goals)) * 100).toFixed(1)}%) ${getComparisonHTML(finalResults.avg_goal_details.away_sp_goals, baseline?.avg_goal_details.away_sp_goals)}</p>
+                                      <p>Special Events: <strong>${finalResults.avg_goal_details.away_se_goals.toFixed(2)}</strong> (${((finalResults.avg_goal_details.away_se_goals / Math.max(0.01, away_total_avg_goals)) * 100).toFixed(1)}%) ${getComparisonHTML(finalResults.avg_goal_details.away_se_goals, baseline?.avg_goal_details.away_se_goals)}</p>
+                                      <p>PNF: <strong>${finalResults.avg_goal_details.away_pnf_goals.toFixed(2)}</strong> (${((finalResults.avg_goal_details.away_pnf_goals / Math.max(0.01, away_total_avg_goals)) * 100).toFixed(1)}%) ${getComparisonHTML(finalResults.avg_goal_details.away_pnf_goals, baseline?.avg_goal_details.away_pnf_goals)}</p>
+                                      <p>Long Shots: <strong>${finalResults.avg_goal_details.away_ls_goals.toFixed(2)}</strong> (${((finalResults.avg_goal_details.away_ls_goals / Math.max(0.01, away_total_avg_goals)) * 100).toFixed(1)}%) ${getComparisonHTML(finalResults.avg_goal_details.away_ls_goals, baseline?.avg_goal_details.away_ls_goals)}</p>
                                    </div>`;
                     outputHTML += `</div>`;
 
-                    // Calculate and display average SE type counts
-                    const avg_total_se_events = results.total_simulated_se_events / sim_count;
-                    const avg_total_se_goals = results.total_simulated_se_goals / sim_count;
-
-                    const avg_se_type_counts = {};
-                    for (const type in results.se_type_counts_sum) {
-                        avg_se_type_counts[type] = results.se_type_counts_sum[type] / sim_count;
-                    }
-                    const avg_se_type_goal_counts = {};
-                    for (const type in results.se_type_goal_counts_sum) {
-                        avg_se_type_goal_counts[type] = results.se_type_goal_counts_sum[type] / sim_count;
-                    }
-
-                    outputHTML += `<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">`;
-                    outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg">
+                    finalResults.avg_se_details.total_generated = results_raw.total_simulated_se_events / sim_count;
+                    finalResults.avg_se_details.total_goals = results_raw.total_simulated_se_goals / sim_count;
+                    
+                    outputHTML += `<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="p-4 bg-gray-700/50 rounded-lg space-y-1">
                                       <h3 class="text-xl font-semibold mb-2 text-indigo-400">Average SE Generated (by Type)</h3>
-                                      <p>Total Avg. SEs Generated: <strong>${avg_total_se_events.toFixed(4)}</strong></p>`;
-                    const sorted_se_types_generated = Object.keys(avg_se_type_counts).sort();
+                                      <p>Total Avg. SEs Generated: <strong>${finalResults.avg_se_details.total_generated.toFixed(4)}</strong> ${getComparisonHTML(finalResults.avg_se_details.total_generated, baseline?.avg_se_details.total_generated)}</p>`;
+                    const sorted_se_types_generated = Object.keys(results_raw.se_type_counts_sum).sort();
                     for (const type of sorted_se_types_generated) {
-                        const percentage = avg_total_se_events > 0 ? (avg_se_type_counts[type] / avg_total_se_events * 100).toFixed(1) : "0.0";
-                        outputHTML += `<p>${type}: <strong>${avg_se_type_counts[type].toFixed(4)}</strong> (${percentage}%)</p>`;
+                        const avg = results_raw.se_type_counts_sum[type] / sim_count;
+                        finalResults.avg_se_details.generated[type] = avg;
+                        const percentage = finalResults.avg_se_details.total_generated > 0 ? (avg / finalResults.avg_se_details.total_generated * 100).toFixed(1) : "0.0";
+                        outputHTML += `<p>${type}: <strong>${avg.toFixed(4)}</strong> (${percentage}%) ${getComparisonHTML(avg, baseline?.avg_se_details.generated[type])}</p>`;
                     }
-                    if (sorted_se_types_generated.length === 0) outputHTML += `<p class="text-gray-400">No SEs generated in simulations.</p>`;
-                    outputHTML += `</div>`;
-
-                    outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg">
+                    outputHTML += `</div><div class="p-4 bg-gray-700/50 rounded-lg space-y-1">
                                       <h3 class="text-xl font-semibold mb-2 text-indigo-400">Average SE Goals (by Type)</h3>
-                                      <p>Total Avg. SE Goals: <strong>${avg_total_se_goals.toFixed(4)}</strong></p>`;
-                    const sorted_se_types_goals = Object.keys(avg_se_type_goal_counts).sort();
+                                      <p>Total Avg. SE Goals: <strong>${finalResults.avg_se_details.total_goals.toFixed(4)}</strong> ${getComparisonHTML(finalResults.avg_se_details.total_goals, baseline?.avg_se_details.total_goals)}</p>`;
+                    const sorted_se_types_goals = Object.keys(results_raw.se_type_goal_counts_sum).sort();
                     for (const type of sorted_se_types_goals) {
-                        const percentage = avg_total_se_goals > 0 ? (avg_se_type_goal_counts[type] / avg_total_se_goals * 100).toFixed(1) : "0.0";
-                        outputHTML += `<p>${type}: <strong>${avg_se_type_goal_counts[type].toFixed(4)}</strong> (${percentage}%)</p>`;
+                        const avg = results_raw.se_type_goal_counts_sum[type] / sim_count;
+                        finalResults.avg_se_details.goals[type] = avg;
+                        const percentage = finalResults.avg_se_details.total_goals > 0 ? (avg / finalResults.avg_se_details.total_goals * 100).toFixed(1) : "0.0";
+                        outputHTML += `<p>${type}: <strong>${avg.toFixed(4)}</strong> (${percentage}%) ${getComparisonHTML(avg, baseline?.avg_se_details.goals[type])}</p>`;
                     }
-                     if (sorted_se_types_goals.length === 0) outputHTML += `<p class="text-gray-400">No SE goals scored in simulations.</p>`;
-                    outputHTML += `</div>`;
-                    outputHTML += `</div>`;
+                    outputHTML += `</div></div>`;
 
+                    // Add the "Save as Baseline" controls
+                    outputHTML += `
+                        <div class="mt-6 pt-6 border-t border-gray-700 flex items-center gap-4">
+                            <input type="text" id="baseline_name_input" value="Baseline" class="block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2 text-white">
+                            <button id="save_as_baseline" class="w-auto flex-shrink-0 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">Save as Baseline</button>
+                        </div>
+                    `;
 
                     resultsDiv.innerHTML = outputHTML;
                     loader.classList.add('hidden');
                     runButton.classList.remove('hidden');
+
                 }, 50);
             });
+
+            // --- Event listener for dynamic buttons ---
+            document.body.addEventListener('click', (e) => {
+                // Save Baseline Button
+                if (e.target.id === 'save_as_baseline') {
+                    const nameInput = document.getElementById('baseline_name_input');
+                    const name = nameInput.value.trim();
+                    if (name && lastFullResults) {
+                        savedBaselines[name] = lastFullResults;
+                        updateBaselinesUI();
+                    } else {
+                        alert("Please enter a valid name for the baseline.");
+                    }
+                }
+                // Delete Baseline Button
+                if (e.target.classList.contains('delete-baseline-btn')) {
+                    const name = e.target.dataset.name;
+                    if (name && confirm(`Are you sure you want to delete the baseline "${name}"?`)) {
+                        delete savedBaselines[name];
+                        updateBaselinesUI();
+                    }
+                }
+            });
+
         });
     </script>
 </body>
