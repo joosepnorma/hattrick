@@ -272,6 +272,116 @@
                 const parsedHome = {};
                 const parsedAway = {};
 
+                // --- NEW: Try to detect and parse "summary" format (third format) ---
+                // This format has a [table] with only Defence/Attack/Midfield and [b] lines for tactics etc.
+                // Works for both Estonian and English
+                const summaryTableMatch = bbcode.match(/\[table\]([\s\S]*?)\[\/table\]/i);
+                const summaryHeaderMatch = bbcode.match(/\[b\](.*?)\[\/b\]/i);
+                const summaryTacticMatch = bbcode.match(/\[b\](Tactics|Taktika)\[\/b\]:?\s*([^\n\r]+)/i);
+                const summaryFormationMatch = bbcode.match(/\[b\](Formation|Formatsioon)\[\/b\]:?\s*([^\n\r]+)/i);
+                const summaryAttitudeMatch = bbcode.match(/\[b\](Team Attitude|Meeskonna meeleolu)\[\/b\]:?\s*([^\n\r]+)/i);
+                const summaryStyleMatch = bbcode.match(/\[b\](Style of play|Mängustiil)\[\/b\]:?\s*([^\n\r]+)/i);
+
+                // If summaryTableMatch and the table only contains Defence/Attack/Midfield (or Estonian), treat as summary format
+                if (summaryTableMatch) {
+                    const tableContent = summaryTableMatch[1];
+                    // Acceptable headers in both languages
+                    const defHeaders = ["Defence", "Kaitse"];
+                    const midHeaders = ["Midfield", "Poolkaitse"];
+                    const attHeaders = ["Attack", "Rünnak"];
+                    // Parse rows
+                    const rowRegex = /\[tr\](.*?)\[\/tr\]/gi;
+                    let rowMatch;
+                    let foundDef = false, foundMid = false, foundAtt = false;
+                    let defValues = [], midValue = null, attValues = [];
+                    while ((rowMatch = rowRegex.exec(tableContent)) !== null) {
+                        const row = rowMatch[1];
+                        // Header cell
+                        const thMatch = row.match(/\[th\](.*?)\[\/th\]/i);
+                        if (!thMatch) continue;
+                        const header = thMatch[1].trim();
+                        // Defence row: 3 values
+                        if (defHeaders.includes(header)) {
+                            foundDef = true;
+                            const tdMatches = Array.from(row.matchAll(/\[td[^\]]*\](.*?)\[\/td\]/gi));
+                            defValues = tdMatches.map(m => parseFloat(m[1].replace(",", ".")));
+                        }
+                        // Midfield row: 1 value (colspan=3)
+                        if (midHeaders.includes(header)) {
+                            foundMid = true;
+                            const tdMatch = row.match(/\[td[^\]]*\](.*?)\[\/td\]/i);
+                            if (tdMatch) midValue = parseFloat(tdMatch[1].replace(",", "."));
+                        }
+                        // Attack row: 3 values
+                        if (attHeaders.includes(header)) {
+                            foundAtt = true;
+                            const tdMatches = Array.from(row.matchAll(/\[td[^\]]*\](.*?)\[\/td\]/gi));
+                            attValues = tdMatches.map(m => parseFloat(m[1].replace(",", ".")));
+                        }
+                    }
+                    // If all found, treat as summary format
+                    if (foundDef && foundMid && foundAtt) {
+                        // Map to form keys
+                        const summaryData = {
+                            r_defense: defValues[0] || 0,
+                            c_defense: defValues[1] || 0,
+                            l_defense: defValues[2] || 0,
+                            midfield: midValue || 0,
+                            r_attack: attValues[0] || 0,
+                            c_attack: attValues[1] || 0,
+                            l_attack: attValues[2] || 0
+                        };
+                        // Team name from header
+                        if (summaryHeaderMatch) {
+                            const nameParts = summaryHeaderMatch[1].split("-");
+                            summaryData.home_name = nameParts[0].trim();
+                            summaryData.away_name = nameParts.length > 1 ? nameParts[1].trim() : nameParts[0].trim();
+                        }
+                        // Tactic and level
+                        if (summaryTacticMatch) {
+                            let tacticStr = summaryTacticMatch[2].trim();
+                            let tacticLevelMatch = tacticStr.match(/\((\d+)\)/);
+                            if (tacticLevelMatch) {
+                                summaryData.tactic_level = parseInt(tacticLevelMatch[1]);
+                                tacticStr = tacticStr.replace(/\((\d+)\)/, "").trim();
+                            }
+                            tacticStr = tacticStr.replace(/\b(utopian|utoopiline|jumalik|formidable|suurepärane|maagiline|imepärane|hea|väga madal|väga kõrge|madal|kõrge|väga kõrge|väga madal)\b/gi, "").trim();
+                            tacticStr = tacticStr.replace(/\d+$/, "").trim();
+                            const tacticNameMapping = {
+                                // English
+                                "Normal": "Normal",
+                                "Pressing": "Pressing",
+                                "Counter-attacks": "CA",
+                                "Attack in the Middle": "AIM",
+                                "Attack on wings": "AOW",
+                                "Long shots": "LS",
+                                "Play creatively": "PC",
+                                // Estonian
+                                "Normaalne": "Normal",
+                                "Surumine": "Pressing",
+                                "Vasturünnakud": "CA",
+                                "Rünnak keskele": "AIM",
+                                "Ründa keskelt": "AIM",
+                                "Rünnak äär": "AOW",
+                                "Rünnak äärtelt": "AOW",
+                                "Ründa äärtelt": "AOW",
+                                "Kauglöögid": "LS",
+                                "Loovalt mängimine": "PC",
+                                "Mängi loovalt": "PC"
+                            };
+                            let tacticKey = Object.keys(tacticNameMapping).find(k => tacticStr.toLowerCase().includes(k.toLowerCase()));
+                            summaryData.tactic = tacticKey ? tacticNameMapping[tacticKey] : tacticStr;
+                        }
+                        // ISP and specialties not available in this format
+                        // Return as single-team BBCode, but with both names available
+                        return {
+                            home: Object.assign({ name: summaryData.home_name }, summaryData),
+                            away: Object.assign({ name: summaryData.away_name }, summaryData)
+                        };
+                    }
+                }
+                // --- END summary format ---
+
                 const raw_rows = bbcode.match(/\[tr\].*?\[\/tr\]/g);
                 if (!raw_rows) {
                     console.warn("BBCode does not contain valid [tr]...[/tr] rows.");
@@ -348,8 +458,8 @@
                 let state = headerLineProcessed ? 'EXPECT_MAIN_RATING' : 'EXPECT_TEAM_NAMES';
 
                 const parseNumericValuesForRow = (line, reportType, formKey, parsedHome, parsedAway, isInteger) => {
-                    const valueCellGlobalRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]([^<]+?)\[\/td\]/g;
-                    const valueCellSingleRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]([^<]+?)\[\/td\]/;
+                    const valueCellGlobalRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\\]([^<]+?)\[\/td\]/g;
+                    const valueCellSingleRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\\]([^<]+?)\[\/td\]/;
                     const valueCells = line.match(valueCellGlobalRegex);
                     if (valueCells) {
                         const values = valueCells.map(cell => cell.match(valueCellSingleRegex)[1].trim().replace(',', '.'));
