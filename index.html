@@ -273,18 +273,35 @@
                 const parsedAway = {};
 
                 // --- NEW: Try to detect and parse "summary" format (third format) ---
-                // This format has a [table] with only Defence/Attack/Midfield and [b] lines for tactics etc.
-                // Works for both Estonian and English
                 const summaryTableMatch = bbcode.match(/\[table\]([\s\S]*?)\[\/table\]/i);
-                const summaryHeaderMatch = bbcode.match(/\[b\](.*?)\[\/b\]/i);
-                const summaryTacticMatch = bbcode.match(/\[b\](Tactics|Taktika)\[\/b\]:?\s*([^\n\r]+)/i);
-                const summaryFormationMatch = bbcode.match(/\[b\](Formation|Formatsioon)\[\/b\]:?\s*([^\n\r]+)/i);
-                const summaryAttitudeMatch = bbcode.match(/\[b\](Team Attitude|Meeskonna meeleolu)\[\/b\]:?\s*([^\n\r]+)/i);
-                const summaryStyleMatch = bbcode.match(/\[b\](Style of play|Mängustiil)\[\/b\]:?\s*([^\n\r]+)/i);
 
-                // If summaryTableMatch and the table only contains Defence/Attack/Midfield (or Estonian), treat as summary format
+                // Heuristic to distinguish summary reports from detailed ones.
+                // A summary report has simple "Defence", "Midfield", "Attack" headers
+                // but LACKS detailed headers like "Central Defence".
+                let isLikelySummaryFormat = false;
                 if (summaryTableMatch) {
+                    const tableContentForCheck = summaryTableMatch[1];
+                    const hasDetailedHeaders = /\[th\](Central|Left|Right) (defence|attack)\[\/th\]/i.test(tableContentForCheck);
+                    const hasSimpleDef = /\[th\]Defence\[\/th\]/i.test(tableContentForCheck) || /\[th\]Kaitse\[\/th\]/i.test(tableContentForCheck);
+                    const hasSimpleMid = /\[th\]Midfield\[\/th\]/i.test(tableContentForCheck) || /\[th\]Poolkaitse\[\/th\]/i.test(tableContentForCheck);
+                    const hasSimpleAtt = /\[th\]Attack\[\/th\]/i.test(tableContentForCheck) || /\[th\]Rünnak\[\/th\]/i.test(tableContentForCheck);
+
+                    if (!hasDetailedHeaders && hasSimpleDef && hasSimpleMid && hasSimpleAtt) {
+                        isLikelySummaryFormat = true;
+                    }
+                }
+
+                // If it's a summary format, parse it here and return.
+                if (isLikelySummaryFormat) {
+                    // This format has a [table] with only Defence/Attack/Midfield and [b] lines for tactics etc.
+                    // Works for both Estonian and English
                     const tableContent = summaryTableMatch[1];
+                    const summaryHeaderMatch = bbcode.match(/\[b\](.*?)\[\/b\]/i);
+                    const summaryTacticMatch = bbcode.match(/\[b\](Tactics|Taktika)\[\/b\]:?\s*([^\n\r]+)/i);
+                    const summaryFormationMatch = bbcode.match(/\[b\](Formation|Formatsioon)\[\/b\]:?\s*([^\n\r]+)/i);
+                    const summaryAttitudeMatch = bbcode.match(/\[b\](Team Attitude|Meeskonna meeleolu)\[\/b\]:?\s*([^\n\r]+)/i);
+                    const summaryStyleMatch = bbcode.match(/\[b\](Style of play|Mängustiil)\[\/b\]:?\s*([^\n\r]+)/i);
+
                     // Acceptable headers in both languages
                     const defHeaders = ["Defence", "Kaitse"];
                     const midHeaders = ["Midfield", "Poolkaitse"];
@@ -380,11 +397,12 @@
                         };
                     }
                 }
-                // --- END summary format ---
+                // --- END summary format logic ---
 
+                // --- Fallback to detailed report parser ---
                 const raw_rows = bbcode.match(/\[tr\].*?\[\/tr\]/g);
                 if (!raw_rows) {
-                    console.warn("BBCode does not contain valid [tr]...[/tr] rows.");
+                    console.warn("BBCode does not contain valid [tr]...[\/tr] rows.");
                     return { home: null, away: null };
                 }
                 const lines = raw_rows.map(row => row.trim());
@@ -409,20 +427,11 @@
                 if (reportType === null) {
                     let hasTwoValueColumns = false;
                     let hasOneValueColumn = false; // To prefer 'both' if ambiguous
-                    const reportTypeDetectionTags = "(?:Midfield|Right defence|Central defence|Left defence|Right attack|Central attack|Left attack|Defence|Attack|Tactic skill)";
-                    // For language independence, we can't rely on reportTypeDetectionTags.
-                    // Instead, we look for the pattern of [th]label[/th] followed by 1 or 2 value cells.
-                    const tdAlignRightPatternForDetection = `\\[td\\s+align\\s*=\\s*["']?right["']?\\s*\\]`;
-                    const valueContentPatternForDetection = `[^<]+`; // We just need to match content, not capture it here.
-
                     for (const line of lines) {
-                        // Check for two distinct value columns for a known rating
-                        const twoColRegex = new RegExp(`\\[th\\]${reportTypeDetectionTags}\\[\\/th\\].*?${tdAlignRightPatternForDetection}${valueContentPatternForDetection}\\[\\/td\\].*?${tdAlignRightPatternForDetection}${valueContentPatternForDetection}\\[\\/td\\]`);
                         if (line.match(/\[th\].*?\[\/th\].*?\[td\s+align\s*=\s*['"]?right['"]?\s*\][^<]+\[\/td\].*?\[td\s+align\s*=\s*['"]?right['"]?\s*\][^<]+\[\/td\]/i)) {
                             hasTwoValueColumns = true;
                             break;
                         }
-                        // Check for a single value column for a known rating
                         if (line.match(/\[th\].*?\[\/th\].*?\[td\s+align\s*=\s*['"]?right['"]?\s*\][^<]+\[\/td\](?!.*?\[td\s+align\s*=\s*['"]?right['"]?\s*\])/i)) {
                             hasOneValueColumn = true;
                         }
@@ -433,18 +442,16 @@
                         reportType = 'single';
                     }
 
-                    // If content analysis determined 'single' and we have a headerLine but no home name yet (because bothTeamsNameMatch failed)
                     if (reportType === 'single' && headerLine && !parsedHome.name) {
                         const singleTeamNameMatch = headerLine.match(/\[tr\].*?\[th colspan=2\](.*?)(?: - \d+)?(?: \[teamid=\d+\])?\[\/th\](?!.*\s*\[th colspan=2\])/);
                         if (singleTeamNameMatch) {
                             parsedHome.name = singleTeamNameMatch[1].trim();
-                        } else { // Fallback to simpler match if the specific one fails
+                        } else {
                             const simplerSingleNameMatch = headerLine.match(/\[tr\].*?\[th colspan=2\](.*?)(?: - \d+)?(?: \[teamid=\d+\])?\[\/th\]/);
                             if (simplerSingleNameMatch) parsedHome.name = simplerSingleNameMatch[1].trim();
                         }
                     }
                 }
-                 // Default assumption if reportType could not be determined (e.g. very short/malformed BBCode)
                 if (reportType === null) {
                     console.warn("Could not determine BBCode report type (single/both), defaulting to 'single'. Parsing might be incomplete.");
                     reportType = 'single';
@@ -458,8 +465,8 @@
                 let state = headerLineProcessed ? 'EXPECT_MAIN_RATING' : 'EXPECT_TEAM_NAMES';
 
                 const parseNumericValuesForRow = (line, reportType, formKey, parsedHome, parsedAway, isInteger) => {
-                    const valueCellGlobalRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\\]([^<]+?)\[\/td\]/g;
-                    const valueCellSingleRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\\]([^<]+?)\[\/td\]/;
+                    const valueCellGlobalRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]([^<]+?)\[\/td\]/g;
+                    const valueCellSingleRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]([^<]+?)\[\/td\]/;
                     const valueCells = line.match(valueCellGlobalRegex);
                     if (valueCells) {
                         const values = valueCells.map(cell => cell.match(valueCellSingleRegex)[1].trim().replace(',', '.'));
@@ -480,21 +487,20 @@
                 };
 
                 const parseTacticSkillForRow = (line, reportType, parsedHome, parsedAway) => {
-                    // Corrected regex:
-                    // - Match [th]...[/th]
-                    // - Capture everything after [/th] until [/tr] into group 1
-                    // - Properly escape the forward slash in [/th]
                     const cellsContentMatch = line.match(/\[th\].*?\[\/th\](.*?)\[\/tr\]/i);
                     if (cellsContentMatch) {
-                        const cellsStr = cellsContentMatch[1].trim(); 
-                        const noTacticTextVariations = "(no tactic|keine Taktik|pas de tactique|ei taktikat|taktikata)"; // Added "taktikata"
+                        const cellsStr = cellsContentMatch[1].trim();
+                        const noTacticTextVariations = "(no tactic|keine Taktik|pas de tactique|ei taktikat|taktikata)";
 
                         const numericCellRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]\s*(\d+)\s*\[\/td\]/g;
                         const allNumericMatches = Array.from(cellsStr.matchAll(numericCellRegex));
                         const numericValues = allNumericMatches.map(m => parseInt(m[1].trim()));
 
-                        const homeIsColspanNoTactic = new RegExp(`^\\s*\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]`, "i").test(cellsStr);
-                        const awayIsColspanNoTacticSuffix = new RegExp(`\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]\\s*$`, "i");
+                        // *** FIX: Define RegExp objects first, then call .test() on them ***
+                        const homeIsColspanNoTacticRegex = new RegExp(`^\\s*\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]`, "i");
+                        const awayIsColspanNoTacticSuffixRegex = new RegExp(`\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]\\s*$`, "i");
+                        
+                        const homeIsColspanNoTactic = homeIsColspanNoTacticRegex.test(cellsStr);
 
                         if (reportType === 'both') {
                             if (numericValues.length === 0) {
@@ -502,7 +508,7 @@
                                 let awayCanBeNoTactic = true;
                                 let awayCellsForCheck = cellsStr;
                                 if (homeIsColspanNoTactic) {
-                                    const homePartMatch = cellsStr.match(new RegExp(`^\\s*\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]`, "i"));
+                                    const homePartMatch = cellsStr.match(homeIsColspanNoTacticRegex);
                                     if (homePartMatch && homePartMatch[0].length < cellsStr.length) {
                                         awayCellsForCheck = cellsStr.substring(homePartMatch[0].length);
                                     } else if (homePartMatch && homePartMatch[0].length === cellsStr.length) {
@@ -519,9 +525,9 @@
                                     if (!isNaN(skill)) parsedAway.tactic_level = skill;
                                 } else {
                                     if (!isNaN(skill)) parsedHome.tactic_level = skill;
-                                    if (awayIsColspanNoTacticSuffix.test(cellsStr)) {
+                                    if (awayIsColspanNoTacticSuffixRegex.test(cellsStr)) {
                                         const homeValueCellPattern = /\[td\s+align\s*=\s*["']?right["']?\s*\]\s*\d+\s*\[\/td\]/i;
-                                        if (homeValueCellPattern.test(cellsStr.substring(0, cellsStr.search(awayIsColspanNoTacticSuffix)))) {
+                                        if (homeValueCellPattern.test(cellsStr.substring(0, cellsStr.search(awayIsColspanNoTacticSuffixRegex)))) {
                                             parsedAway.tactic_level = 0;
                                         }
                                     }
@@ -537,16 +543,14 @@
                                 parsedHome.tactic_level = 0;
                             }
                         }
-                        return true; // Parsing attempted
+                        return true;
                     }
-                    return false; // Not a tactic skill line structure
+                    return false;
                 };
 
                 for (const line of lines) {
                     if (state === 'EXPECT_TEAM_NAMES') {
                         if (line.includes('[matchid=') || line.includes('[tournamentmatchid=')) {
-                            // Team name parsing already done if headerLine was found.
-                            // This state is mainly if headerLine wasn't the very first in `lines`.
                             state = 'EXPECT_MAIN_RATING';
                             continue;
                         }
@@ -555,9 +559,9 @@
                     const colspanHeaderMatch = line.match(/\[th\s+colspan=(["']?(?:3|5)["']?)\]/i);
                     if (colspanHeaderMatch) {
                         if (state === 'EXPECT_MAIN_RATING' || state === 'IN_MAIN_RATINGS') {
-                            state = 'EXPECT_ISP_RATING'; // Next line will be first ISP rating
+                            state = 'EXPECT_ISP_RATING';
                         } else if (state === 'EXPECT_ISP_RATING' || state === 'IN_ISP_RATINGS') {
-                            state = 'EXPECT_ATTITUDE_ROW'; // Next line will be attitude
+                            state = 'EXPECT_ATTITUDE_ROW';
                         } else if (state === 'EXPECT_TACTIC_SKILL_ROW' || state === 'IN_TACTIC_SKILL') {
                             state = 'DONE_RELEVANT_SECTIONS';
                         }
@@ -586,14 +590,9 @@
                             }
                             break;
                         case 'EXPECT_ATTITUDE_ROW':
-                            // This line is attitude. We skip it for now.
                             state = 'EXPECT_TACTIC_NAME_ROW';
-                            break; // Consume this line, next iteration for tactic name
+                            break;
                         case 'EXPECT_TACTIC_NAME_ROW':
-                            // Corrected regexes for tactic names:
-                            // - Match [td colspan=2]...[/td]
-                            // - Capture the content inside the tags
-                            // - Removed erroneous \t
                             const twoTacticsMatch = line.match(/\[td colspan=2\]([^<]+?)\[\/td\]\s*\[td colspan=2\]([^<]+?)\[\/td\]/i);
                             const oneTacticMatch = line.match(/\[td colspan=2\]([^<]+?)\[\/td\](?!.*?\[td colspan=2\])/i);
                             let tacticFoundThisLine = false;
@@ -610,7 +609,7 @@
                             }
                             break;
                         case 'EXPECT_TACTIC_SKILL_ROW':
-                             state = 'IN_TACTIC_SKILL'; // Mark as in this state
+                             state = 'IN_TACTIC_SKILL';
                             if (parseTacticSkillForRow(line, reportType, parsedHome, parsedAway)) {
                                 state = 'DONE_RELEVANT_SECTIONS';
                             }
