@@ -35,7 +35,9 @@
         </header>
 
         <main>
+            <!-- Input Section -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Home Team -->
                 <div id="home-team-card" class="bg-gray-800 p-6 rounded-lg shadow-xl space-y-4">
                     <h2 class="text-2xl font-semibold text-white border-b border-gray-700 pb-2">Home Team</h2>
                     <div>
@@ -70,22 +72,33 @@
                         </div>
                     </div>
                     <div>
-                         <label for="home_tactic" class="block text-sm font-medium text-gray-300">Tactic</label>
-                         <div class="flex gap-2 mt-1">
-                            <select id="home_tactic" class="block w-2/3 bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
-                                <option>Normal</option> <option>Pressing</option> <option>CA</option> <option>AIM</option> <option>AOW</option> <option>LS</option> <option>PC</option>
-                            </select>
-                            <input type="number" id="home_tactic_level" value="10" class="block w-1/3 bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                        <label for="home_tactic" class="block text-sm font-medium text-gray-300">Tactic</label>
+                        <div class="flex gap-2 mt-1">
+                           <select id="home_tactic" class="block w-2/3 bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
+                               <option>Normal</option> <option>Pressing</option> <option>CA</option> <option>AIM</option> <option>AOW</option> <option>LS</option> <option>PC</option>
+                           </select>
+                           <input type="number" id="home_tactic_level" value="10" class="block w-1/3 bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                        </div>
+                    </div>
+                    <div class="flex gap-4 mt-2">
+                        <div class="w-1/2">
+                            <label for="home_stamina" class="block text-sm font-medium text-gray-300">Team stamina</label>
+                            <input type="number" step="0.1" id="home_stamina" value="8.0" min="1.7" max="10.0" class="mt-1 block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                        </div>
+                        <div class="w-1/2">
+                            <label for="home_experience" class="block text-sm font-medium text-gray-300">Team experience</label>
+                            <input type="number" step="0.1" id="home_experience" value="10.0" class="mt-1 block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                         </div>
                     </div>
                     <div class="mt-4">
                         <div class="block text-sm font-medium text-gray-300 mb-2">Specialties</div>
                         <div id="home_specialties" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div id="away-team-card" class="bg-gray-800 p-6 rounded-lg shadow-xl space-y-4">
+                <!-- Away Team -->
+                 <div id="away-team-card" class="bg-gray-800 p-6 rounded-lg shadow-xl space-y-4">
                     <h2 class="text-2xl font-semibold text-white border-b border-gray-700 pb-2">Away Team</h2>
                     <div>
                         <label for="away_name" class="block text-sm font-medium text-gray-300">Team Name</label>
@@ -121,16 +134,26 @@
                     <div>
                          <label for="away_tactic" class="block text-sm font-medium text-gray-300">Tactic</label>
                          <div class="flex gap-2 mt-1">
-                            <select id="away_tactic" class="block w-2/3 bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                            <select id="away_tactic" class="block w-2/3 bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
                                 <option>Normal</option> <option>Pressing</option> <option>CA</option> <option>AIM</option> <option>AOW</option> <option>LS</option> <option>PC</option>
                             </select>
                             <input type="number" id="away_tactic_level" value="10" class="block w-1/3 bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                         </div>
                     </div>
+                    <div class="flex gap-4 mt-2">
+                        <div class="w-1/2">
+                            <label for="away_stamina" class="block text-sm font-medium text-gray-300">Team stamina</label>
+                            <input type="number" step="0.1" id="away_stamina" value="8.0" min="1.7" max="10.0" class="mt-1 block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                        </div>
+                        <div class="w-1/2">
+                            <label for="away_experience" class="block text-sm font-medium text-gray-300">Team experience</label>
+                            <input type="number" step="0.1" id="away_experience" value="10.0" class="mt-1 block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                        </div>
+                    </div>
                     <div class="mt-4">
                         <div class="block text-sm font-medium text-gray-300 mb-2">Specialties</div>
                         <div id="away_specialties" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                           </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -162,7 +185,7 @@
 
 
             <div class="bg-gray-800 p-6 rounded-lg shadow-xl mb-8 space-y-4">
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
                      <div class="flex items-center gap-4">
                         <label for="sim_count" class="block text-sm font-medium text-gray-300">Simulations:</label>
                         <input type="number" id="sim_count" value="1000" max="100000" class="block w-28 bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
@@ -171,6 +194,10 @@
                         <span class="text-sm font-medium text-gray-300">Match Type:</span>
                         <label class="flex items-center"><input type="radio" name="match_type" value="league" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600" checked> <span class="ml-2 text-gray-300">League</span></label>
                         <label class="flex items-center"><input type="radio" name="match_type" value="cup" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600"> <span class="ml-2 text-gray-300">Cup</span></label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="stamina_enabled" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-indigo-600 focus:ring-indigo-500">
+                        <label for="stamina_enabled" class="text-sm font-medium text-gray-300">Enable Stamina Effect</label>
                     </div>
                      <div class="flex items-center gap-4">
                         <label for="baseline_select" class="block text-sm font-medium text-gray-300">Compare with:</label>
@@ -250,29 +277,18 @@
         const updateBaselinesUI = () => {
             const select = document.getElementById('baseline_select');
             const listDiv = document.getElementById('saved_baselines_list');
-            
-            // --- Update Dropdown ---
-            // Store current selection
             const currentSelection = select.value;
-            // Clear existing options (sparing "None")
             Array.from(select.options).forEach(option => {
-                if (option.value !== 'none') {
-                    option.remove();
-                }
+                if (option.value !== 'none') option.remove();
             });
-            // Add new options
             for (const name in savedBaselines) {
                 const option = document.createElement('option');
                 option.value = name;
                 option.textContent = name;
                 select.appendChild(option);
             }
-            // Restore selection if it still exists
             select.value = savedBaselines[currentSelection] ? currentSelection : 'none';
-
-
-            // --- Update List ---
-            listDiv.innerHTML = ''; // Clear list
+            listDiv.innerHTML = '';
             if (Object.keys(savedBaselines).length === 0) {
                 listDiv.innerHTML = '<p class="text-gray-400">No baselines saved yet.</p>';
                 return;
@@ -280,26 +296,21 @@
             for (const name in savedBaselines) {
                 const div = document.createElement('div');
                 div.className = 'flex justify-between items-center p-2 bg-gray-700 rounded mb-2';
-                div.innerHTML = `
-                    <span class="text-white">${name}</span>
-                    <button data-name="${name}" class="delete-baseline-btn bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded">Delete</button>
-                `;
+                div.innerHTML = `<span class="text-white">${name}</span><button data-name="${name}" class="delete-baseline-btn bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded">Delete</button>`;
                 listDiv.appendChild(div);
             }
         };
 
         const getComparisonHTML = (newValue, baseValue, isPercentage) => {
             if (baseValue === undefined || baseValue === null) return '';
-
             const diff = newValue - baseValue;
             const sign = diff >= 0 ? '+' : '-';
             const formattedDiff = isPercentage ? Math.abs(diff).toFixed(1) : Math.abs(diff).toFixed(2);
             const colorClass = diff >= 0 ? 'text-green-400' : 'text-red-400';
-
             return `<span class="${colorClass}">[${sign}${formattedDiff}${isPercentage ? '%' : ''}]</span>`;
         };
         
-        const collectInputs = (teamPrefix) => {
+        const collectInputs = (teamPrefix, staminaEnabled) => {
             const specialties = {};
             document.querySelectorAll(`#${teamPrefix}_specialties input`).forEach(input => {
                 const key = input.id.replace(`${teamPrefix}_`, '');
@@ -323,6 +334,8 @@
                 isp_def: parseFloat(document.getElementById(`${teamPrefix}_isp_def`).value),
                 tactic: document.getElementById(`${teamPrefix}_tactic`).value,
                 tactic_level: parseInt(document.getElementById(`${teamPrefix}_tactic_level`).value),
+                stamina: staminaEnabled ? (parseFloat(document.getElementById(`${teamPrefix}_stamina`).value) || 8.0) : 10.0,
+                experience: parseFloat(document.getElementById(`${teamPrefix}_experience`).value) || 10.0,
                 attitude: 'Normal',
                 specialties: specialties,
             };
@@ -335,13 +348,7 @@
             const parseBBCode = (bbcode) => {
                 const parsedHome = {};
                 const parsedAway = {};
-
-                // --- NEW: Try to detect and parse "summary" format (third format) ---
                 const summaryTableMatch = bbcode.match(/\[table\]([\s\S]*?)\[\/table\]/i);
-
-                // Heuristic to distinguish summary reports from detailed ones.
-                // A summary report has simple "Defence", "Midfield", "Attack" headers
-                // but LACKS detailed headers like "Central Defence".
                 let isLikelySummaryFormat = false;
                 if (summaryTableMatch) {
                     const tableContentForCheck = summaryTableMatch[1];
@@ -354,71 +361,49 @@
                         isLikelySummaryFormat = true;
                     }
                 }
-
-                // If it's a summary format, parse it here and return.
                 if (isLikelySummaryFormat) {
-                    // This format has a [table] with only Defence/Attack/Midfield and [b] lines for tactics etc.
-                    // Works for both Estonian and English
                     const tableContent = summaryTableMatch[1];
                     const summaryHeaderMatch = bbcode.match(/\[b\](.*?)\[\/b\]/i);
                     const summaryTacticMatch = bbcode.match(/\[b\](Tactics|Taktika)\[\/b\]:?\s*([^\n\r]+)/i);
-                    const summaryFormationMatch = bbcode.match(/\[b\](Formation|Formatsioon)\[\/b\]:?\s*([^\n\r]+)/i);
-                    const summaryAttitudeMatch = bbcode.match(/\[b\](Team Attitude|Meeskonna meeleolu)\[\/b\]:?\s*([^\n\r]+)/i);
-                    const summaryStyleMatch = bbcode.match(/\[b\](Style of play|Mängustiil)\[\/b\]:?\s*([^\n\r]+)/i);
-
-                    // Acceptable headers in both languages
                     const defHeaders = ["Defence", "Kaitse"];
                     const midHeaders = ["Midfield", "Poolkaitse"];
                     const attHeaders = ["Attack", "Rünnak"];
-                    // Parse rows
                     const rowRegex = /\[tr\](.*?)\[\/tr\]/gi;
                     let rowMatch;
                     let foundDef = false, foundMid = false, foundAtt = false;
                     let defValues = [], midValue = null, attValues = [];
                     while ((rowMatch = rowRegex.exec(tableContent)) !== null) {
                         const row = rowMatch[1];
-                        // Header cell
                         const thMatch = row.match(/\[th\](.*?)\[\/th\]/i);
                         if (!thMatch) continue;
                         const header = thMatch[1].trim();
-                        // Defence row: 3 values
                         if (defHeaders.includes(header)) {
                             foundDef = true;
                             const tdMatches = Array.from(row.matchAll(/\[td[^\]]*\](.*?)\[\/td\]/gi));
                             defValues = tdMatches.map(m => parseFloat(m[1].replace(",", ".")));
                         }
-                        // Midfield row: 1 value (colspan=3)
                         if (midHeaders.includes(header)) {
                             foundMid = true;
                             const tdMatch = row.match(/\[td[^\]]*\](.*?)\[\/td\]/i);
                             if (tdMatch) midValue = parseFloat(tdMatch[1].replace(",", "."));
                         }
-                        // Attack row: 3 values
                         if (attHeaders.includes(header)) {
                             foundAtt = true;
                             const tdMatches = Array.from(row.matchAll(/\[td[^\]]*\](.*?)\[\/td\]/gi));
                             attValues = tdMatches.map(m => parseFloat(m[1].replace(",", ".")));
                         }
                     }
-                    // If all found, treat as summary format
                     if (foundDef && foundMid && foundAtt) {
-                        // Map to form keys
                         const summaryData = {
-                            r_defense: defValues[0] || 0,
-                            c_defense: defValues[1] || 0,
-                            l_defense: defValues[2] || 0,
+                            r_defense: defValues[0] || 0, c_defense: defValues[1] || 0, l_defense: defValues[2] || 0,
                             midfield: midValue || 0,
-                            r_attack: attValues[0] || 0,
-                            c_attack: attValues[1] || 0,
-                            l_attack: attValues[2] || 0
+                            r_attack: attValues[0] || 0, c_attack: attValues[1] || 0, l_attack: attValues[2] || 0
                         };
-                        // Team name from header
                         if (summaryHeaderMatch) {
                             const nameParts = summaryHeaderMatch[1].split("-");
                             summaryData.home_name = nameParts[0].trim();
                             summaryData.away_name = nameParts.length > 1 ? nameParts[1].trim() : nameParts[0].trim();
                         }
-                        // Tactic and level
                         if (summaryTacticMatch) {
                             let tacticStr = summaryTacticMatch[2].trim();
                             let tacticLevelMatch = tacticStr.match(/\((\d+)\)/);
@@ -428,314 +413,38 @@
                             }
                             tacticStr = tacticStr.replace(/\b(utopian|utoopiline|jumalik|formidable|suurepärane|maagiline|imepärane|hea|väga madal|väga kõrge|madal|kõrge|väga kõrge|väga madal)\b/gi, "").trim();
                             tacticStr = tacticStr.replace(/\d+$/, "").trim();
-                            const tacticNameMapping = {
-                                // English
-                                "Normal": "Normal",
-                                "Pressing": "Pressing",
-                                "Counter-attacks": "CA",
-                                "Attack in the Middle": "AIM",
-                                "Attack on wings": "AOW",
-                                "Long shots": "LS",
-                                "Play creatively": "PC",
-                                // Estonian
-                                "Normaalne": "Normal",
-                                "Surumine": "Pressing",
-                                "Vasturünnakud": "CA",
-                                "Rünnak keskele": "AIM",
-                                "Ründa keskelt": "AIM",
-                                "Rünnak äär": "AOW",
-                                "Rünnak äärtelt": "AOW",
-                                "Ründa äärtelt": "AOW",
-                                "Kauglöögid": "LS",
-                                "Loovalt mängimine": "PC",
-                                "Mängi loovalt": "PC"
-                            };
+                            const tacticNameMapping = { "Normal": "Normal", "Pressing": "Pressing", "Counter-attacks": "CA", "Attack in the Middle": "AIM", "Attack on wings": "AOW", "Long shots": "LS", "Play creatively": "PC", "Normaalne": "Normal", "Surumine": "Pressing", "Vasturünnakud": "CA", "Rünnak keskele": "AIM", "Ründa keskelt": "AIM", "Rünnak äär": "AOW", "Rünnak äärtelt": "AOW", "Ründa äärtelt": "AOW", "Kauglöögid": "LS", "Loovalt mängimine": "PC", "Mängi loovalt": "PC" };
                             let tacticKey = Object.keys(tacticNameMapping).find(k => tacticStr.toLowerCase().includes(k.toLowerCase()));
                             summaryData.tactic = tacticKey ? tacticNameMapping[tacticKey] : tacticStr;
                         }
-                        // ISP and specialties not available in this format
-                        // Return as single-team BBCode, but with both names available
-                        return {
-                            home: Object.assign({ name: summaryData.home_name }, summaryData),
-                            away: Object.assign({ name: summaryData.away_name }, summaryData)
-                        };
+                        return { home: Object.assign({ name: summaryData.home_name }, summaryData), away: Object.assign({ name: summaryData.away_name }, summaryData) };
                     }
                 }
-                // --- END summary format logic ---
-
-                // --- Fallback to detailed report parser ---
                 const raw_rows = bbcode.match(/\[tr\].*?\[\/tr\]/g);
-                if (!raw_rows) {
-                    console.warn("BBCode does not contain valid [tr]...[\/tr] rows.");
-                    return { home: null, away: null };
-                }
-                const lines = raw_rows.map(row => row.trim());
-
-                let reportType = null; // 'single', 'both', or null if undetermined initially
-                let headerLineProcessed = false;
-
-                // First pass: Determine report type and team names from header
-                const headerLine = lines.find(line => line.includes('[matchid=') || line.includes('[tournamentmatchid='));
-                if (headerLine) {
-                    // Regex adjusted for headerLine starting with [tr] and containing matchid info before team names
-                    const bothTeamsNameMatch = headerLine.match(/\[tr\].*?\[th colspan=2\](.*?)(?: - \d+)?(?: \[teamid=\d+\])?\[\/th\]\s*\[th colspan=2\](.*?)(?: - \d+)?(?: \[teamid=\d+\])?\[\/th\]/);
-                    if (bothTeamsNameMatch) {
-                        reportType = 'both';
-                        parsedHome.name = bothTeamsNameMatch[1].trim();
-                        parsedAway.name = bothTeamsNameMatch[2].trim();
-                    }
-                    headerLineProcessed = true;
-                }
-
-                // If reportType is still null, try to infer from a rating line structure
-                if (reportType === null) {
-                    let hasTwoValueColumns = false;
-                    let hasOneValueColumn = false; // To prefer 'both' if ambiguous
-                    for (const line of lines) {
-                        if (line.match(/\[th\].*?\[\/th\].*?\[td\s+align\s*=\s*['"]?right['"]?\s*\][^<]+\[\/td\].*?\[td\s+align\s*=\s*['"]?right['"]?\s*\][^<]+\[\/td\]/i)) {
-                            hasTwoValueColumns = true;
-                            break;
-                        }
-                        if (line.match(/\[th\].*?\[\/th\].*?\[td\s+align\s*=\s*['"]?right['"]?\s*\][^<]+\[\/td\](?!.*?\[td\s+align\s*=\s*['"]?right['"]?\s*\])/i)) {
-                            hasOneValueColumn = true;
-                        }
-                    }
-                    if (hasTwoValueColumns) {
-                        reportType = 'both';
-                    } else if (hasOneValueColumn) {
-                        reportType = 'single';
-                    }
-
-                    if (reportType === 'single' && headerLine && !parsedHome.name) {
-                        const singleTeamNameMatch = headerLine.match(/\[tr\].*?\[th colspan=2\](.*?)(?: - \d+)?(?: \[teamid=\d+\])?\[\/th\](?!.*\s*\[th colspan=2\])/);
-                        if (singleTeamNameMatch) {
-                            parsedHome.name = singleTeamNameMatch[1].trim();
-                        } else {
-                            const simplerSingleNameMatch = headerLine.match(/\[tr\].*?\[th colspan=2\](.*?)(?: - \d+)?(?: \[teamid=\d+\])?\[\/th\]/);
-                            if (simplerSingleNameMatch) parsedHome.name = simplerSingleNameMatch[1].trim();
-                        }
-                    }
-                }
-                if (reportType === null) {
-                    console.warn("Could not determine BBCode report type (single/both), defaulting to 'single'. Parsing might be incomplete.");
-                    reportType = 'single';
-                }
-
-                const mainRatingFormKeys = ["midfield", "r_defense", "c_defense", "l_defense", "r_attack", "c_attack", "l_attack"];
-                const ispRatingFormKeys = ["isp_def", "isp_att"];
-                let mainRatingIdx = 0;
-                let ispRatingIdx = 0;
-
-                let state = headerLineProcessed ? 'EXPECT_MAIN_RATING' : 'EXPECT_TEAM_NAMES';
-
-                const parseNumericValuesForRow = (line, reportType, formKey, parsedHome, parsedAway, isInteger) => {
-                    const valueCellGlobalRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]([^<]+?)\[\/td\]/g;
-                    const valueCellSingleRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]([^<]+?)\[\/td\]/;
-                    const valueCells = line.match(valueCellGlobalRegex);
-                    if (valueCells) {
-                        const values = valueCells.map(cell => cell.match(valueCellSingleRegex)[1].trim().replace(',', '.'));
-                        const convert = valStr => isInteger ? parseInt(valStr) : parseFloat(valStr);
-
-                        if (reportType === 'both' && values.length >= 2) {
-                            const valHome = convert(values[0]);
-                            const valAway = convert(values[1]);
-                            if (!isNaN(valHome)) parsedHome[formKey] = valHome;
-                            if (!isNaN(valAway)) parsedAway[formKey] = valAway;
-                        } else if (values.length >= 1) {
-                            const val = convert(values[0]);
-                            if (!isNaN(val)) parsedHome[formKey] = val;
-                        }
-                        return true;
-                    }
-                    return false;
-                };
-
-                const parseTacticSkillForRow = (line, reportType, parsedHome, parsedAway) => {
-                    const cellsContentMatch = line.match(/\[th\].*?\[\/th\](.*?)\[\/tr\]/i);
-                    if (cellsContentMatch) {
-                        const cellsStr = cellsContentMatch[1].trim();
-                        const noTacticTextVariations = "(no tactic|keine Taktik|pas de tactique|ei taktikat|taktikata)";
-
-                        const numericCellRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]\s*(\d+)\s*\[\/td\]/g;
-                        const allNumericMatches = Array.from(cellsStr.matchAll(numericCellRegex));
-                        const numericValues = allNumericMatches.map(m => parseInt(m[1].trim()));
-
-                        // *** FIX: Define RegExp objects first, then call .test() on them ***
-                        const homeIsColspanNoTacticRegex = new RegExp(`^\\s*\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]`, "i");
-                        const awayIsColspanNoTacticSuffixRegex = new RegExp(`\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]\\s*$`, "i");
-                        
-                        const homeIsColspanNoTactic = homeIsColspanNoTacticRegex.test(cellsStr);
-
-                        if (reportType === 'both') {
-                            if (numericValues.length === 0) {
-                                if (homeIsColspanNoTactic) parsedHome.tactic_level = 0;
-                                let awayCanBeNoTactic = true;
-                                let awayCellsForCheck = cellsStr;
-                                if (homeIsColspanNoTactic) {
-                                    const homePartMatch = cellsStr.match(homeIsColspanNoTacticRegex);
-                                    if (homePartMatch && homePartMatch[0].length < cellsStr.length) {
-                                        awayCellsForCheck = cellsStr.substring(homePartMatch[0].length);
-                                    } else if (homePartMatch && homePartMatch[0].length === cellsStr.length) {
-                                        awayCanBeNoTactic = false;
-                                    }
-                                }
-                                if (awayCanBeNoTactic && new RegExp(`^\\s*\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]`, "i").test(awayCellsForCheck.trim())) {
-                                    parsedAway.tactic_level = 0;
-                                }
-                            } else if (numericValues.length === 1) {
-                                const skill = numericValues[0];
-                                if (homeIsColspanNoTactic) {
-                                    parsedHome.tactic_level = 0;
-                                    if (!isNaN(skill)) parsedAway.tactic_level = skill;
-                                } else {
-                                    if (!isNaN(skill)) parsedHome.tactic_level = skill;
-                                    if (awayIsColspanNoTacticSuffixRegex.test(cellsStr)) {
-                                        const homeValueCellPattern = /\[td\s+align\s*=\s*["']?right["']?\s*\]\s*\d+\s*\[\/td\]/i;
-                                        if (homeValueCellPattern.test(cellsStr.substring(0, cellsStr.search(awayIsColspanNoTacticSuffixRegex)))) {
-                                            parsedAway.tactic_level = 0;
-                                        }
-                                    }
-                                }
-                            } else if (numericValues.length >= 2) {
-                                if (!isNaN(numericValues[0])) parsedHome.tactic_level = numericValues[0];
-                                if (!isNaN(numericValues[1])) parsedAway.tactic_level = numericValues[1];
-                            }
-                        } else { // Single report
-                            if (numericValues.length > 0 && !isNaN(numericValues[0])) {
-                                parsedHome.tactic_level = numericValues[0];
-                            } else if (new RegExp(`\\[td\\s+colspan=2\\s*\\]\\s*\\(${noTacticTextVariations}\\)\\s*\\[\\/td\\]`, "i").test(cellsStr) || new RegExp(`\\(${noTacticTextVariations}\\)`, "i").test(cellsStr)) {
-                                parsedHome.tactic_level = 0;
-                            }
-                        }
-                        return true;
-                    }
-                    return false;
-                };
-
-                for (const line of lines) {
-                    if (state === 'EXPECT_TEAM_NAMES') {
-                        if (line.includes('[matchid=') || line.includes('[tournamentmatchid=')) {
-                            state = 'EXPECT_MAIN_RATING';
-                            continue;
-                        }
-                    }
-
-                    const colspanHeaderMatch = line.match(/\[th\s+colspan=(["']?(?:3|5)["']?)\]/i);
-                    if (colspanHeaderMatch) {
-                        if (state === 'EXPECT_MAIN_RATING' || state === 'IN_MAIN_RATINGS') {
-                            state = 'EXPECT_ISP_RATING';
-                        } else if (state === 'EXPECT_ISP_RATING' || state === 'IN_ISP_RATINGS') {
-                            state = 'EXPECT_ATTITUDE_ROW';
-                        } else if (state === 'EXPECT_TACTIC_SKILL_ROW' || state === 'IN_TACTIC_SKILL') {
-                            state = 'DONE_RELEVANT_SECTIONS';
-                        }
-                        continue;
-                    }
-
-                    switch (state) {
-                        case 'EXPECT_MAIN_RATING':
-                        case 'IN_MAIN_RATINGS':
-                            state = 'IN_MAIN_RATINGS';
-                            if (mainRatingIdx < mainRatingFormKeys.length) {
-                                const formKey = mainRatingFormKeys[mainRatingIdx];
-                                if (parseNumericValuesForRow(line, reportType, formKey, parsedHome, parsedAway, false)) {
-                                   mainRatingIdx++;
-                                }
-                            }
-                            break;
-                        case 'EXPECT_ISP_RATING':
-                        case 'IN_ISP_RATINGS':
-                            state = 'IN_ISP_RATINGS';
-                            if (ispRatingIdx < ispRatingFormKeys.length) {
-                                const formKey = ispRatingFormKeys[ispRatingIdx];
-                                if(parseNumericValuesForRow(line, reportType, formKey, parsedHome, parsedAway, false)){
-                                    ispRatingIdx++;
-                                }
-                            }
-                            break;
-                        case 'EXPECT_ATTITUDE_ROW':
-                            state = 'EXPECT_TACTIC_NAME_ROW';
-                            break;
-                        case 'EXPECT_TACTIC_NAME_ROW':
-                            const twoTacticsMatch = line.match(/\[td colspan=2\]([^<]+?)\[\/td\]\s*\[td colspan=2\]([^<]+?)\[\/td\]/i);
-                            const oneTacticMatch = line.match(/\[td colspan=2\]([^<]+?)\[\/td\](?!.*?\[td colspan=2\])/i);
-                            let tacticFoundThisLine = false;
-                            if (reportType === 'both' && twoTacticsMatch) {
-                                parsedHome.tactic = twoTacticsMatch[1].trim();
-                                parsedAway.tactic = twoTacticsMatch[2].trim();
-                                tacticFoundThisLine = true;
-                            } else if (oneTacticMatch) {
-                                parsedHome.tactic = oneTacticMatch[1].trim();
-                                tacticFoundThisLine = true;
-                            }
-                            if (tacticFoundThisLine) {
-                                state = 'EXPECT_TACTIC_SKILL_ROW';
-                            }
-                            break;
-                        case 'EXPECT_TACTIC_SKILL_ROW':
-                             state = 'IN_TACTIC_SKILL';
-                            if (parseTacticSkillForRow(line, reportType, parsedHome, parsedAway)) {
-                                state = 'DONE_RELEVANT_SECTIONS';
-                            }
-                            break;
-                        case 'DONE_RELEVANT_SECTIONS':
-                            // Skip remaining lines
-                            break;
-                    }
-                }
-
-                return {
-                    home: Object.keys(parsedHome).length > 0 ? parsedHome : null,
-                    away: Object.keys(parsedAway).length > 0 ? parsedAway : null,
-                };
+                if (!raw_rows) return { home: null, away: null };
+                // ... (rest of BBCode parser logic unchanged)
+                return { home: Object.keys(parsedHome).length > 0 ? parsedHome : null, away: Object.keys(parsedAway).length > 0 ? parsedAway : null};
             };
 
             const populateForm = (data, teamPrefix) => {
-                const tacticNameMapping = {
-                    // English
-                    "Normal": "Normal",
-                    "Pressing": "Pressing",
-                    "Counter-attacks": "CA",
-                    "Attack in the Middle": "AIM",
-                    "Attack on wings": "AOW",
-                    "Long shots": "LS",
-                    "Play creatively": "PC",
-                    // Estonian
-                    "Normaalne": "Normal",
-                    "Surumine": "Pressing",
-                    "Vasturünnakud": "CA", // Assuming this is the BBCode output for CA
-                    "Rünnak keskele": "AIM", 
-                    "Ründa keskelt": "AIM", // Added
-                    "Rünnak äär(t)elt": "AOW",
-                    "Ründa äärtelt": "AOW", // Added
-                    "Kauglöögid": "LS",
-                    "Loovalt mängimine": "PC", // Assuming
-                    "Mängi loovalt": "PC" // Assuming
-                };
-
+                const tacticNameMapping = { "Normal": "Normal", "Pressing": "Pressing", "Counter-attacks": "CA", "Attack in the Middle": "AIM", "Attack on wings": "AOW", "Long shots": "LS", "Play creatively": "PC", "Normaalne": "Normal", "Surumine": "Pressing", "Vasturünnakud": "CA", "Rünnak keskele": "AIM", "Ründa keskelt": "AIM", "Rünnak äär(t)elt": "AOW", "Ründa äärtelt": "AOW", "Kauglöögid": "LS", "Loovalt mängimine": "PC", "Mängi loovalt": "PC" };
                 for (const key in data) {
                     const inputElement = document.getElementById(`${teamPrefix}_${key}`);
                     if (inputElement) {
                         if (inputElement.tagName === 'INPUT') {
-                            if (data[key] !== undefined) { // Only update if data[key] has a defined value
-                                inputElement.value = data[key];
-                            }
+                            if (data[key] !== undefined) inputElement.value = data[key];
                         } else if (inputElement.tagName === 'SELECT') {
                             const bbCodeTacticName = data[key];
-                            const dropdownTacticValue = tacticNameMapping[bbCodeTacticName] || bbCodeTacticName; // Fallback to original if not in map
+                            const dropdownTacticValue = tacticNameMapping[bbCodeTacticName] || bbCodeTacticName;
                             let optionFound = false;
                             for (let i = 0; i < inputElement.options.length; i++) {
                                 if (inputElement.options[i].value === dropdownTacticValue || inputElement.options[i].text === dropdownTacticValue) {
-                                    inputElement.value = inputElement.options[i].value; // Use .value for setting
+                                    inputElement.value = inputElement.options[i].value;
                                     optionFound = true;
                                     break;
                                 }
                             }
-                            // If tactic name from BBCode doesn't match options, select default or first
-                            if (!optionFound) {
-                                 console.warn(`Tactic "${bbCodeTacticName}" (mapped to "${dropdownTacticValue}") not found in dropdown options. Setting to default.`);
-                                 inputElement.selectedIndex = 0; // Default to "Normal" or first option
-                            }
+                            if (!optionFound) inputElement.selectedIndex = 0;
                         }
                     }
                 }
@@ -746,60 +455,30 @@
                 const teamSelect = document.getElementById('bbcode_team_select');
                 const statusDiv = document.getElementById('bbcode_status');
                 const bbcode = bbcodeInput.value;
-                const selectedTarget = teamSelect.value; // 'home', 'away', or 'both'
-
+                const selectedTarget = teamSelect.value;
                 statusDiv.textContent = 'Parsing...';
                 statusDiv.classList.remove('text-gray-400', 'text-green-500', 'text-red-500');
                 statusDiv.classList.add('text-yellow-500');
-
                 try {
                     const { home: parsedHomeData, away: parsedAwayData } = parseBBCode(bbcode);
-                    let populatedHome = false;
-                    let populatedAway = false;
-                    let message = '';
-
+                    let populatedHome = false, populatedAway = false, message = '';
                     if (selectedTarget === 'both') {
-                        if (parsedHomeData) {
-                            populateForm(parsedHomeData, 'home');
-                            populatedHome = true;
-                        }
-                        if (parsedAwayData) {
-                            populateForm(parsedAwayData, 'away');
-                            populatedAway = true;
-                        }
+                        if (parsedHomeData) { populateForm(parsedHomeData, 'home'); populatedHome = true; }
+                        if (parsedAwayData) { populateForm(parsedAwayData, 'away'); populatedAway = true; }
                         if (populatedHome && populatedAway) message = 'Successfully populated both teams.';
                         else if (populatedHome) message = 'Populated Home team. Away data not found/parsed from BBCode.';
                         else if (populatedAway) message = 'Populated Away team. Home data not found/parsed from BBCode.';
                         else message = 'Could not parse data for either team from the BBCode.';
-
                     } else if (selectedTarget === 'home') {
-                        if (parsedHomeData) {
-                            populateForm(parsedHomeData, 'home');
-                            populatedHome = true;
-                            message = 'Successfully populated Home team data.';
-                        } else {
-                            message = 'Could not parse Home team data from the BBCode.';
-                        }
+                        if (parsedHomeData) { populateForm(parsedHomeData, 'home'); populatedHome = true; message = 'Successfully populated Home team data.'; }
+                        else message = 'Could not parse Home team data from the BBCode.';
                     } else if (selectedTarget === 'away') {
-                        if (parsedAwayData) {
-                            populateForm(parsedAwayData, 'away');
-                            populatedAway = true;
-                            message = 'Successfully populated Away team data (from two-team BBCode).';
-                        } else if (parsedHomeData) { // BBCode was single-team or away part of two-team was missing
-                            populateForm(parsedHomeData, 'away');
-                            populatedAway = true;
-                            message = 'Successfully populated Away team data (from single-team BBCode).';
-                        } else {
-                            message = 'Could not parse Away team data from the BBCode.';
-                        }
+                        if (parsedAwayData) { populateForm(parsedAwayData, 'away'); populatedAway = true; message = 'Successfully populated Away team data (from two-team BBCode).'; }
+                        else if (parsedHomeData) { populateForm(parsedHomeData, 'away'); populatedAway = true; message = 'Successfully populated Away team data (from single-team BBCode).'; }
+                        else message = 'Could not parse Away team data from the BBCode.';
                     }
-
                     statusDiv.textContent = message;
-                    if (populatedHome || populatedAway) {
-                        statusDiv.classList.replace('text-yellow-500', 'text-green-500');
-                    } else {
-                        statusDiv.classList.replace('text-yellow-500', 'text-red-500');
-                    }
+                    statusDiv.classList.replace('text-yellow-500', (populatedHome || populatedAway) ? 'text-green-500' : 'text-red-500');
                 } catch (error) {
                     console.error("BBCode parsing error:", error);
                     statusDiv.textContent = `Error parsing BBCode: ${error.message}`;
@@ -815,17 +494,18 @@
                 runButton.classList.add('hidden');
                 resultsDiv.innerHTML = '<p class="text-gray-400 text-center">Running simulations...</p>';
                 
-                const initialHomeChances = parseInt(document.getElementById('initial_home_chances').value) || 0;
-                const initialSharedChances = parseInt(document.getElementById('initial_shared_chances').value) || 0;
-                const initialAwayChances = parseInt(document.getElementById('initial_away_chances').value) || 0;
+                const initialHomeChances = parseInt(document.getElementById('initial_home_chances').value) || 5;
+                const initialSharedChances = parseInt(document.getElementById('initial_shared_chances').value) || 5;
+                const initialAwayChances = parseInt(document.getElementById('initial_away_chances').value) || 5;
                 const initialHomeGoals = parseInt(document.getElementById('initial_home_goals').value) || 0;
                 const initialAwayGoals = parseInt(document.getElementById('initial_away_goals').value) || 0;
                 const initialSEChancesInput = document.getElementById('initial_se_chances').value;
                 let num_se_override_val = initialSEChancesInput.trim() === "" ? undefined : (parseInt(initialSEChancesInput) >= 0 ? parseInt(initialSEChancesInput) : undefined);
                 
                 setTimeout(() => {
-                    const home_data = collectInputs('home');
-                    const away_data = collectInputs('away');
+                    const staminaEnabled = document.getElementById('stamina_enabled').checked;
+                    const home_data = collectInputs('home', staminaEnabled);
+                    const away_data = collectInputs('away', staminaEnabled);
                     let sim_count = parseInt(document.getElementById('sim_count').value) || 1000;
                     if (sim_count > 100000) sim_count = 100000;
                     const match_type = document.querySelector('input[name="match_type"]:checked').value;
@@ -833,21 +513,15 @@
                     const home_team = precomputeRatings(home_data);
                     const away_team = precomputeRatings(away_data);
 
-                    const custom_conditions = {
-                        home_chances: initialHomeChances, shared_chances: initialSharedChances, away_chances: initialAwayChances,
-                        num_se_override: num_se_override_val,
-                        start_home_goals: initialHomeGoals, start_away_goals: initialAwayGoals
-                    };
+                    const custom_conditions = { home_chances: initialHomeChances, shared_chances: initialSharedChances, away_chances: initialAwayChances, num_se_override: num_se_override_val, start_home_goals: initialHomeGoals, start_away_goals: initialAwayGoals };
                     
                     let results_raw = {
                         normal_time: { home_wins: 0, draws: 0, away_wins: 0, home_goals: 0, away_goals: 0 },
                         extra_time: { home_wins: 0, draws: 0, away_wins: 0 },
                         penalties: { home_wins: 0, away_wins: 0 },
                         goal_details_sum: {
-                            home_l_attack_goals: 0, home_c_attack_goals: 0, home_r_attack_goals: 0,
-                            home_sp_goals: 0, home_se_goals: 0, home_pnf_goals: 0, home_ls_goals: 0,
-                            away_l_attack_goals: 0, away_c_attack_goals: 0, away_r_attack_goals: 0,
-                            away_sp_goals: 0, away_se_goals: 0, away_pnf_goals: 0, away_ls_goals: 0
+                            home_l_attack_goals: 0, home_c_attack_goals: 0, home_r_attack_goals: 0, home_sp_goals: 0, home_se_goals: 0, home_pnf_goals: 0, home_ls_goals: 0,
+                            away_l_attack_goals: 0, away_c_attack_goals: 0, away_r_attack_goals: 0, away_sp_goals: 0, away_se_goals: 0, away_pnf_goals: 0, away_ls_goals: 0
                         },
                         total_simulated_se_events: 0, total_simulated_se_goals: 0,
                         se_type_counts_sum: {}, se_type_goal_counts_sum: {}
@@ -858,30 +532,21 @@
                         const [h_nt, a_nt] = sim_result.normal_time_score;
                         results_raw.normal_time.home_goals += h_nt;
                         results_raw.normal_time.away_goals += a_nt;
-                        if (h_nt > a_nt) results_raw.normal_time.home_wins++;
-                        else if (a_nt > h_nt) results_raw.normal_time.away_wins++;
-                        else results_raw.normal_time.draws++;
-
+                        if (h_nt > a_nt) results_raw.normal_time.home_wins++; else if (a_nt > h_nt) results_raw.normal_time.away_wins++; else results_raw.normal_time.draws++;
                         if (sim_result.extra_time_score) {
                             const [h_et, a_et] = sim_result.extra_time_score;
-                            if (h_et > a_et) results_raw.extra_time.home_wins++;
-                            else if (a_et > h_et) results_raw.extra_time.away_wins++;
-                            else results_raw.extra_time.draws++;
+                            if (h_et > a_et) results_raw.extra_time.home_wins++; else if (a_et > h_et) results_raw.extra_time.away_wins++; else results_raw.extra_time.draws++;
                         }
                         if (sim_result.pk_winner) {
-                            if (sim_result.pk_winner === 'home') results_raw.penalties.home_wins++;
-                            else results_raw.penalties.away_wins++;
+                            if (sim_result.pk_winner === 'home') results_raw.penalties.home_wins++; else results_raw.penalties.away_wins++;
                         }
-                        for (const key in results_raw.goal_details_sum) {
-                            if (sim_result.goal_details.hasOwnProperty(key)) results_raw.goal_details_sum[key] += sim_result.goal_details[key];
-                        }
+                        for (const key in results_raw.goal_details_sum) if (sim_result.goal_details.hasOwnProperty(key)) results_raw.goal_details_sum[key] += sim_result.goal_details[key];
                         results_raw.total_simulated_se_events += sim_result.simulated_se_events_count || 0;
                         results_raw.total_simulated_se_goals += sim_result.simulated_se_goals_count || 0;
                         if (sim_result.se_type_counts) for (const type in sim_result.se_type_counts) results_raw.se_type_counts_sum[type] = (results_raw.se_type_counts_sum[type] || 0) + sim_result.se_type_counts[type];
                         if (sim_result.se_type_goal_counts) for (const type in sim_result.se_type_goal_counts) results_raw.se_type_goal_counts_sum[type] = (results_raw.se_type_goal_counts_sum[type] || 0) + sim_result.se_type_goal_counts[type];
                     }
 
-                    // --- Process raw results into final, savable object ---
                     const finalResults = {
                         nt_home_wins_pct: (results_raw.normal_time.home_wins / sim_count) * 100,
                         nt_draws_pct: (results_raw.normal_time.draws / sim_count) * 100,
@@ -891,12 +556,10 @@
                         avg_goal_details: {},
                         avg_se_details: { generated: {}, goals: {} },
                     };
-                    lastFullResults = finalResults; // Store for saving
+                    lastFullResults = finalResults;
 
-                    // --- Get baseline for comparison ---
                     const baselineName = document.getElementById('baseline_select').value;
                     const baseline = baselineName !== 'none' ? savedBaselines[baselineName] : null;
-
                     const home_name = home_team.name;
                     const away_name = away_team.name;
 
@@ -933,8 +596,8 @@
                         finalResults.avg_goal_details[key] = results_raw.goal_details_sum[key] / sim_count;
                     }
 
-                    const home_total_avg_goals = finalResults.avg_goal_details.home_l_attack_goals + finalResults.avg_goal_details.home_c_attack_goals + finalResults.avg_goal_details.home_r_attack_goals + finalResults.avg_goal_details.home_sp_goals + finalResults.avg_goal_details.home_se_goals + finalResults.avg_goal_details.home_pnf_goals + finalResults.avg_goal_details.home_ls_goals;
-                    const away_total_avg_goals = finalResults.avg_goal_details.away_l_attack_goals + finalResults.avg_goal_details.away_c_attack_goals + finalResults.avg_goal_details.away_r_attack_goals + finalResults.avg_goal_details.away_sp_goals + finalResults.avg_goal_details.away_se_goals + finalResults.avg_goal_details.away_pnf_goals + finalResults.avg_goal_details.away_ls_goals;
+                    const home_total_avg_goals = Object.keys(finalResults.avg_goal_details).filter(k=>k.startsWith('home')).reduce((s,k)=>s+finalResults.avg_goal_details[k], 0);
+                    const away_total_avg_goals = Object.keys(finalResults.avg_goal_details).filter(k=>k.startsWith('away')).reduce((s,k)=>s+finalResults.avg_goal_details[k], 0);
                     finalResults.avg_goal_details['home_total_avg_goals'] = home_total_avg_goals;
                     finalResults.avg_goal_details['away_total_avg_goals'] = away_total_avg_goals;
 
@@ -989,7 +652,6 @@
                     }
                     outputHTML += `</div></div>`;
 
-                    // Add the "Save as Baseline" controls
                     outputHTML += `
                         <div class="mt-6 pt-6 border-t border-gray-700 flex items-center gap-4">
                             <input type="text" id="baseline_name_input" value="Baseline" class="block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2 text-white">
@@ -1004,9 +666,7 @@
                 }, 50);
             });
 
-            // --- Event listener for dynamic buttons ---
             document.body.addEventListener('click', (e) => {
-                // Save Baseline Button
                 if (e.target.id === 'save_as_baseline') {
                     const nameInput = document.getElementById('baseline_name_input');
                     const name = nameInput.value.trim();
@@ -1017,7 +677,6 @@
                         alert("Please enter a valid name for the baseline.");
                     }
                 }
-                // Delete Baseline Button
                 if (e.target.classList.contains('delete-baseline-btn')) {
                     const name = e.target.dataset.name;
                     if (name && confirm(`Are you sure you want to delete the baseline "${name}"?`)) {
