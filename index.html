@@ -33,6 +33,12 @@
             <h1 class="text-3xl sm:text-4xl font-bold text-white">Hattrick Match Simulator</h1>
             <p class="text-gray-400 mt-2">Enter your team ratings to simulate match outcomes.</p>
         </header>
+        <nav class="bg-gray-800 p-4 mb-8 rounded-lg shadow-lg">
+            <div class="max-w-7xl mx-auto flex justify-center space-x-4">
+                <a href="index.html" class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium" aria-current="page">Match Simulator</a>
+                <a href="man_marking.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Man-Marking Tool</a>
+            </div>
+        </nav>
 
         <main>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
@@ -93,6 +99,11 @@
                         <div id="home_specialties" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         </div>
                     </div>
+                    <div class="mt-4 pt-4 border-t border-gray-600 text-center space-x-2">
+                        <div id="home_export_status" class="text-sm text-green-400 mb-2 h-5"></div>
+                        <button data-team="home" data-role="marker" class="export-to-mm-btn bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold py-1 px-3 rounded-md transition-colors">Export as Marker</button>
+                        <button data-team="home" data-role="marked" class="export-to-mm-btn bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold py-1 px-3 rounded-md transition-colors">Export as Marked</button>
+                    </div>
                 </div>
 
                 <div id="away-team-card" class="bg-gray-800 p-6 rounded-lg shadow-xl space-y-4">
@@ -151,6 +162,11 @@
                         <div class="block text-sm font-medium text-gray-300 mb-2">Specialties</div>
                         <div id="away_specialties" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-600 text-center space-x-2">
+                        <div id="away_export_status" class="text-sm text-green-400 mb-2 h-5"></div>
+                        <button data-team="away" data-role="marker" class="export-to-mm-btn bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold py-1 px-3 rounded-md transition-colors">Export as Marker</button>
+                        <button data-team="away" data-role="marked" class="export-to-mm-btn bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold py-1 px-3 rounded-md transition-colors">Export as Marked</button>
                     </div>
                 </div>
             </div>
@@ -334,8 +350,75 @@
             };
         };
         
+        const loadExportedRatings = () => {
+            const exportedRatingsJSON = localStorage.getItem('exportedRatings');
+            if (!exportedRatingsJSON) return;
+
+            try {
+                const exportedRatings = JSON.parse(exportedRatingsJSON);
+
+                const populateTeam = (prefix, teamData) => {
+                    if (!teamData) return;
+
+                    // Populate sector ratings
+                    if (teamData.ratings) {
+                        for (const [key, value] of Object.entries(teamData.ratings)) {
+                            const element = document.getElementById(`${prefix}_${key}`);
+                            if (element && typeof value === 'number') {
+                                element.value = value.toFixed(2);
+                            }
+                        }
+                    }
+
+                    // Populate extra data
+                    if (teamData.extraData) {
+                        const extraData = teamData.extraData;
+                        const setVal = (id, val, dec) => {
+                            const el = document.getElementById(id);
+                            if (el && val !== undefined && val !== null) {
+                                el.value = typeof val === 'number' ? val.toFixed(dec) : val;
+                            }
+                        };
+
+                        setVal(`${prefix}_isp_def`, extraData.isp_def, 1);
+                        setVal(`${prefix}_isp_att`, extraData.isp_att, 1);
+                        setVal(`${prefix}_tactic`, extraData.tactic);
+                        setVal(`${prefix}_tactic_level`, extraData.tactic_level, 0);
+                        setVal(`${prefix}_stamina`, extraData.stamina, 1);
+                        setVal(`${prefix}_experience`, extraData.experience, 1);
+
+                        if (extraData.specialties) {
+                            for (const [specKey, specValue] of Object.entries(extraData.specialties)) {
+                                const specElement = document.getElementById(`${prefix}_${specKey}`);
+                                if (specElement) {
+                                    specElement.value = specValue;
+                                }
+                            }
+                        }
+                    }
+                };
+
+                populateTeam('home', exportedRatings.home);
+                populateTeam('away', exportedRatings.away);
+
+                const statusDiv = document.createElement('div');
+                statusDiv.id = 'import_status';
+                statusDiv.className = 'bg-green-900/50 border border-green-700 text-green-300 px-4 py-3 rounded-lg relative mb-6 text-center';
+                statusDiv.innerHTML = 'Ratings successfully imported from the Man-Marking Calculator.';
+                
+                const mainElement = document.querySelector('main');
+                mainElement.insertBefore(statusDiv, mainElement.firstChild);
+
+            } catch (e) {
+                console.error("Failed to parse exported ratings:", e);
+            } finally {
+                localStorage.removeItem('exportedRatings');
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             populateSpecialties();
+            loadExportedRatings(); // Now called after specialties are populated
             updateBaselinesUI();
 
             const parseBBCode = (bbcode) => {
@@ -649,6 +732,50 @@
                     console.error("BBCode parsing error:", error);
                     statusDiv.textContent = `Error parsing BBCode: ${error.message}`;
                     statusDiv.classList.replace('text-yellow-500', 'text-red-500');
+                }
+            });
+
+            document.body.addEventListener('click', (e) => {
+                if (e.target.classList.contains('export-to-mm-btn')) {
+                    const teamPrefix = e.target.dataset.team; // 'home' or 'away'
+                    const role = e.target.dataset.role; // 'marker' or 'marked'
+
+                    const specialties = {};
+                    document.querySelectorAll(`#${teamPrefix}_specialties input`).forEach(input => {
+                        const key = input.id.replace(`${teamPrefix}_`, '');
+                        specialties[key] = parseInt(input.value) || 0;
+                    });
+
+                    const ratingsToExport = {
+                        name: document.getElementById(`${teamPrefix}_name`).value,
+                        ratings: {
+                            mid: parseFloat(document.getElementById(`${teamPrefix}_midfield`).value) || 0,
+                            rDef: parseFloat(document.getElementById(`${teamPrefix}_r_defense`).value) || 0,
+                            cDef: parseFloat(document.getElementById(`${teamPrefix}_c_defense`).value) || 0,
+                            lDef: parseFloat(document.getElementById(`${teamPrefix}_l_defense`).value) || 0,
+                            rAtt: parseFloat(document.getElementById(`${teamPrefix}_r_attack`).value) || 0,
+                            cAtt: parseFloat(document.getElementById(`${teamPrefix}_c_attack`).value) || 0,
+                            lAtt: parseFloat(document.getElementById(`${teamPrefix}_l_attack`).value) || 0,
+                        },
+                        extraData: {
+                            isp_def: parseFloat(document.getElementById(`${teamPrefix}_isp_def`).value),
+                            isp_att: parseFloat(document.getElementById(`${teamPrefix}_isp_att`).value),
+                            tactic: document.getElementById(`${teamPrefix}_tactic`).value,
+                            tactic_level: parseInt(document.getElementById(`${teamPrefix}_tactic_level`).value),
+                            stamina: parseFloat(document.getElementById(`${teamPrefix}_stamina`).value),
+                            experience: parseFloat(document.getElementById(`${teamPrefix}_experience`).value),
+                            specialties: specialties
+                        }
+                    };
+                    
+                    const storageKey = `manMarkingImport_${role}`; // e.g., 'manMarkingImport_marker'
+                    
+                    localStorage.setItem(storageKey, JSON.stringify(ratingsToExport));
+
+                    document.getElementById('home_export_status').innerHTML = '';
+                    document.getElementById('away_export_status').innerHTML = '';
+                    const statusDiv = document.getElementById(`${teamPrefix}_export_status`);
+                    statusDiv.innerHTML = `Exported as ${role}! <a href="man_marking.html" class="underline hover:text-teal-300">Go to tool &raquo;</a>`;
                 }
             });
 

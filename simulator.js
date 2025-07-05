@@ -46,12 +46,12 @@ const BASELINE_CA_RATE = TACTIC_RATES['CA'][18];
 const CA_DYNAMIC_RATES = [ [0.34, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.44, 0.23, 0.0, 0.0, 0.0, 0.0, 0.0], [0.49, 0.31, 0.19, 0.0, 0.0, 0.0, 0.0], [0.50, 0.34, 0.18, 0.14, 0.0, 0.0, 0.0], [0.50, 0.35, 0.29, 0.13, 0.11, 0.0, 0.0], [0.49, 0.39, 0.33, 0.19, 0.09, 0.0, 0.0], [0.42, 0.41, 0.34, 0.26, 0.1, 0.13, 0.0], [0.49, 0.45, 0.36, 0.31, 0.2, 0.08, 0.0] ];
 const AOW_DYNAMIC_RATES = {14: [0.49,0.23,0.15,0.50,0.50], 16: [0.58,0.32,0.17,0.15,0.00], 18: [0.63,0.33,0.25,0.21,0.11], 20: [0.69,0.33,0.21,0.21,0.25], 22: [0.73,0.37,0.22,0.19,0.27], 24: [0.71,0.37,0.23,0.18,0.00], 26: [0.72,0.39,0.24,0.23,0.00], 28: [0.73,0.44,0.27,0.24,0.00], 30: [0.70,0.49,0.29,0.25,0.00]};
 const AIM_DYNAMIC_RATES = {18: [0.43,0.23,0.19,0.11], 20: [0.48,0.23,0.12,0.00], 22: [0.51,0.26,0.20,0.06], 24: [0.52,0.26,0.18,0.10], 26: [0.54,0.29,0.19,0.15], 28: [0.55,0.31,0.16,0.06], 30: [0.54,0.29,0.22,0.22]};
-const SE_XG_RATES = {'Quick_off': 0.36,'Head_off': 0.36,'Tech_off': 0.33,'Unpr_IM': 0.26,'Unpr_FW_W': 0.27,'Quick_def': 0.0,'Head_def': 0.47,'Unpr_def': 0.37,'Tech_def': 0.0,'PNF': 0.60,'PDIM': 0.15,'Corner': 0.39,'Experienced Fwd': 0.219,'Inexperienced Def': -0.107,'Tired Def': 0.0};
-SE_XG_RATES['NonSpecSE_XG'] = 0.52;
+const SE_XG_RATES = {'Quick_off': 0.49,'Head_off': 0.76,'Tech_off': 0.43,'Unpr_IM': 0.25,'Unpr_FW_W': 0.18,'Quick_def': 0.0,'Head_def': 0.63,'Unpr_def': 0.22,'Tech_def': 0.0,'PNF': 0.60,'PDIM': 0.15,'Corner': 0.53,'Experienced Fwd': 0.219,'Inexperienced Def': -0.107,'Tired Def': 0.0};
+SE_XG_RATES['NonSpecSE_XG'] = 0.30;
 const SE_GENERATION_CHANCE_PER_SLOT = 0.05;
 const MAX_SE_PER_NORMAL_GAME_DEFAULT = 5;
 const MAX_SE_PER_ET_PERIOD = 2;
-const SE_EVENT_WEIGHTS_CONFIG = {'Head_Off':{initial_players:0,weight_per_player:12},'Head_Def':{initial_players:0,weight_per_player:5},'Quick_Off':{initial_players:0,weight_per_player:21},'Tech_Off':{initial_players:0,weight_per_player:10},'Unpr_Def':{initial_players:0,weight_per_player:13},'Unpr_IM':{initial_players:0,weight_per_player:10},'Unpr_FW_W':{initial_players:0,weight_per_player:11},'CornerAnyone':{initial_players:1,weight_per_player:40},'NonSpecSE':{initial_players:1,weight_per_player:20}};
+const SE_EVENT_WEIGHTS_CONFIG = {'Head_Off':{initial_players:0,weight_per_player:10},'Head_Def':{initial_players:0,weight_per_player:6},'Quick_Off':{initial_players:0,weight_per_player:35},'Tech_Off':{initial_players:0,weight_per_player:8},'Unpr_Def':{initial_players:0,weight_per_player:21},'Unpr_IM':{initial_players:0,weight_per_player:23},'Unpr_FW_W':{initial_players:0,weight_per_player:13},'CornerAnyone':{initial_players:20,weight_per_player:3},'NonSpecSE':{initial_players:20,weight_per_player:4}};
 const SE_KEY_MAPPINGS = {'Head_Off':{xg_key:'Head_off',spec_key:'Head_off'},'Head_Def':{xg_key:'Head_def',spec_key:'Head_def'},'Quick_Off':{xg_key:'Quick_off',spec_key:'Quick_off'},'Tech_Off':{xg_key:'Tech_off',spec_key:'Tech_off'},'Unpr_Def':{xg_key:'Unpr_def',spec_key:'Unpr_def'},'Unpr_IM':{xg_key:'Unpr_IM',spec_key:'Unpr_IM'},'Unpr_FW_W':{xg_key:'Unpr_FW_W',spec_key:'Unpr_FW_W'},'CornerAnyone':{xg_key:'Corner',spec_key:'Corner'},'NonSpecSE':{xg_key:'NonSpecSE_XG',spec_key:'NonSpecSE_Spec'}};
 const SE_TIMING_PROBABILITY = [0.042,0.048,0.053,0.057,0.068,0.079,0.084,0.038,0.034,0.043,0.05,0.057,0.062,0.05,0.045];
 const IFK_CONVERSION_RATES = {"-23":0.0,"-22":0.002,"-21":0.004,"-20":0.002,"-19":0.015,"-18":0.026,"-17":0.042,"-16":0.037,"-15":0.075,"-14":0.075,"-13":0.088,"-12":0.107,"-11":0.119,"-10":0.145,"-9":0.16,"-8":0.178,"-7":0.175,"-6":0.213,"-5":0.231,"-4":0.262,"-3":0.276,"-2":0.316,"-1":0.394,"0":0.455,"1":0.541,"2":0.589,"3":0.63,"4":0.672,"5":0.682,"6":0.685,"7":0.728,"8":0.729,"9":0.765,"10":0.781,"11":0.776,"12":0.793,"13":0.841,"14":0.824,"15":0.859,"16":0.839,"17":0.906,"18":0.912,"19":0.929,"20":0.93,"21":0.959,"22":0.896,"23":0.891,"24":0.926,"25":0.875,"26":0.889,"27":0.928};
@@ -123,13 +123,13 @@ const getStaminaMultiplier = (staminaLevel, minute, tactic) => {
             break;
         }
     }
-    
+
     // Find surrounding minute indices
     const minute_per_row = 5;
     // Ensure minute is at least 5 to avoid negative index
     const clampedMinute = Math.max(minute, minute_per_row);
     const minute_index_float = (clampedMinute - minute_per_row) / minute_per_row;
-    
+
     // Ensure indices are within the bounds of the array
     const arrayLength = table[lowerStaminaStrKey].length;
     const lowerMinuteIndex = Math.max(0, Math.floor(minute_index_float));
@@ -144,11 +144,11 @@ const getStaminaMultiplier = (staminaLevel, minute, tactic) => {
     // Get the actual numeric values of the keys for interpolation
     const lowerStaminaNumKey = parseFloat(lowerStaminaStrKey);
     const upperStaminaNumKey = parseFloat(upperStaminaStrKey);
-    
+
     // Interpolate along the minute axis for each stamina key
     const val_at_lower_stamina = _interpolate(minute_index_float, lowerMinuteIndex, p11, upperMinuteIndex, p12);
     const val_at_upper_stamina = _interpolate(minute_index_float, lowerMinuteIndex, p21, upperMinuteIndex, p22);
-    
+
     // Interpolate along the stamina axis
     return _interpolate(staminaLevel, lowerStaminaNumKey, val_at_lower_stamina, upperStaminaNumKey, val_at_upper_stamina);
 };
@@ -200,7 +200,7 @@ const _resolveAttack = (chance_type, attacker_team, defender_team, mods) => {
     const defense_sector = defense_map[attack_sector];
     const attack_rating = attacker_team.attack_pow3_5[attack_sector] * mods.attacker_stamina_mod; // APPLY STAMINA
     const defense_rating = defender_team.defense_pow3_5[defense_sector] * mods.defender_stamina_mod; // APPLY STAMINA
-    
+
     // Apply goal difference mods after stamina mods
     const final_attack_rating = mods.attacker_is_home ? attack_rating * mods.home_attack_mod : attack_rating * mods.away_attack_mod;
     const final_defense_rating = mods.attacker_is_home ? defense_rating * mods.away_defense_mod : defense_rating * mods.home_defense_mod;
@@ -243,17 +243,17 @@ const getDynamicRate = (ratesTable, level, priors) => {
 const _getChanceType = (attacker, state, is_home) => {
     const aim_conv = is_home ? state.home_aim_conv : state.away_aim_conv;
     const aow_conv = is_home ? state.home_aow_conv : state.away_aow_conv;
-    
+
     const chance_roll = Math.random();
     let initial_type;
     if (chance_roll < 0.13) return ['set_piece', false];
     else if (chance_roll < 0.49) initial_type = 'central';
     else if (chance_roll < 0.745) initial_type = 'left';
     else initial_type = 'right';
-    
+
     let final_type = initial_type;
     const { tactic, tactic_level: level } = attacker;
-    
+
     if (tactic === 'LS') {
         if (Math.random() < (TACTIC_RATES.LS_Conv[level] || 0)) return ['long_shot', true];
     } else if (tactic === 'AIM' && ['left', 'right'].includes(initial_type)) {
@@ -264,20 +264,25 @@ const _getChanceType = (attacker, state, is_home) => {
     return [final_type, final_type !== initial_type];
 };
 
-// MODIFIED to be time-aware and apply stamina effects
-const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_se_override) => {
+// MODIFIED to be time-aware, apply stamina effects, and handle substitutions
+const _runMatchPeriod = (chance_slots, home_team_initial, away_team_initial, initial_state, num_se_override, orders) => {
+    // Use mutable copies for the simulation period
+    let current_home_team = home_team_initial;
+    let current_away_team = away_team_initial;
     const state = {...initial_state};
+
     const TIME_PER_CHANCE = 6; // Use fixed value as per final plan
-    
-    const home_has_weaker_midfield = home_team.base_midfield < away_team.base_midfield;    
+
+    // --- Setup that depends on initial team states ---
+    const home_has_weaker_midfield = current_home_team.base_midfield < current_away_team.base_midfield;
     let press_chance = 0;
-    if (home_team.tactic === 'Pressing') press_chance += (TACTIC_RATES.Pressing[home_team.tactic_level] || 0);
-    if (away_team.tactic === 'Pressing') press_chance += (TACTIC_RATES.Pressing[away_team.tactic_level] || 0);
-    
-    const home_is_pc = home_team.tactic === 'PC';
-    const away_is_pc = away_team.tactic === 'PC';
-    const home_pc_level = home_is_pc ? home_team.tactic_level : 0;
-    const away_pc_level = away_is_pc ? away_team.tactic_level : 0;
+    if (current_home_team.tactic === 'Pressing') press_chance += (TACTIC_RATES.Pressing[current_home_team.tactic_level] || 0);
+    if (current_away_team.tactic === 'Pressing') press_chance += (TACTIC_RATES.Pressing[current_away_team.tactic_level] || 0);
+
+    const home_is_pc = current_home_team.tactic === 'PC';
+    const away_is_pc = current_away_team.tactic === 'PC';
+    const home_pc_level = home_is_pc ? current_home_team.tactic_level : 0;
+    const away_pc_level = away_is_pc ? current_away_team.tactic_level : 0;
 
     let se_generated_this_period = 0;
     let base_max_se_this_period = state.is_extra_time ? MAX_SE_PER_ET_PERIOD : MAX_SE_PER_NORMAL_GAME_DEFAULT;
@@ -305,14 +310,22 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
         const chances_remaining = chance_slots.length - i;
         const max_minute = state.is_extra_time ? 120 : 90;
         const current_minute = max_minute - (chances_remaining - 1) * TIME_PER_CHANCE;
-        
-        const home_stamina_mod = getStaminaMultiplier(home_team.stamina, current_minute, home_team.tactic);
-        const away_stamina_mod = getStaminaMultiplier(away_team.stamina, current_minute, away_team.tactic);
-        
-        const home_mid = home_team.midfield_pow3 * home_stamina_mod; // APPLY STAMINA
-        const away_mid = away_team.midfield_pow3 * away_stamina_mod; // APPLY STAMINA
 
-        // --- Phase A: Special Event (logic mostly unchanged) ---
+        // --- NEW: Check and apply substitutions at the start of the chance ---
+        if (orders) {
+            const score_diff = state.home_score - state.away_score;
+            current_home_team = _checkAndApplyOrders(current_home_team, orders.home, current_minute, score_diff, true);
+            current_away_team = _checkAndApplyOrders(current_away_team, orders.away, current_minute, score_diff, false);
+        }
+
+        // Stamina and Midfield calculation now use the CURRENT team state
+        const home_stamina_mod = getStaminaMultiplier(current_home_team.stamina, current_minute, current_home_team.tactic);
+        const away_stamina_mod = getStaminaMultiplier(current_away_team.stamina, current_minute, current_away_team.tactic);
+
+        const home_mid = current_home_team.midfield_pow3 * home_stamina_mod; // APPLY STAMINA
+        const away_mid = current_away_team.midfield_pow3 * away_stamina_mod; // APPLY STAMINA
+
+        // --- Phase A: Special Event (using current_home_team/current_away_team) ---
         if (se_generated_this_period < max_se_for_this_period && Math.random() < current_se_generation_chance) {
             se_generated_this_period++;
             state.se_count++; 
@@ -321,8 +334,8 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
             for (const [event_name_config, config_params] of Object.entries(SE_EVENT_WEIGHTS_CONFIG)) {
                 const mapping = SE_KEY_MAPPINGS[event_name_config];
                 if (!mapping) continue; 
-                const home_spec_players = mapping.spec_key ? (home_team.specialties[mapping.spec_key] || 0) : 0;
-                const away_spec_players = mapping.spec_key ? (away_team.specialties[mapping.spec_key] || 0) : 0;
+                const home_spec_players = mapping.spec_key ? (current_home_team.specialties[mapping.spec_key] || 0) : 0;
+                const away_spec_players = mapping.spec_key ? (current_away_team.specialties[mapping.spec_key] || 0) : 0;
                 let effective_count_for_weighting;
                 if (event_name_config === 'CornerAnyone' || event_name_config === 'NonSpecSE') {
                     effective_count_for_weighting = config_params.initial_players;
@@ -353,8 +366,8 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
                 const chosen_event_spec_key = chosen_event_mapping.spec_key;
                 let se_attacker = null;
                 let prob_home_gets_se;
-                const home_val_for_dist = chosen_event_spec_key ? (home_team.specialties[chosen_event_spec_key] || 0) : 0;
-                const away_val_for_dist = chosen_event_spec_key ? (away_team.specialties[chosen_event_spec_key] || 0) : 0;
+                const home_val_for_dist = chosen_event_spec_key ? (current_home_team.specialties[chosen_event_spec_key] || 0) : 0;
+                const away_val_for_dist = chosen_event_spec_key ? (current_away_team.specialties[chosen_event_spec_key] || 0) : 0;
                 let home_pull, away_pull;
                 if (chosen_event_config_key === 'CornerAnyone' || chosen_event_config_key === 'Head_Def') {
                     home_pull = home_mid;
@@ -382,11 +395,11 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
                 } else {
                     prob_home_gets_se = home_pull / total_pull;
                 }
-                se_attacker = Math.random() < prob_home_gets_se ? home_team : away_team;
+                se_attacker = Math.random() < prob_home_gets_se ? current_home_team : current_away_team;
 
                 if (se_attacker) {
                     let se_goal_prob = SE_XG_RATES[chosen_event_xg_key] || 0;
-                    const se_defender = (se_attacker === home_team) ? away_team : home_team;
+                    const se_defender = (se_attacker === current_home_team) ? current_away_team : current_home_team;
                     if (chosen_event_xg_key === 'Quick_off') {
                         const quick_def_count = se_defender.specialties['Quick_def'] || 0;
                         const total_reduction_factor = Math.min(1.0, quick_def_count * 0.225);
@@ -394,7 +407,7 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
                     }
                     if (Math.random() < Math.abs(se_goal_prob)) {
                         const is_neg_event = se_goal_prob < 0;
-                        const scoring_team_home = (se_attacker === home_team && !is_neg_event) || (se_attacker === away_team && is_neg_event);
+                        const scoring_team_home = (se_attacker === current_home_team && !is_neg_event) || (se_attacker === current_away_team && is_neg_event);
                         state[scoring_team_home ? 'home_score' : 'away_score']++;
                         state[scoring_team_home ? 'home_se_goals' : 'away_se_goals']++;
                         state.se_type_goal_counts[chosen_event_config_key] = (state.se_type_goal_counts[chosen_event_config_key] || 0) + 1;
@@ -403,7 +416,7 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
             }
         }
 
-        // --- Phase B: Regular Chance (midfield contest now uses stamina-adjusted ratings) ---
+        // --- Phase B: Regular Chance (using current_home_team/current_away_team) ---
         if (press_chance > 0 && Math.random() < press_chance) continue;
         let attacker_is_home = null;
         const slot = chance_slots[i];
@@ -418,10 +431,10 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
             }
         }
         if (attacker_is_home === null) continue;
-        
-        const attacker = attacker_is_home ? home_team : away_team;
-        const defender = attacker_is_home ? away_team : home_team;
-        
+
+        const attacker = attacker_is_home ? current_home_team : current_away_team;
+        const defender = attacker_is_home ? current_away_team : current_home_team;
+
         const pdim_count = defender.specialties.PDIM || 0;
         if (pdim_count > 0 && Math.random() < (PDIM_TRIGGER_RATES[pdim_count] || 0)) {
             if (Math.random() < PDIM_SUCCESS_RATE) continue;
@@ -429,7 +442,7 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
 
         const [chance_type, converted] = _getChanceType(attacker, state, attacker_is_home);
         if(converted) { state[`${attacker_is_home ? 'home' : 'away'}_${attacker.tactic.toLowerCase()}_conv`]++; }
-        
+
         const goal_diff = state.home_score - state.away_score;
         const mods = { 
             attacker_is_home,
@@ -441,14 +454,14 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
         if (Math.abs(goal_diff) >= 2) {
             const penalty = 1 - (0.09 * (Math.min(Math.abs(goal_diff), 8) - 1));
             const boost = 1 + (0.075 * (Math.min(Math.abs(goal_diff), 8) - 1));
-            if(goal_diff > 0 && home_team.attitude !== 'MOTS') { mods.home_attack_mod = penalty; mods.home_defense_mod = boost; }
-            else if(goal_diff < 0 && away_team.attitude !== 'MOTS') { mods.away_attack_mod = penalty; mods.away_defense_mod = boost; }
+            if(goal_diff > 0 && current_home_team.attitude !== 'MOTS') { mods.home_attack_mod = penalty; mods.home_defense_mod = boost; }
+            else if(goal_diff < 0 && current_away_team.attitude !== 'MOTS') { mods.away_attack_mod = penalty; mods.away_defense_mod = boost; }
         }
-        
+
         const goal_scored = chance_type === 'set_piece' 
             ? _resolveSetPiece(attacker, defender, mods.attacker_stamina_mod, mods.defender_stamina_mod) 
             : _resolveAttack(chance_type, attacker, defender, mods);
-        
+
         if (goal_scored) {
             state[attacker_is_home ? 'home_score' : 'away_score']++;
             if (chance_type === 'set_piece') {
@@ -502,7 +515,7 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
                     }
                 }
                 if (defender.tactic === 'CA' && ((home_has_weaker_midfield && !attacker_is_home) || (!home_has_weaker_midfield && attacker_is_home))) {
-                    const [missed, succ, ca_tactic_modifier] = !attacker_is_home ? [state.home_opp_miss, state.home_ca_succ, home_team.ca_modifier] : [state.away_opp_miss, state.away_ca_succ, away_team.ca_modifier];
+                    const [missed, succ, ca_tactic_modifier] = !attacker_is_home ? [state.home_opp_miss, state.home_ca_succ, current_home_team.ca_modifier] : [state.away_opp_miss, state.away_ca_succ, current_away_team.ca_modifier];
                     const [row, col] = [Math.min(missed - 1, 7), Math.min(succ, 6)];
                     if (Math.random() < CA_DYNAMIC_RATES[row][col] * ca_tactic_modifier) {
                         const tactical_ca_mods = { ...mods, attacker_is_home: !attacker_is_home };
@@ -522,7 +535,64 @@ const _runMatchPeriod = (chance_slots, home_team, away_team, initial_state, num_
 };
 
 
-export const simulateMatch = (home_team, away_team, match_type = 'league', custom_conditions = {}) => {
+// Helper function to check and apply orders based on match conditions
+const _checkAndApplyOrders = (current_team, orders_for_team, current_minute, score_diff, is_home_team) => {
+    if (!orders_for_team || orders_for_team.length === 0) {
+        return current_team;
+    }
+
+    for (const order of orders_for_team) {
+        if (order.triggered || (order.minute > 0 && current_minute < order.minute)) {
+            continue; // Skip if already triggered or not time yet
+        }
+
+        let conditionMet = false;
+
+        // --- FIX IS HERE ---
+        // Calculate the score difference from the perspective of the current team.
+        // If it's the home team, use (home - away).
+        // If it's the away team, use (away - home).
+        const actual_diff = is_home_team ? score_diff : -score_diff;
+
+        // Now, the conditions are checked against 'actual_diff', making them work correctly for both teams.
+        switch (order.scoreCondition) {
+            case 'any':
+                conditionMet = true;
+                break;
+            case 'tied':
+                conditionMet = actual_diff === 0;
+                break;
+            case 'winning':
+                conditionMet = actual_diff > 0;
+                break;
+            case 'losing':
+                conditionMet = actual_diff < 0;
+                break;
+            case 'winning_by_2':
+                conditionMet = actual_diff >= 2;
+                break;
+            case 'losing_by_2':
+                conditionMet = actual_diff <= -2;
+                break;
+        }
+
+        if (conditionMet) {
+            order.triggered = true; // Mark as triggered for this match
+            // Return the pre-computed ratings of the new state
+            return precomputeRatings(order.newState);
+        }
+    }
+
+    return current_team; // No order triggered, return the team as-is
+};
+
+export const simulateMatch = (home_team, away_team, match_type = 'league', custom_conditions = {}, orders = null) => {
+    // Reset 'triggered' state for all orders before a new simulation run
+    if (orders) {
+        if (orders.home) orders.home.forEach(o => o.triggered = false);
+        if (orders.away) orders.away.forEach(o => o.triggered = false);
+    }
+
     const {
         home_chances = 5, shared_chances = 5, away_chances = 5,
         num_se_override, start_home_goals = 0, start_away_goals = 0
@@ -549,7 +619,7 @@ export const simulateMatch = (home_team, away_team, match_type = 'league', custo
         ...Array(away_chances).fill('away')
     ];
 
-    const nt_state = _runMatchPeriod(normal_time_chance_slots, home_team, away_team, {...initial_sim_state}, num_se_override);
+    const nt_state = _runMatchPeriod(normal_time_chance_slots, home_team, away_team, {...initial_sim_state}, num_se_override, orders);
 
     let state_for_details = nt_state;
     const result = { 
@@ -565,11 +635,25 @@ export const simulateMatch = (home_team, away_team, match_type = 'league', custo
 
     if (match_type === 'cup' && nt_state.home_score === nt_state.away_score) {
         const et_chance_slots = ['home', 'open', 'open', 'away']; // 1/2/1 chances
-        const et_state = _runMatchPeriod(et_chance_slots, home_team, away_team, {...nt_state, is_extra_time: true}, undefined);
+        // Pass the final state of normal time and the orders to the extra time period
+        const et_state = _runMatchPeriod(et_chance_slots, home_team, away_team, {...nt_state, is_extra_time: true}, undefined, orders);
         result.extra_time_score = [et_state.home_score, et_state.away_score];
         state_for_details = et_state;
         if (et_state.home_score === et_state.away_score) {
-            result.pk_winner = _runPenaltyShootout(home_team, away_team);
+            // Get the final team states after all substitutions
+            let final_home_team = home_team;
+            let final_away_team = away_team;
+
+            if (orders) {
+                // Check for any orders that would have triggered by the end of extra time
+                const score_diff = et_state.home_score - et_state.away_score;
+
+                // Check and apply orders for both teams before the penalty shootout
+                final_home_team = _checkAndApplyOrders(final_home_team, orders.home, 120, score_diff, true);
+                final_away_team = _checkAndApplyOrders(final_away_team, orders.away, 120, score_diff, false);
+            }
+
+            result.pk_winner = _runPenaltyShootout(final_home_team, final_away_team);
         }
     }
 
