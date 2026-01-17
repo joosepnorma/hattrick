@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hattrick Substitution Tool 2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom scrollbar for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <h1 class="text-xl font-bold text-white flex items-center gap-2">
+                <span class="text-indigo-500">⚡</span> Substitution Tool 2.0
+            </h1>
+            <div class="text-sm text-gray-400 hidden sm:block">Advanced Scenario Planner</div>
+        </div>
+    </header>
+
+    <main class="flex-grow p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
+
+        <!-- Initial Team States -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Home Team -->
+            <div class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden">
+                <div class="bg-gray-700/50 px-4 py-3 border-b border-gray-700 flex justify-between items-center">
+                    <h2 class="font-semibold text-white">Home Team (Initial)</h2>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div>
+                        <label class="block text-xs text-gray-400">Team Name</label>
+                        <input type="text" id="home_name" value="Home Team"
+                            class="w-full bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400">Defense (R / C / L)</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <input type="number" step="0.1" id="home_r_defense" value="10.0"
+                                class="bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center">
+                            <input type="number" step="0.1" id="home_c_defense" value="10.0"
+                                class="bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center">
+                            <input type="number" step="0.1" id="home_l_defense" value="10.0"
+                                class="bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400">Midfield</label>
+                        <input type="number" step="0.1" id="home_midfield" value="10.0"
+                            class="w-full bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400">Attack (R / C / L)</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <input type="number" step="0.1" id="home_r_attack" value="10.0"
+                                class="bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center">
+                            <input type="number" step="0.1" id="home_c_attack" value="10.0"
+                                class="bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center">
+                            <input type="number" step="0.1" id="home_l_attack" value="10.0"
+                                class="bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-gray-400">Tactic & Level</label>
+                            <div class="flex gap-1">
+                                <select id="home_tactic"
+                                    class="w-2/3 bg-gray-700 border-gray-600 rounded px-1 py-1 text-sm">
+                                    <option>Normal</option>
+                                    <option>Pressing</option>
+                                    <option>CA</option>
+                                    <option>AIM</option>
+                                    <option>AOW</option>
+                                    <option>LS</option>
+                                    <option>PC</option>
+                                </select>
+                                <input type="number" id="home_tactic_level" value="10"
+                                    class="w-1/3 bg-gray-700 border-gray-600 rounded px-1 py-1 text-sm text-center">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400">ISP (Def / Att)</label>
+                            <div class="flex gap-1">
+                                <input type="number" step="0.1" id="home_isp_def" value="10"
+                                    class="w-1/2 bg-gray-700 border-gray-600 rounded px-1 py-1 text-sm text-center">
+                                <input type="number" step="0.1" id="home_isp_att" value="10"
+                                    class="w-1/2 bg-gray-700 border-gray-600 rounded px-1 py-1 text-sm text-center">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-xs text-gray-400">Stamina</label><input type="number" step="0.1"
+                                id="home_stamina" value="8.0" min="1.0" max="10.0"
+                                class="w-full bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center"></div>
+                        <div><label class="block text-xs text-gray-400">Experience</label><input type="number"
+                                step="0.1" id="home_experience" value="10.0"
+                                class="w-full bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center"></div>
+                    </div>
+                    <!-- Collapsible Specialties -->
+                    <details class="group">
+                        <summary
+                            class="flex justify-between items-center font-medium cursor-pointer list-none text-xs text-indigo-400 hover:text-indigo-300">
+                            <span>Specialties Inventory</span>
+                            <span class="transition group-open:rotate-180">
+                                <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    viewBox="0 0 24 24" width="24">
+                                    <path d="M6 9l6 6 6-6"></path>
+                                </svg>
+                            </span>
+                        </summary>
+                        <div id="home_specialties"
+                            class="text-neutral-600 mt-3 group-open:animate-fadeIn grid grid-cols-2 gap-2 text-xs">
+                            <!-- Populated by JS -->
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- Away Team -->
+            <div class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden">
+                <div class="bg-gray-700/50 px-4 py-3 border-b border-gray-700 flex justify-between items-center">
+                    <h2 class="font-semibold text-white">Away Team (Initial)</h2>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div>
+                        <label class="block text-xs text-gray-400">Team Name</label>
+                        <input type="text" id="away_name" value="Away Team"
+                            class="w-full bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400">Defense (R / C / L)</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <input type="number" step="0.1" id="away_r_defense" value="10.0"
+                                class="bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center">
+                            <input type="number" step="0.1" id="away_c_defense" value="10.0"
+                                class="bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center">
+                            <input type="number" step="0.1" id="away_l_defense" value="10.0"
+                                class="bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400">Midfield</label>
+                        <input type="number" step="0.1" id="away_midfield" value="10.0"
+                            class="w-full bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400">Attack (R / C / L)</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <input type="number" step="0.1" id="away_r_attack" value="10.0"
+                                class="bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center">
+                            <input type="number" step="0.1" id="away_c_attack" value="10.0"
+                                class="bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center">
+                            <input type="number" step="0.1" id="away_l_attack" value="10.0"
+                                class="bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-gray-400">Tactic & Level</label>
+                            <div class="flex gap-1">
+                                <select id="away_tactic"
+                                    class="w-2/3 bg-gray-700 border-gray-600 rounded px-1 py-1 text-sm">
+                                    <option>Normal</option>
+                                    <option>Pressing</option>
+                                    <option>CA</option>
+                                    <option>AIM</option>
+                                    <option>AOW</option>
+                                    <option>LS</option>
+                                    <option>PC</option>
+                                </select>
+                                <input type="number" id="away_tactic_level" value="10"
+                                    class="w-1/3 bg-gray-700 border-gray-600 rounded px-1 py-1 text-sm text-center">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400">ISP (Def / Att)</label>
+                            <div class="flex gap-1">
+                                <input type="number" step="0.1" id="away_isp_def" value="10"
+                                    class="w-1/2 bg-gray-700 border-gray-600 rounded px-1 py-1 text-sm text-center">
+                                <input type="number" step="0.1" id="away_isp_att" value="10"
+                                    class="w-1/2 bg-gray-700 border-gray-600 rounded px-1 py-1 text-sm text-center">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-xs text-gray-400">Stamina</label><input type="number" step="0.1"
+                                id="away_stamina" value="8.0" min="1.0" max="10.0"
+                                class="w-full bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center"></div>
+                        <div><label class="block text-xs text-gray-400">Experience</label><input type="number"
+                                step="0.1" id="away_experience" value="10.0"
+                                class="w-full bg-gray-700 border-gray-600 rounded px-2 py-1 text-sm text-center"></div>
+                    </div>
+                    <details class="group">
+                        <summary
+                            class="flex justify-between items-center font-medium cursor-pointer list-none text-xs text-indigo-400 hover:text-indigo-300">
+                            <span>Specialties Inventory</span>
+                            <span class="transition group-open:rotate-180">
+                                <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    viewBox="0 0 24 24" width="24">
+                                    <path d="M6 9l6 6 6-6"></path>
+                                </svg>
+                            </span>
+                        </summary>
+                        <div id="away_specialties"
+                            class="text-neutral-600 mt-3 group-open:animate-fadeIn grid grid-cols-2 gap-2 text-xs">
+                            <!-- Populated by JS -->
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </div>
+
+        <!-- Substitution Orders -->
+        <div class="bg-gray-800 rounded-lg shadow-lg border border-gray-700">
+            <div class="p-4 border-b border-gray-700">
+                <h2 class="text-lg font-semibold text-white">Advanced Substitutions & Conditional Orders</h2>
+                <p class="text-sm text-gray-400">Define how teams change based on match events to test "what if"
+                    scenarios.</p>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Home Orders -->
+                <div class="space-y-4">
+                    <h3 class="font-medium text-indigo-400 border-b border-gray-700 pb-2">Home Team Orders</h3>
+                    <div id="home_orders_container" class="space-y-3"></div>
+                    <button
+                        class="w-full py-2 bg-gray-700 hover:bg-gray-600 rounded-md text-sm text-gray-300 transition"
+                        onclick="addOrderCard('home')">+ Add Order</button>
+                </div>
+                <!-- Away Orders -->
+                <div class="space-y-4">
+                    <h3 class="font-medium text-indigo-400 border-b border-gray-700 pb-2">Away Team Orders</h3>
+                    <div id="away_orders_container" class="space-y-3"></div>
+                    <button
+                        class="w-full py-2 bg-gray-700 hover:bg-gray-600 rounded-md text-sm text-gray-300 transition"
+                        onclick="addOrderCard('away')">+ Add Order</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="bg-gray-800 p-6 rounded-lg shadow-xl text-center border border-gray-700">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-6 mb-6">
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Simulations</label>
+                    <input type="number" id="sim_count" value="1000" min="100" max="50000"
+                        class="w-32 bg-gray-900 border border-gray-600 rounded-lg p-3 text-center text-lg font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Match Type</label>
+                    <div class="flex bg-gray-900 rounded-lg p-1 border border-gray-600">
+                        <label
+                            class="cursor-pointer px-4 py-2 rounded-md transition hover:bg-gray-800 has-[:checked]:bg-indigo-600 has-[:checked]:text-white">
+                            <input type="radio" name="match_type" value="league" class="hidden"> League
+                        </label>
+                        <label
+                            class="cursor-pointer px-4 py-2 rounded-md transition hover:bg-gray-800 has-[:checked]:bg-indigo-600 has-[:checked]:text-white">
+                            <input type="radio" name="match_type" value="cup" class="hidden" checked> Cup
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button id="run_simulation"
+                class="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-bold py-4 px-12 rounded-xl shadow-lg transform transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                Run Simulation
+            </button>
+
+            <!-- Progress Bar -->
+            <div id="progress_container" class="hidden mt-6 max-w-lg mx-auto">
+                <div class="flex justify-between text-xs text-gray-400 mb-1">
+                    <span>Simulating...</span>
+                    <span id="progress_text">0%</span>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                    <div id="progress_bar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results" class="hidden space-y-6">
+            <!-- Overall Stats -->
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
+                <h2 class="text-2xl font-bold text-center mb-6">Simulation Results</h2>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div class="p-4 bg-gray-700/30 rounded-lg">
+                        <div class="text-3xl font-bold text-green-400" id="res_home_wins">-%</div>
+                        <div class="text-sm text-gray-400 uppercase mt-1 tracking-wider" id="res_home_name">Home Wins
+                        </div>
+                    </div>
+                    <div class="p-4 bg-gray-700/30 rounded-lg">
+                        <div class="text-3xl font-bold text-gray-300" id="res_draws">-%</div>
+                        <div class="text-sm text-gray-400 uppercase mt-1 tracking-wider">Draws</div>
+                    </div>
+                    <div class="p-4 bg-gray-700/30 rounded-lg">
+                        <div class="text-3xl font-bold text-red-400" id="res_away_wins">-%</div>
+                        <div class="text-sm text-gray-400 uppercase mt-1 tracking-wider" id="res_away_name">Away Wins
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 text-center text-sm text-gray-500" id="res_goals">
+                    Avg Goals: 0.0 - 0.0
+                </div>
+            </div>
+
+            <!-- Detailed Breakdown (Optional extensions can go here) -->
+        </div>
+
+    </main>
+
+    <!-- Modal for Order Definition -->
+    <div id="edit-modal"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div
+            class="bg-gray-800 rounded-xl shadow-2xl border border-gray-700 w-full max-w-4xl max-h-[90vh] overflow-y-auto slide-in">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
+                    <h3 class="text-xl font-bold text-white">Define Post-Substitution State</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-white">&times;</button>
+                </div>
+
+                <div class="bg-indigo-900/30 border border-indigo-700/50 p-4 rounded-lg mb-6 text-sm text-indigo-200">
+                    <p>💡 <strong>Tip:</strong> Enter the <strong>TOTAL</strong> team ratings after the substitution
+                        happens. Do not enter the difference.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <h4 class="font-medium text-gray-300 border-b border-gray-700 pb-1">Team Ratings</h4>
+                        <div>
+                            <label class="block text-xs text-gray-400">Defense (R / C / L)</label>
+                            <div class="flex gap-2">
+                                <input type="number" step="0.1" id="modal_r_def" class="input-rating">
+                                <input type="number" step="0.1" id="modal_c_def" class="input-rating">
+                                <input type="number" step="0.1" id="modal_l_def" class="input-rating">
+                            </div>
+                        </div>
+                        <div><label class="block text-xs text-gray-400">Midfield</label><input type="number" step="0.1"
+                                id="modal_mid" class="input-rating w-full"></div>
+                        <div>
+                            <label class="block text-xs text-gray-400">Attack (R / C / L)</label>
+                            <div class="flex gap-2">
+                                <input type="number" step="0.1" id="modal_r_att" class="input-rating">
+                                <input type="number" step="0.1" id="modal_c_att" class="input-rating">
+                                <input type="number" step="0.1" id="modal_l_att" class="input-rating">
+                            </div>
+                        </div>
+                        <div><label class="block text-xs text-gray-400">Tactic Level</label><input type="number"
+                                id="modal_tactic_level" class="input-rating w-full"></div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h4 class="font-medium text-gray-300 border-b border-gray-700 pb-1">Specialties (Total Count)
+                        </h4>
+                        <div id="modal_specialties" class="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                            <!-- Populated JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-gray-700">
+                    <button onclick="closeModal()"
+                        class="px-5 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white font-medium transition">Cancel</button>
+                    <button onclick="saveModalData()"
+                        class="px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-lg transition">Save
+                        State</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Styles for inputs -->
+    <style>
+        .input-rating {
+            background-color: #374151;
+            /* bg-gray-700 */
+            border: 1px solid #4b5563;
+            /* border-gray-600 */
+            color: white;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        .input-rating:focus {
+            outline: none;
+            border-color: #6366f1;
+            /* indigo-500 */
+            box-shadow: 0 0 0 1px #6366f1;
+        }
+    </style>
+
+    <script type="module">
+        import { simulateMatch, precomputeRatings } from './simulator.js';
+
+        // --- Config ---
+        const SPEC_LIST = {
+            'Quick_off': 'Quick (Fwd/Winger)', 'Head_off': 'Head (Attacker)', 'Tech_off': 'Technical (Winger)',
+            'Unpr_IM': 'Unpredictable (IM)', 'Unpr_FW_W': 'Unpredictable (Wing/Fwd)',
+            'Quick_def': 'Quick (Def)', 'Head_def': 'Head (Def)', 'Unpr_def': 'Unpredictable (Def)', 'Tech_def': 'Technical (Def)',
+            'PNF': 'Powerful (Fwd)', 'PDIM': 'Powerful (Def/IM)'
+        };
+
+        let ORDER_DATA_STORE = { home: [], away: [] }; // Stores the 'newState' objects for orders
+
+        // --- UI Initialization ---
+        const populateSpecialties = (containerId, prefix) => {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            for (const [key, label] of Object.entries(SPEC_LIST)) {
+                container.innerHTML += `
+                    <div class="flex items-center justify-between bg-gray-900/40 p-1.5 rounded">
+                        <label for="${prefix}_${key}" class="text-gray-400 truncate pr-2" title="${label}">${label}</label>
+                        <input type="number" id="${prefix}_${key}" value="0" min="0" class="w-12 bg-gray-700 border border-gray-600 rounded text-center text-white focus:outline-none focus:border-indigo-500">
+                    </div>`;
+            }
+        };
+
+        window.addOrderCard = (teamPrefix) => {
+            const container = document.getElementById(`${teamPrefix}_orders_container`);
+            const index = container.children.length; // Simple index
+            if (index >= 5) return alert("Max 5 orders per team.");
+
+            // Initialize store for this index if needed (though we might rebuild on save)
+            // Actually, let's use the DOM ID to link to ORDER_DATA_STORE
+            if (!ORDER_DATA_STORE[teamPrefix][index]) ORDER_DATA_STORE[teamPrefix][index] = null;
+
+            const card = document.createElement('div');
+            card.className = "bg-gray-900/50 p-3 rounded border border-gray-700/50 animate-pulse-once";
+            card.style.animation = "none";
+            card.innerHTML = `
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-semibold text-gray-300">#${index + 1}</span>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <span class="text-xs text-gray-400">Active</span>
+                        <input type="checkbox" checked id="${teamPrefix}_order_enabled_${index}" class="form-checkbox h-4 w-4 text-indigo-500 rounded bg-gray-700 border-gray-600">
+                    </label>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                    <div>
+                        <span class="text-[10px] text-gray-500 uppercase tracking-wider">Minute</span>
+                        <select id="${teamPrefix}_order_minute_${index}" class="w-full bg-gray-700 border border-gray-600 rounded text-xs p-1 text-white">
+                            <option value="0">Any</option>
+                            ${[...Array(24).keys()].map(i => `<option value="${(i) * 5 + 5}">${(i) * 5 + 5}'</option>`).join('')}
+                        </select>
+                    </div>
+                    <div>
+                         <span class="text-[10px] text-gray-500 uppercase tracking-wider">Condition</span>
+                         <select id="${teamPrefix}_order_score_${index}" class="w-full bg-gray-700 border border-gray-600 rounded text-xs p-1 text-white">
+                                <option value="any">Always</option>
+                                <option value="tied">Tied</option>
+                                <option value="winning">Winning</option>
+                                <option value="losing">Losing</option>
+                                <option value="winning_by_2">Winning 2+</option>
+                                <option value="losing_by_2">Losing 2+</option>
+                         </select>
+                    </div>
+                </div>
+                <button onclick="openModal('${teamPrefix}', ${index})" class="w-full py-1.5 bg-indigo-900/50 hover:bg-indigo-900 text-indigo-200 border border-indigo-800 rounded text-xs flex justify-center items-center gap-2 transition">
+                   <span id="${teamPrefix}_status_${index}">⚙️ Define Stats</span>
+                </button>
+            `;
+            container.appendChild(card);
+        };
+
+        // --- Data Retrieval ---
+        const getTeamData = (prefix) => {
+            const specialties = {};
+            document.querySelectorAll(`#${prefix}_specialties input`).forEach(input => {
+                const key = input.id.replace(`${prefix}_`, '');
+                specialties[key] = parseInt(input.value) || 0;
+            });
+            return {
+                name: document.getElementById(`${prefix}_name`).value,
+                r_defense: parseFloat(document.getElementById(`${prefix}_r_defense`).value),
+                c_defense: parseFloat(document.getElementById(`${prefix}_c_defense`).value),
+                l_defense: parseFloat(document.getElementById(`${prefix}_l_defense`).value),
+                midfield: parseFloat(document.getElementById(`${prefix}_midfield`).value),
+                r_attack: parseFloat(document.getElementById(`${prefix}_r_attack`).value),
+                c_attack: parseFloat(document.getElementById(`${prefix}_c_attack`).value),
+                l_attack: parseFloat(document.getElementById(`${prefix}_l_attack`).value),
+                isp_att: parseFloat(document.getElementById(`${prefix}_isp_att`).value),
+                isp_def: parseFloat(document.getElementById(`${prefix}_isp_def`).value),
+                tactic: document.getElementById(`${prefix}_tactic`) ? document.getElementById(`${prefix}_tactic`).value : 'Normal', // Modal doesn't have tactic select for simplicity? Ah, wait, modal needs it.
+                tactic_level: parseInt(document.getElementById(`${prefix}_tactic_level`).value),
+                stamina: parseFloat(document.getElementById(`${prefix}_stamina`).value),
+                experience: parseFloat(document.getElementById(`${prefix}_experience`).value),
+                attitude: 'Normal',
+                specialties: specialties,
+            };
+        };
+
+        // --- Modal Logic ---
+        let currentModalContext = null;
+
+        window.openModal = (teamPrefix, index) => {
+            currentModalContext = { team: teamPrefix, index: index };
+            const storedData = ORDER_DATA_STORE[teamPrefix][index];
+            const dataToLoad = storedData || getTeamData(teamPrefix); // Use stored or current base
+
+            // Fill inputs
+            ['r_defense', 'c_defense', 'l_defense', 'midfield', 'r_attack', 'c_attack', 'l_attack', 'tactic_level'].forEach(k => {
+                // Map keys. For simpler code, I constructed modal IDs to match roughly
+                // data key: r_defense -> modal ID: modal_r_def
+                const map = {
+                    'r_defense': 'modal_r_def', 'c_defense': 'modal_c_def', 'l_defense': 'modal_l_def',
+                    'midfield': 'modal_mid',
+                    'r_attack': 'modal_r_att', 'c_attack': 'modal_c_att', 'l_attack': 'modal_l_att',
+                    'tactic_level': 'modal_tactic_level'
+                };
+                if (document.getElementById(map[k])) document.getElementById(map[k]).value = dataToLoad[k];
+            });
+
+            // Fill specialties
+            const modalSpecContainer = document.getElementById('modal_specialties');
+            modalSpecContainer.innerHTML = '';
+            for (const [key, label] of Object.entries(SPEC_LIST)) {
+                const val = dataToLoad.specialties[key] || 0;
+                modalSpecContainer.innerHTML += `
+                    <div class="flex items-center justify-between">
+                        <label class="text-gray-400 truncate pr-2">${label}</label>
+                        <input type="number" id="modal_spec_${key}" value="${val}" min="0" class="w-12 bg-gray-700 border border-gray-600 rounded text-center text-white">
+                    </div>`;
+            }
+
+            document.getElementById('edit-modal').classList.remove('hidden');
+        };
+
+        window.closeModal = () => {
+            document.getElementById('edit-modal').classList.add('hidden');
+            currentModalContext = null;
+        };
+
+        window.saveModalData = () => {
+            if (!currentModalContext) return;
+            const { team, index } = currentModalContext;
+
+            // Reconstruct full team object based on existing base but overwritten stats
+            const base = getTeamData(team);
+            const specialties = {};
+            document.querySelectorAll('#modal_specialties input').forEach(input => {
+                const k = input.id.replace('modal_spec_', '');
+                specialties[k] = parseInt(input.value) || 0;
+            });
+
+            const newState = {
+                ...base, // Keep name, stamina, etc
+                r_defense: parseFloat(document.getElementById('modal_r_def').value),
+                c_defense: parseFloat(document.getElementById('modal_c_def').value),
+                l_defense: parseFloat(document.getElementById('modal_l_def').value),
+                midfield: parseFloat(document.getElementById('modal_mid').value),
+                r_attack: parseFloat(document.getElementById('modal_r_att').value),
+                c_attack: parseFloat(document.getElementById('modal_c_att').value),
+                l_attack: parseFloat(document.getElementById('modal_l_att').value),
+                tactic_level: parseInt(document.getElementById('modal_tactic_level').value),
+                specialties: specialties
+            };
+
+            ORDER_DATA_STORE[team][index] = newState;
+
+            // Visual feedback
+            const btnLabel = document.getElementById(`${team}_status_${index}`);
+            if (btnLabel) {
+                btnLabel.textContent = "✅ Ready";
+                btnLabel.classList.add("text-green-400");
+            }
+            closeModal();
+        };
+
+        // --- Simulation Logic ---
+
+        const getOrders = (teamPrefix) => {
+            const container = document.getElementById(`${teamPrefix}_orders_container`);
+            const orders = [];
+            for (let i = 0; i < container.children.length; i++) {
+                if (!document.getElementById(`${teamPrefix}_order_enabled_${i}`).checked) continue;
+
+                const storedState = ORDER_DATA_STORE[teamPrefix][i];
+                if (!storedState) continue; // Not defined yet
+
+                orders.push({
+                    minute: parseInt(document.getElementById(`${teamPrefix}_order_minute_${i}`).value),
+                    scoreCondition: document.getElementById(`${teamPrefix}_order_score_${i}`).value,
+                    newState: storedState,
+                    triggered: false
+                });
+            }
+            return orders;
+        };
+
+        // ASYNC SIMULATION LOOP
+        const runBatchSimulation = async () => {
+            const btn = document.getElementById('run_simulation');
+            const progressContainer = document.getElementById('progress_container');
+            const progressBar = document.getElementById('progress_bar');
+            const progressText = document.getElementById('progress_text');
+            const resultsDiv = document.getElementById('results');
+
+            // Reset UI
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+            progressContainer.classList.remove('hidden');
+            resultsDiv.classList.add('hidden');
+            progressBar.style.width = '0%';
+
+            // Get Data
+            const homeData = getTeamData('home');
+            const awayData = getTeamData('away');
+            const orders = { home: getOrders('home'), away: getOrders('away') };
+            const simCount = parseInt(document.getElementById('sim_count').value) || 1000;
+            const matchType = document.querySelector('input[name="match_type"]:checked').value;
+
+            // Prepare Precomputed Ratings (Optimization)
+            // Note: orders.newState needs precomputing too usually, but simulator does it inside _checkAndApplyOrders if passed raw? 
+            // Simulator.js `_checkAndApplyOrders` calls `precomputeRatings(order.newState)`.
+            // So we pass raw data in orders, and precomputed data for initial team.
+            const homePre = precomputeRatings(homeData);
+            const awayPre = precomputeRatings(awayData);
+
+            let stats = { wins: 0, draws: 0, losses: 0, homeGoals: 0, awayGoals: 0 };
+
+            // Batching
+            const BATCH_SIZE = 50;
+            let completed = 0;
+
+            const processBatch = () => {
+                const end = Math.min(completed + BATCH_SIZE, simCount);
+                try {
+                    for (let i = completed; i < end; i++) {
+                        const res = simulateMatch(homePre, awayPre, matchType, {}, orders);
+
+                        // Tally
+                        let hScore = res.normal_time_score[0];
+                        let aScore = res.normal_time_score[1];
+                        if (res.extra_time_score) {
+                            hScore = res.extra_time_score[0];
+                            aScore = res.extra_time_score[1];
+                        }
+                        // Add goals
+                        stats.homeGoals += hScore;
+                        stats.awayGoals += aScore;
+
+                        // Winner
+                        if (res.pk_winner) {
+                            if (res.pk_winner === 'home') stats.wins++; else stats.losses++;
+                        } else {
+                            if (hScore > aScore) stats.wins++;
+                            else if (aScore > hScore) stats.losses++;
+                            else stats.draws++;
+                        }
+                    }
+                } catch (err) {
+                    console.error("Sim Error", err);
+                    alert("Error during simulation. Check console.");
+                    return; // Abort
+                }
+
+                completed = end;
+                const pct = Math.round((completed / simCount) * 100);
+                progressBar.style.width = `${pct}%`;
+                progressText.textContent = `${pct}%`;
+
+                if (completed < simCount) {
+                    requestAnimationFrame(processBatch); // Non-blocking yield
+                } else {
+                    finishSimulation(stats, simCount, homeData.name, awayData.name);
+                }
+            };
+
+            // Start
+            requestAnimationFrame(processBatch);
+        };
+
+        const finishSimulation = (stats, total, hName, aName) => {
+            const btn = document.getElementById('run_simulation');
+            btn.disabled = false;
+            btn.classList.remove('opacity-50');
+            document.getElementById('progress_container').classList.add('hidden');
+            document.getElementById('results').classList.remove('hidden');
+
+            document.getElementById('res_home_name').textContent = hName + " Wins";
+            document.getElementById('res_away_name').textContent = aName + " Wins";
+
+            document.getElementById('res_home_wins').textContent = ((stats.wins / total) * 100).toFixed(1) + '%';
+            document.getElementById('res_draws').textContent = ((stats.draws / total) * 100).toFixed(1) + '%';
+            document.getElementById('res_away_wins').textContent = ((stats.losses / total) * 100).toFixed(1) + '%';
+
+            document.getElementById('res_goals').innerHTML = `
+                Avg Score: <span class="text-white font-bold">${(stats.homeGoals / total).toFixed(2)}</span> 
+                - 
+                <span class="text-white font-bold">${(stats.awayGoals / total).toFixed(2)}</span>
+            `;
+        };
+
+        document.getElementById('run_simulation').addEventListener('click', runBatchSimulation);
+
+        // Init
+        window.addEventListener('DOMContentLoaded', () => {
+            populateSpecialties('home_specialties', 'home');
+            populateSpecialties('away_specialties', 'away');
+        });
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hattrick Man Marking Matrix Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-200 p-4 sm:p-6 lg:p-8">
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-white">Man-Marking Matrix Analyzer</h1>
+            <p class="text-gray-400 mt-2">Automatically simulate all marking combinations to find the optimal strategy.
+            </p>
+        </header>
+
+        <main class="space-y-8">
+            <div class="bg-gray-800 p-6 rounded-lg shadow-xl">
+                <h2 class="text-2xl font-semibold text-white border-b border-gray-700 pb-3 mb-4">Team Setups</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="space-y-4 bg-gray-900/50 p-4 rounded-lg">
+                        <h3 class="text-xl font-semibold text-indigo-400">Your Team (The Marker's Team)</h3>
+                        <div>
+                            <label for="marker_team_formation"
+                                class="block text-sm font-medium text-gray-300">Formation</label>
+                            <select id="marker_team_formation"
+                                class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
+                                <option>3-5-2</option>
+                                <option>5-3-2</option>
+                                <option>4-4-2</option>
+                                <option>4-5-1</option>
+                                <option>3-4-3</option>
+                                <option>2-5-3</option>
+                                <option>5-5-0</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300">Defense (R / C / L)</label>
+                            <div class="flex gap-2 mt-1">
+                                <input type="number" step="0.1" id="marker_team_r_def" value="10.0"
+                                    class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2"
+                                    placeholder="Right Def">
+                                <input type="number" step="0.1" id="marker_team_c_def" value="10.0"
+                                    class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2"
+                                    placeholder="Cen Def">
+                                <input type="number" step="0.1" id="marker_team_l_def" value="10.0"
+                                    class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2"
+                                    placeholder="Left Def">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="marker_team_mid"
+                                class="block text-sm font-medium text-gray-300">Midfield</label>
+                            <input type="number" step="0.1" id="marker_team_mid" value="10.0"
+                                class="mt-1 block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300">Attack (R / C / L)</label>
+                            <div class="flex gap-2 mt-1">
+                                <input type="number" step="0.1" id="marker_team_r_att" value="10.0"
+                                    class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2"
+                                    placeholder="Right Att">
+                                <input type="number" step="0.1" id="marker_team_c_att" value="10.0"
+                                    class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2"
+                                    placeholder="Cen Att">
+                                <input type="number" step="0.1" id="marker_team_l_att" value="10.0"
+                                    class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2"
+                                    placeholder="Left Att">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300">ISP (Def / Att)</label>
+                                <div class="flex gap-2 mt-1">
+                                    <input type="number" step="0.1" id="marker_team_isp_def" value="10"
+                                        class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2">
+                                    <input type="number" step="0.1" id="marker_team_isp_att" value="10"
+                                        class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300">Stamina / Experience</label>
+                                <div class="flex gap-2 mt-1">
+                                    <input type="number" step="0.1" id="marker_team_stamina" value="8.0"
+                                        class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2">
+                                    <input type="number" step="0.1" id="marker_team_experience" value="10.0"
+                                        class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="marker_team_tactic"
+                                    class="block text-sm font-medium text-gray-300">Tactic</label>
+                                <select id="marker_team_tactic"
+                                    class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md p-2">
+                                    <option>Normal</option>
+                                    <option>Pressing</option>
+                                    <option>CA</option>
+                                    <option>AIM</option>
+                                    <option>AOW</option>
+                                    <option>LS</option>
+                                    <option>PC</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="marker_team_tactic_level"
+                                    class="block text-sm font-medium text-gray-300">Tactic Level</label>
+                                <input type="number" step="1" id="marker_team_tactic_level" value="10"
+                                    class="mt-1 block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2">
+                            </div>
+                        </div>
+                        <div class="pt-2">
+                            <h4 class="text-md font-semibold text-gray-300 mb-2">Team Specialties (Player Counts)</h4>
+                            <div class="grid grid-cols-4 gap-x-4 gap-y-2">
+                                <div>
+                                    <label for="marker_team_spec_quick_off" class="text-xs text-gray-400">Quick
+                                        Off</label>
+                                    <input type="number" id="marker_team_spec_quick_off" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marker_team_spec_head_off" class="text-xs text-gray-400">Head
+                                        Off</label>
+                                    <input type="number" id="marker_team_spec_head_off" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marker_team_spec_tech_off" class="text-xs text-gray-400">Tech
+                                        Off</label>
+                                    <input type="number" id="marker_team_spec_tech_off" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marker_team_spec_unpr_im" class="text-xs text-gray-400">Unpr IM</label>
+                                    <input type="number" id="marker_team_spec_unpr_im" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marker_team_spec_unpr_fw_w" class="text-xs text-gray-400">Unpr
+                                        FW/W</label>
+                                    <input type="number" id="marker_team_spec_unpr_fw_w" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marker_team_spec_quick_def" class="text-xs text-gray-400">Quick
+                                        Def</label>
+                                    <input type="number" id="marker_team_spec_quick_def" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marker_team_spec_head_def" class="text-xs text-gray-400">Head
+                                        Def</label>
+                                    <input type="number" id="marker_team_spec_head_def" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marker_team_spec_unpr_def" class="text-xs text-gray-400">Unpr
+                                        Def</label>
+                                    <input type="number" id="marker_team_spec_unpr_def" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marker_team_spec_tech_def" class="text-xs text-gray-400">Tech
+                                        Def</label>
+                                    <input type="number" id="marker_team_spec_tech_def" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marker_team_spec_pnf" class="text-xs text-gray-400">PNF</label>
+                                    <input type="number" id="marker_team_spec_pnf" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marker_team_spec_pdim" class="text-xs text-gray-400">PDIM</label>
+                                    <input type="number" id="marker_team_spec_pdim" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-gray-700">
+                            <h4 class="text-lg font-semibold text-gray-300 mb-2">Individual Marker Details</h4>
+                            <div class="space-y-3">
+                                <div class="grid grid-cols-3 gap-2 items-end">
+                                    <label class="text-sm text-gray-400">Central Defender</label>
+                                    <input type="number" step="0.1" id="marker_cd_def" value="18"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1"
+                                        placeholder="Defending">
+                                    <select id="marker_cd_spec"
+                                        class="block w-full bg-gray-600 border-gray-500 rounded-md p-1 text-sm">
+                                        <option value="none">Specless</option>
+                                        <option value="Powerful">Powerful</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 items-end">
+                                    <label class="text-sm text-gray-400">Left Wing Back</label>
+                                    <input type="number" step="0.1" id="marker_lwb_def" value="18"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1"
+                                        placeholder="Defending">
+                                    <select id="marker_lwb_spec"
+                                        class="block w-full bg-gray-600 border-gray-500 rounded-md p-1 text-sm">
+                                        <option value="none">Specless</option>
+                                        <option value="Powerful">Powerful</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 items-end">
+                                    <label class="text-sm text-gray-400">Right Wing Back</label>
+                                    <input type="number" step="0.1" id="marker_rwb_def" value="18"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1"
+                                        placeholder="Defending">
+                                    <select id="marker_rwb_spec"
+                                        class="block w-full bg-gray-600 border-gray-500 rounded-md p-1 text-sm">
+                                        <option value="none">Specless</option>
+                                        <option value="Powerful">Powerful</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 items-end">
+                                    <label class="text-sm text-gray-400">Inner Midfielder</label>
+                                    <input type="number" step="0.1" id="marker_im_def" value="18"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1"
+                                        placeholder="Defending">
+                                    <select id="marker_im_spec"
+                                        class="block w-full bg-gray-600 border-gray-500 rounded-md p-1 text-sm">
+                                        <option value="none">Specless</option>
+                                        <option value="Powerful">Powerful</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 bg-gray-900/50 p-4 rounded-lg">
+                        <h3 class="text-xl font-semibold text-indigo-400">Opponent Team</h3>
+                        <div>
+                            <label for="marked_team_formation"
+                                class="block text-sm font-medium text-gray-300">Formation</label>
+                            <select id="marked_team_formation"
+                                class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
+                                <option>3-5-2</option>
+                                <option>4-4-2</option>
+                                <option>4-5-1</option>
+                                <option>5-3-2</option>
+                                <option>3-4-3</option>
+                                <option>2-5-3</option>
+                                <option>5-5-0</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300">Defense (R / C / L)</label>
+                            <div class="flex gap-2 mt-1">
+                                <input type="number" step="0.1" id="marked_team_r_def" value="10.0"
+                                    class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2"
+                                    placeholder="Right Def">
+                                <input type="number" step="0.1" id="marked_team_c_def" value="10.0"
+                                    class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2"
+                                    placeholder="Cen Def">
+                                <input type="number" step="0.1" id="marked_team_l_def" value="10.0"
+                                    class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2"
+                                    placeholder="Left Def">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="marked_team_mid"
+                                class="block text-sm font-medium text-gray-300">Midfield</label>
+                            <input type="number" step="0.1" id="marked_team_mid" value="10.0"
+                                class="mt-1 block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300">Attack (R / C / L)</label>
+                            <div class="flex gap-2 mt-1">
+                                <input type="number" step="0.1" id="marked_team_r_att" value="10.0"
+                                    class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2"
+                                    placeholder="Right Att">
+                                <input type="number" step="0.1" id="marked_team_c_att" value="10.0"
+                                    class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2"
+                                    placeholder="Cen Att">
+                                <input type="number" step="0.1" id="marked_team_l_att" value="10.0"
+                                    class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2"
+                                    placeholder="Left Att">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300">ISP (Def / Att)</label>
+                                <div class="flex gap-2 mt-1">
+                                    <input type="number" step="0.1" id="marked_team_isp_def" value="10"
+                                        class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2">
+                                    <input type="number" step="0.1" id="marked_team_isp_att" value="10"
+                                        class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300">Stamina / Experience</label>
+                                <div class="flex gap-2 mt-1">
+                                    <input type="number" step="0.1" id="marked_team_stamina" value="8.0"
+                                        class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2">
+                                    <input type="number" step="0.1" id="marked_team_experience" value="10.0"
+                                        class="block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="marked_team_tactic"
+                                    class="block text-sm font-medium text-gray-300">Tactic</label>
+                                <select id="marked_team_tactic"
+                                    class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md p-2">
+                                    <option>Normal</option>
+                                    <option>Pressing</option>
+                                    <option>CA</option>
+                                    <option>AIM</option>
+                                    <option>AOW</option>
+                                    <option>LS</option>
+                                    <option>PC</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="marked_team_tactic_level"
+                                    class="block text-sm font-medium text-gray-300">Tactic Level</label>
+                                <input type="number" step="1" id="marked_team_tactic_level" value="10"
+                                    class="mt-1 block w-full bg-gray-700 text-center border-gray-600 rounded-md p-2">
+                            </div>
+                        </div>
+                        <div class="pt-2">
+                            <h4 class="text-md font-semibold text-gray-300 mb-2">Team Specialties (Player Counts)</h4>
+                            <div class="grid grid-cols-4 gap-x-4 gap-y-2">
+                                <div>
+                                    <label for="marked_team_spec_quick_off" class="text-xs text-gray-400">Quick
+                                        Off</label>
+                                    <input type="number" id="marked_team_spec_quick_off" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marked_team_spec_head_off" class="text-xs text-gray-400">Head
+                                        Off</label>
+                                    <input type="number" id="marked_team_spec_head_off" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marked_team_spec_tech_off" class="text-xs text-gray-400">Tech
+                                        Off</label>
+                                    <input type="number" id="marked_team_spec_tech_off" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marked_team_spec_unpr_im" class="text-xs text-gray-400">Unpr IM</label>
+                                    <input type="number" id="marked_team_spec_unpr_im" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marked_team_spec_unpr_fw_w" class="text-xs text-gray-400">Unpr
+                                        FW/W</label>
+                                    <input type="number" id="marked_team_spec_unpr_fw_w" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marked_team_spec_quick_def" class="text-xs text-gray-400">Quick
+                                        Def</label>
+                                    <input type="number" id="marked_team_spec_quick_def" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marked_team_spec_head_def" class="text-xs text-gray-400">Head
+                                        Def</label>
+                                    <input type="number" id="marked_team_spec_head_def" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marked_team_spec_unpr_def" class="text-xs text-gray-400">Unpr
+                                        Def</label>
+                                    <input type="number" id="marked_team_spec_unpr_def" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marked_team_spec_tech_def" class="text-xs text-gray-400">Tech
+                                        Def</label>
+                                    <input type="number" id="marked_team_spec_tech_def" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marked_team_spec_pnf" class="text-xs text-gray-400">PNF</label>
+                                    <input type="number" id="marked_team_spec_pnf" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                                <div>
+                                    <label for="marked_team_spec_pdim" class="text-xs text-gray-400">PDIM</label>
+                                    <input type="number" id="marked_team_spec_pdim" value="0"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-gray-700">
+                            <h4 class="text-lg font-semibold text-gray-300 mb-2">Individual Target Details</h4>
+                            <div class="space-y-3">
+                                <div class="grid grid-cols-3 gap-2 items-end">
+                                    <label class="text-sm text-gray-400">Central Forward</label>
+                                    <input type="number" step="0.1" id="marked_cf_skill" value="18"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1"
+                                        placeholder="Highest Skill">
+                                    <select id="marked_cf_spec"
+                                        class="block w-full bg-gray-600 border-gray-500 rounded-md p-1 text-sm">
+                                        <option value="none">Specless</option>
+                                        <option value="Technical">Technical</option>
+                                        <option value="Unpredictable">Unpredictable</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 items-end">
+                                    <label class="text-sm text-gray-400">Left Winger</label>
+                                    <input type="number" step="0.1" id="marked_lw_skill" value="18"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1"
+                                        placeholder="Highest Skill">
+                                    <select id="marked_lw_spec"
+                                        class="block w-full bg-gray-600 border-gray-500 rounded-md p-1 text-sm">
+                                        <option value="none">Specless</option>
+                                        <option value="Technical">Technical</option>
+                                        <option value="Unpredictable">Unpredictable</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 items-end">
+                                    <label class="text-sm text-gray-400">Right Winger</label>
+                                    <input type="number" step="0.1" id="marked_rw_skill" value="18"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1"
+                                        placeholder="Highest Skill">
+                                    <select id="marked_rw_spec"
+                                        class="block w-full bg-gray-600 border-gray-500 rounded-md p-1 text-sm">
+                                        <option value="none">Specless</option>
+                                        <option value="Technical">Technical</option>
+                                        <option value="Unpredictable">Unpredictable</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 items-end">
+                                    <label class="text-sm text-gray-400">Inner Midfielder</label>
+                                    <input type="number" step="0.1" id="marked_im_skill" value="18"
+                                        class="block w-full bg-gray-600 text-center border-gray-500 rounded-md p-1"
+                                        placeholder="Highest Skill">
+                                    <select id="marked_im_spec"
+                                        class="block w-full bg-gray-600 border-gray-500 rounded-md p-1 text-sm">
+                                        <option value="none">Specless</option>
+                                        <option value="Technical">Technical</option>
+                                        <option value="Unpredictable">Unpredictable</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button id="run_matrix_button"
+                    class="w-full md:w-1/2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-lg shadow-lg transition duration-300 ease-in-out text-xl">
+                    Run Full Marking Matrix Analysis
+                </button>
+            </div>
+
+            <div id="results" class="bg-gray-800 p-6 rounded-lg shadow-xl min-h-[100px] hidden">
+                <h2 class="text-3xl font-bold text-white mb-4 text-center">Marking Strategy Analysis</h2>
+                <div id="status" class="text-center text-lg text-yellow-400 mb-4"></div>
+                <div id="matrix_container" class="overflow-x-auto"></div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { simulateMatch, precomputeRatings } from './simulator.js';
+
+        // --- Data We Collected ---
+        const CONTRIBUTION_DATA = { "5-5-0": { markerContribution: { "Left Wing Back": { centralDefense: 0.067, leftDefense: 0.340, midfield: 0.016, leftAttack: 0.324 }, "Right Wing Back": { centralDefense: 0.067, rightDefense: 0.340, midfield: 0.016, rightAttack: 0.324 }, "Central Defender": { centralDefense: 0.168, leftDefense: 0.082, rightDefense: 0.082, midfield: 0.048 }, "Inner Midfielder": { centralDefense: 0.050, leftDefense: 0.021, rightDefense: 0.021, midfield: 0.190, centralAttack: 0.083 } }, markedContribution: { "Inner Midfielder": { centralDefense: 0.034, leftDefense: 0.010, rightDefense: 0.010, midfield: 0.203, centralAttack: 0.214, leftAttack: 0.029, rightAttack: 0.029 }, "Left Winger": { centralDefense: 0.017, leftDefense: 0.063, midfield: 0.109, centralAttack: 0.071, leftAttack: 0.543 }, "Right Winger": { centralDefense: 0.017, rightDefense: 0.063, midfield: 0.109, centralAttack: 0.071, rightAttack: 0.543 } } }, "4-5-1": { markerContribution: { "Central Defender": { centralDefense: 0.211, rightDefense: 0.100, leftDefense: 0.100 }, "Left Wing Back": { centralDefense: 0.078, leftDefense: 0.363, midfield: 0.016, leftAttack: 0.250 }, "Right Wing Back": { centralDefense: 0.078, rightDefense: 0.363, midfield: 0.016, rightAttack: 0.250 }, "Inner Midfielder": { centralDefense: 0.067, leftDefense: 0.025, rightDefense: 0.025, midfield: 0.190, centralAttack: 0.028, leftAttack: 0.019, rightAttack: 0.019 } }, markedContribution: { "Central Forward": { midfield: 0.047, centralAttack: 0.579, leftAttack: 0.231, rightAttack: 0.231 }, "Left Winger": { centralDefense: 0.023, leftDefense: 0.076, midfield: 0.109, centralAttack: 0.013, leftAttack: 0.423 }, "Right Winger": { centralDefense: 0.023, rightDefense: 0.076, midfield: 0.109, centralAttack: 0.013, rightAttack: 0.423 }, "Inner Midfielder": { centralDefense: 0.045, leftDefense: 0.013, rightDefense: 0.013, midfield: 0.203, centralAttack: 0.079, leftAttack: 0.019, rightAttack: 0.019 } } }, "3-5-2": { markerContribution: { "Central Defender": { centralDefense: 0.268, leftDefense: 0.111, rightDefense: 0.111, midfield: 0.048 }, "Left Wing Back": { centralDefense: 0.099, leftDefense: 0.389, midfield: 0.016, leftAttack: 0.203 }, "Right Wing Back": { centralDefense: 0.099, rightDefense: 0.389, midfield: 0.016, rightAttack: 0.203 }, "Inner Midfielder": { centralDefense: 0.070, leftDefense: 0.028, rightDefense: 0.028, midfield: 0.194, centralAttack: 0.034, leftAttack: 0.016, rightAttack: 0.016 } }, markedContribution: { "Central Forward": { midfield: 0.032, centralAttack: 0.377, leftAttack: 0.200, rightAttack: 0.200 }, "Left Winger": { centralDefense: 0.029, leftDefense: 0.084, midfield: 0.111, centralAttack: 0.016, leftAttack: 0.369 }, "Right Winger": { centralDefense: 0.029, rightDefense: 0.084, midfield: 0.111, centralAttack: 0.016, rightAttack: 0.369 }, "Inner Midfielder": { centralDefense: 0.043, leftDefense: 0.014, rightDefense: 0.014, midfield: 0.206, centralAttack: 0.066, leftAttack: 0.031, rightAttack: 0.031 } } }, "2-5-3": { markerContribution: { "Central Defender": { centralDefense: 0.286, leftDefense: 0.139, rightDefense: 0.139, midfield: 0.063 }, "Left Wing Back": { centralDefense: 0.111, leftDefense: 0.389, midfield: 0.016, leftAttack: 0.189 }, "Right Wing Back": { centralDefense: 0.111, rightDefense: 0.389, midfield: 0.016, rightAttack: 0.189 }, "Inner Midfielder": { centralDefense: 0.079, leftDefense: 0.026, rightDefense: 0.026, midfield: 0.206, centralAttack: 0.026, leftAttack: 0.014, rightAttack: 0.014 } }, markedContribution: { "Central Forward": { midfield: 0.032, centralAttack: 0.275, leftAttack: 0.172, rightAttack: 0.172 }, "Left Winger": { centralDefense: 0.016, leftDefense: 0.084, midfield: 0.095, centralAttack: 0.013, leftAttack: 0.333 }, "Right Winger": { centralDefense: 0.016, rightDefense: 0.084, midfield: 0.095, centralAttack: 0.013, rightAttack: 0.333 }, "Inner Midfielder": { centralDefense: 0.049, leftDefense: 0.019, rightDefense: 0.019, midfield: 0.206, centralAttack: 0.063, leftAttack: 0.022, rightAttack: 0.022 } } }, "3-4-3": { markerContribution: { "Central Defender": { centralDefense: 0.275, leftDefense: 0.113, rightDefense: 0.113, midfield: 0.074 }, "Left Wing Back": { centralDefense: 0.116, leftDefense: 0.397, midfield: 0.019, leftAttack: 0.176 }, "Right Wing Back": { centralDefense: 0.116, rightDefense: 0.397, midfield: 0.019, rightAttack: 0.176 }, "Inner Midfielder": { centralDefense: 0.101, leftDefense: 0.028, rightDefense: 0.028, midfield: 0.259, centralAttack: 0.027, leftAttack: 0.021, rightAttack: 0.021 } }, markedContribution: { "Central Forward": { midfield: 0.019, centralAttack: 0.289, leftAttack: 0.151, rightAttack: 0.151 }, "Left Winger": { centralDefense: 0.030, leftDefense: 0.086, midfield: 0.111, centralAttack: 0.013, leftAttack: 0.329 }, "Right Winger": { centralDefense: 0.030, rightDefense: 0.086, midfield: 0.111, centralAttack: 0.013, rightAttack: 0.329 }, "Inner Midfielder": { centralDefense: 0.061, leftDefense: 0.022, rightDefense: 0.022, midfield: 0.259, centralAttack: 0.066, leftAttack: 0.021, rightAttack: 0.021 } } }, "4-4-2": { markerContribution: { "Central Defender": { centralDefense: 0.207, leftDefense: 0.1025, rightDefense: 0.1025, midfield: 0.055 }, "Left Wing Back": { centralDefense: 0.080, leftDefense: 0.372, midfield: 0.018, leftAttack: 0.206 }, "Right Wing Back": { centralDefense: 0.080, rightDefense: 0.372, midfield: 0.018, rightAttack: 0.206 }, "Inner Midfielder": { centralDefense: 0.069, leftDefense: 0.031, rightDefense: 0.031, midfield: 0.255, centralAttack: 0.036, leftAttack: 0.008, rightAttack: 0.008 } }, markedContribution: { "Central Forward": { midfield: 0.036, centralAttack: 0.397, leftAttack: 0.190, rightAttack: 0.190 }, "Left Winger": { centralDefense: 0.024, leftDefense: 0.077, midfield: 0.107, centralAttack: 0.017, leftAttack: 0.365 }, "Right Winger": { centralDefense: 0.024, rightDefense: 0.077, midfield: 0.107, centralAttack: 0.017, rightAttack: 0.365 }, "Inner Midfielder": { centralDefense: 0.047, leftDefense: 0.019, rightDefense: 0.019, midfield: 0.268, centralAttack: 0.086, leftAttack: 0.024, rightAttack: 0.024 } } }, "5-3-2": { markerContribution: { "Central Defender": { centralDefense: 0.182, leftDefense: 0.083, rightDefense: 0.083, midfield: 0.068 }, "Left Wing Back": { centralDefense: 0.081, leftDefense: 0.345, midfield: 0.023, leftAttack: 0.217 }, "Right Wing Back": { centralDefense: 0.081, rightDefense: 0.345, midfield: 0.023, rightAttack: 0.217 }, "Inner Midfielder": { centralDefense: 0.071, leftDefense: 0.036, rightDefense: 0.036, midfield: 0.341, centralAttack: 0.041 } }, markedContribution: { "Central Forward": { midfield: 0.044, centralAttack: 0.423, leftAttack: 0.210, rightAttack: 0.210 }, "Left Winger": { centralDefense: 0.021, leftDefense: 0.072, midfield: 0.156, leftAttack: 0.387 }, "Right Winger": { centralDefense: 0.021, rightDefense: 0.072, midfield: 0.156, rightAttack: 0.387 }, "Inner Midfielder": { centralDefense: 0.042, leftDefense: 0.024, rightDefense: 0.024, midfield: 0.356, centralAttack: 0.096, leftAttack: 0.032, rightAttack: 0.032 } } } };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const runMatrixButton = document.getElementById('run_matrix_button');
+            const resultsDiv = document.getElementById('results');
+            const statusDiv = document.getElementById('status');
+            const matrixContainer = document.getElementById('matrix_container');
+
+            // --- Function to get all inputs from the form ---
+            const getFullInputs = () => {
+                const getTeamData = (prefix) => ({
+                    formation: document.getElementById(`${prefix}_team_formation`).value,
+                    ratings: {
+                        rDef: parseFloat(document.getElementById(`${prefix}_team_r_def`).value) || 0,
+                        cDef: parseFloat(document.getElementById(`${prefix}_team_c_def`).value) || 0,
+                        lDef: parseFloat(document.getElementById(`${prefix}_team_l_def`).value) || 0,
+                        mid: parseFloat(document.getElementById(`${prefix}_team_mid`).value) || 0,
+                        rAtt: parseFloat(document.getElementById(`${prefix}_team_r_att`).value) || 0,
+                        cAtt: parseFloat(document.getElementById(`${prefix}_team_c_att`).value) || 0,
+                        lAtt: parseFloat(document.getElementById(`${prefix}_team_l_att`).value) || 0,
+                    },
+                    isp_att: parseFloat(document.getElementById(`${prefix}_team_isp_att`)?.value) || 10,
+                    isp_def: parseFloat(document.getElementById(`${prefix}_team_isp_def`)?.value) || 10,
+                    stamina: parseFloat(document.getElementById(`${prefix}_team_stamina`)?.value) || 8,
+                    experience: parseFloat(document.getElementById(`${prefix}_team_experience`)?.value) || 10,
+                    tactic: document.getElementById(`${prefix}_team_tactic`).value,
+                    tactic_level: parseInt(document.getElementById(`${prefix}_team_tactic_level`).value) || 0,
+                    specialties: {
+                        'Quick_off': parseInt(document.getElementById(`${prefix}_team_spec_quick_off`).value) || 0,
+                        'Head_off': parseInt(document.getElementById(`${prefix}_team_spec_head_off`).value) || 0,
+                        'Tech_off': parseInt(document.getElementById(`${prefix}_team_spec_tech_off`).value) || 0,
+                        'Unpr_IM': parseInt(document.getElementById(`${prefix}_team_spec_unpr_im`).value) || 0,
+                        'Unpr_FW_W': parseInt(document.getElementById(`${prefix}_team_spec_unpr_fw_w`).value) || 0,
+                        'Quick_def': parseInt(document.getElementById(`${prefix}_team_spec_quick_def`).value) || 0,
+                        'Head_def': parseInt(document.getElementById(`${prefix}_team_spec_head_def`).value) || 0,
+                        'Unpr_def': parseInt(document.getElementById(`${prefix}_team_spec_unpr_def`).value) || 0,
+                        'Tech_def': parseInt(document.getElementById(`${prefix}_team_spec_tech_def`).value) || 0,
+                        'PNF': parseInt(document.getElementById(`${prefix}_team_spec_pnf`).value) || 0,
+                        'PDIM': parseInt(document.getElementById(`${prefix}_team_spec_pdim`).value) || 0,
+                    }
+                });
+
+                const individualPlayers = {
+                    marker: {
+                        'Central Defender': { defending: parseFloat(document.getElementById('marker_cd_def').value) || 0, specialty: document.getElementById('marker_cd_spec').value },
+                        'Left Wing Back': { defending: parseFloat(document.getElementById('marker_lwb_def').value) || 0, specialty: document.getElementById('marker_lwb_spec').value },
+                        'Right Wing Back': { defending: parseFloat(document.getElementById('marker_rwb_def').value) || 0, specialty: document.getElementById('marker_rwb_spec').value },
+                        'Inner Midfielder': { defending: parseFloat(document.getElementById('marker_im_def').value) || 0, specialty: document.getElementById('marker_im_spec').value },
+                    },
+                    marked: {
+                        'Central Forward': { highestSkill: parseFloat(document.getElementById('marked_cf_skill').value) || 0, specialty: document.getElementById('marked_cf_spec').value },
+                        'Left Winger': { highestSkill: parseFloat(document.getElementById('marked_lw_skill').value) || 0, specialty: document.getElementById('marked_lw_spec').value },
+                        'Right Winger': { highestSkill: parseFloat(document.getElementById('marked_rw_skill').value) || 0, specialty: document.getElementById('marked_rw_spec').value },
+                        'Inner Midfielder': { highestSkill: parseFloat(document.getElementById('marked_im_skill').value) || 0, specialty: document.getElementById('marked_im_spec').value },
+                    }
+                };
+
+                return {
+                    homeTeamBase: getTeamData('marker'),
+                    awayTeamBase: getTeamData('marked'),
+                    individualPlayers,
+                };
+            };
+
+            // --- Logic to calculate new ratings based on marking (reduces original ratings) ---
+            // skipDefense: if true, do not apply penalty to defense ratings (for marked team)
+            const calculateNewRatings = (baseTeamData, contributions, penaltyFactor, skipDefense = false) => {
+                const newRatings = { ...baseTeamData.ratings };
+                const defenseKeys = ['centralDefense', 'leftDefense', 'rightDefense'];
+                for (const key in contributions) {
+                    const contribPct = contributions[key];
+                    if (skipDefense && defenseKeys.includes(key)) continue;
+                    if (key === 'centralDefense') {
+                        newRatings.cDef -= (baseTeamData.ratings.cDef * contribPct * penaltyFactor);
+                    } else if (key === 'midfield') {
+                        newRatings.mid -= (baseTeamData.ratings.mid * contribPct * penaltyFactor);
+                    } else if (key === 'centralAttack') {
+                        newRatings.cAtt -= (baseTeamData.ratings.cAtt * contribPct * penaltyFactor);
+                    } else if (key === 'leftDefense') {
+                        newRatings.lDef -= (baseTeamData.ratings.lDef * contribPct * penaltyFactor);
+                    } else if (key === 'rightDefense') {
+                        newRatings.rDef -= (baseTeamData.ratings.rDef * contribPct * penaltyFactor);
+                    } else if (key === 'leftAttack') {
+                        newRatings.lAtt -= (baseTeamData.ratings.lAtt * contribPct * penaltyFactor);
+                    } else if (key === 'rightAttack') {
+                        newRatings.rAtt -= (baseTeamData.ratings.rAtt * contribPct * penaltyFactor);
+                    }
+                }
+                return { ...baseTeamData, ratings: newRatings };
+            };
+
+            const runSimulationSet = async (teamData) => {
+                let home_wins = 0;
+                let draws = 0;
+                let away_wins = 0;
+
+                // Helper to transform the team data structure for precomputeRatings
+                // precomputeRatings expects ratings at the top level, not nested under 'ratings'
+                const transformForPrecompute = (data) => ({
+                    midfield: data.ratings.mid,
+                    r_defense: data.ratings.rDef,
+                    c_defense: data.ratings.cDef,
+                    l_defense: data.ratings.lDef,
+                    r_attack: data.ratings.rAtt,
+                    c_attack: data.ratings.cAtt,
+                    l_attack: data.ratings.lAtt,
+                    isp_att: data.isp_att,
+                    isp_def: data.isp_def,
+                    stamina: data.stamina,
+                    experience: data.experience,
+                    // Pass through the user-selected tactic and specialties
+                    tactic: data.tactic,
+                    tactic_level: data.tactic_level,
+                    attitude: 'Normal',
+                    specialties: data.specialties,
+                });
+
+                const homeTeam = precomputeRatings(transformForPrecompute(teamData.home));
+                const awayTeam = precomputeRatings(transformForPrecompute(teamData.away));
+                const numSimulations = 10000;
+                for (let i = 0; i < numSimulations; i++) {
+                    const result = simulateMatch(homeTeam, awayTeam, 'league');
+                    if (result.normal_time_score[0] > result.normal_time_score[1]) {
+                        home_wins++;
+                    } else if (result.normal_time_score[0] < result.normal_time_score[1]) {
+                        away_wins++;
+                    } else {
+                        draws++;
+                    }
+                }
+                return { home_wins, draws, away_wins, numSimulations };
+            };
+
+            const areSectorsOpposite = (markerPos, markedPos) => {
+                if (markerPos === 'Central Defender' && markedPos === 'Central Forward') return true;
+                if ((markerPos === 'Left Wing Back' || markerPos === 'Right Wing Back') && (markedPos === 'Left Winger' || markedPos === 'Right Winger')) return true;
+                if (markerPos === 'Inner Midfielder' && markedPos === 'Inner Midfielder') return true;
+                return false;
+            };
+
+            runMatrixButton.addEventListener('click', async () => {
+                resultsDiv.classList.remove('hidden');
+                statusDiv.textContent = 'Starting analysis...';
+                matrixContainer.innerHTML = '';
+
+                const { homeTeamBase, awayTeamBase, individualPlayers } = getFullInputs();
+                const numSimulations = 10000;
+                statusDiv.textContent = 'Running baseline simulation (no marking)...';
+                // Simulate baseline with homeTeamBase vs awayTeamBase, not against self
+                const baselineResults = await runSimulationSet({ home: homeTeamBase, away: awayTeamBase });
+                const baselineHomeWinPct = (baselineResults.home_wins / numSimulations) * 100;
+                const baselineDrawPct = (baselineResults.draws / numSimulations) * 100;
+                const baselineAwayWinPct = (baselineResults.away_wins / numSimulations) * 100;
+
+                const markerPositions = ['Central Defender', 'Left Wing Back', 'Right Wing Back', 'Inner Midfielder'];
+                const markedPositions = ['Central Forward', 'Left Winger', 'Right Winger', 'Inner Midfielder'];
+                const resultsMatrix = [];
+
+                for (let i = 0; i < markerPositions.length; i++) {
+                    const markerPos = markerPositions[i];
+                    const row = [];
+                    for (let j = 0; j < markedPositions.length; j++) {
+                        const markedPos = markedPositions[j];
+                        statusDiv.textContent = `Simulating: [Your ${markerPos}] vs [Their ${markedPos}]...`;
+
+                        const markerData = individualPlayers.marker[markerPos];
+                        const markedData = individualPlayers.marked[markedPos];
+
+                        // Calculate penalties
+                        const selfPenalty = areSectorsOpposite(markerPos, markedPos) ? 0.50 : 0.65;
+
+                        let effectiveMarkerDef = markerData.defending;
+                        if (markerData.specialty === 'Powerful') effectiveMarkerDef *= 1.10;
+                        else if (markerData.specialty === 'none') effectiveMarkerDef *= 1.05;
+
+                        let effectiveMarkedSkill = markedData.highestSkill;
+                        if (markedData.specialty === 'Technical') effectiveMarkedSkill *= 0.92;
+                        else if (markedData.specialty === 'Unpredictable') effectiveMarkedSkill *= 1.08;
+
+                        const markerTerm = Math.pow(effectiveMarkerDef, 3.5);
+                        const markedTerm = Math.pow(effectiveMarkedSkill, 3.5);
+                        const markedPenaltyFactor = markerTerm / (markerTerm + markedTerm + 1e-9);
+
+                        // Get contribution guesstimates
+                        const markerContribs = CONTRIBUTION_DATA[homeTeamBase.formation]?.markerContribution?.[markerPos] || {};
+                        const markedContribs = CONTRIBUTION_DATA[awayTeamBase.formation]?.markedContribution?.[markedPos] || {};
+
+                        // Calculate new ratings
+                        const newHomeRatings = calculateNewRatings(homeTeamBase, markerContribs, selfPenalty);
+                        const newAwayRatings = calculateNewRatings(awayTeamBase, markedContribs, markedPenaltyFactor, true); // skip defense for marked team
+
+                        const comboResults = await runSimulationSet({ home: newHomeRatings, away: newAwayRatings });
+                        const comboWinPct = (comboResults.home_wins / numSimulations) * 100;
+                        const comboDrawPct = (comboResults.draws / numSimulations) * 100;
+                        const comboAwayWinPct = (comboResults.away_wins / numSimulations) * 100;
+                        row.push({
+                            home_win_pct: comboWinPct,
+                            draw_pct: comboDrawPct,
+                            away_win_pct: comboAwayWinPct
+                        });
+                    }
+                    resultsMatrix.push(row);
+                }
+
+                statusDiv.textContent = `Analysis Complete! Baseline: ${baselineHomeWinPct.toFixed(0)}/${baselineDrawPct.toFixed(0)}/${baselineAwayWinPct.toFixed(0)}`;
+
+                // Render Heatmap
+                let tableHTML = `<table class="w-full text-center border-collapse"><thead><tr class="bg-gray-700">
+                    <th class="p-2 border border-gray-600">Your Marker</th>
+                    <th class="p-2 border border-gray-600">vs CF</th>
+                    <th class="p-2 border border-gray-600">vs LW</th>
+                    <th class="p-2 border border-gray-600">vs RW</th>
+                    <th class="p-2 border border-gray-600">vs IM</th>
+                </tr></thead><tbody>`;
+
+                for (let i = 0; i < resultsMatrix.length; i++) {
+                    tableHTML += `<tr class="border-t border-gray-600"><th class="p-2 border border-gray-600 text-left whitespace-nowrap">${markerPositions[i]}</th>`;
+                    for (let j = 0; j < resultsMatrix[i].length; j++) {
+                        const cellData = resultsMatrix[i][j];
+                        const displayValue = `${cellData.home_win_pct.toFixed(0)}/${cellData.draw_pct.toFixed(0)}/${cellData.away_win_pct.toFixed(0)}`;
+
+                        // Color calculation: 3*MyWins + 1*Draws
+                        const colorScore = (3 * cellData.home_win_pct) + (1 * cellData.draw_pct);
+
+                        // Normalize color score to a 0-1 range, where 0 is worst (0 wins, 0 draws), 1 is best (100 wins, 0 draws)
+                        // Max score = 3 * 100 + 1 * 0 = 300
+                        // Min score = 3 * 0 + 1 * 0 = 0 (if opponent wins 100%)
+                        // Neutral point = 150 (e.g., 50/0/50 or 0/100/0)
+
+                        let red = 0, green = 0, blue = 0;
+                        let alpha = 0.5; // Base opacity for all cells
+
+                        if (colorScore > 150) { // Leaning towards green
+                            const intensity = (colorScore - 150) / 150; // Scale from 0 to 1 for green
+                            red = Math.round(75 - (75 - 16) * intensity); // Interpolate red from gray-ish to less red (16 is green-500 red component)
+                            green = Math.round(85 + (185 - 85) * intensity); // Interpolate green from gray-ish to bright green (185 is green-500 green component)
+                            blue = Math.round(99 + (129 - 99) * intensity); // Interpolate blue from gray-ish to more blue (129 is green-500 blue component)
+                            alpha = 0.5 + (0.5 * intensity); // Increase opacity for stronger colors
+                        } else if (colorScore < 150) { // Leaning towards red
+                            const intensity = (150 - colorScore) / 150; // Scale from 0 to 1 for red
+                            red = Math.round(75 + (220 - 75) * intensity); // Interpolate red from gray-ish to bright red (220 is red-600 red component)
+                            green = Math.round(85 - (85 - 38) * intensity); // Interpolate green from gray-ish to less green (38 is red-600 green component)
+                            blue = Math.round(99 - (99 - 38) * intensity); // Interpolate blue from gray-ish to less blue (38 is red-600 blue component)
+                            alpha = 0.5 + (0.5 * intensity); // Increase opacity for stronger colors
+                        } else { // Exactly neutral (gray-600)
+                            red = 75; green = 85; blue = 99;
+                            alpha = 0.5;
+                        }
+
+                        alpha = Math.min(1, alpha); // Clamp alpha to 1
+
+                        tableHTML += `<td class="p-2 border border-gray-600 font-bold" style="background-color: rgba(${red}, ${green}, ${blue}, ${alpha});">${displayValue}</td>`;
+                    }
+                    tableHTML += '</tr>';
+                }
+                tableHTML += '</tbody></table>';
+                matrixContainer.innerHTML = tableHTML;
+            });
+        });
+    </script>
+</body>
+
+</html>

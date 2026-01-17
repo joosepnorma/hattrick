@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,24 +10,35 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
         .loader {
             border-top-color: #4f46e5;
             animation: spin 1s linear infinite;
         }
+
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
+
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
             -webkit-appearance: none;
+            appearance: none;
             margin: 0;
         }
+
         input[type="number"] {
             -moz-appearance: textfield;
+            appearance: textfield;
         }
     </style>
 </head>
+
 <body class="bg-gray-900 text-gray-200 p-4 sm:p-6 lg:p-8">
     <div class="max-w-7xl mx-auto">
         <header class="text-center mb-8">
@@ -35,8 +47,11 @@
         </header>
         <nav class="bg-gray-800 p-4 mb-8 rounded-lg shadow-lg">
             <div class="max-w-7xl mx-auto flex justify-center space-x-4">
-                <a href="index.html" class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium" aria-current="page">Match Simulator</a>
-                <a href="man_marking.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Man-Marking Tool</a>
+                <a href="index.html" class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium"
+                    aria-current="page">Match Simulator</a>
+                <a href="man_marking.html"
+                    class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Man-Marking
+                    Tool</a>
             </div>
         </nav>
 
@@ -46,52 +61,77 @@
                     <h2 class="text-2xl font-semibold text-white border-b border-gray-700 pb-2">Home Team</h2>
                     <div>
                         <label for="home_name" class="block text-sm font-medium text-gray-300">Team Name</label>
-                        <input type="text" id="home_name" value="Team A" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                        <input type="text" id="home_name" value="Team A"
+                            class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
                     </div>
                     <div>
-                        <label for="home_r_defense" class="block text-sm font-medium text-gray-300">Defense (R / C / L)</label>
+                        <label for="home_r_defense" class="block text-sm font-medium text-gray-300">Defense (R / C /
+                            L)</label>
                         <div class="flex gap-2 mt-1">
-                            <input type="number" step="0.1" id="home_r_defense" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
-                            <input type="number" step="0.1" id="home_c_defense" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
-                            <input type="number" step="0.1" id="home_l_defense" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="home_r_defense" value="10.0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="home_c_defense" value="10.0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="home_l_defense" value="10.0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                         </div>
                     </div>
                     <div>
                         <label for="home_midfield" class="block text-sm font-medium text-gray-300">Midfield</label>
-                        <input type="number" step="0.1" id="home_midfield" value="10.0" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2 text-center">
+                        <input type="number" step="0.1" id="home_midfield" value="10.0"
+                            class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2 text-center">
                     </div>
-                     <div>
-                        <label for="home_r_attack" class="block text-sm font-medium text-gray-300">Attack (R / C / L)</label>
+                    <div>
+                        <label for="home_r_attack" class="block text-sm font-medium text-gray-300">Attack (R / C /
+                            L)</label>
                         <div class="flex gap-2 mt-1">
-                            <input type="number" step="0.1" id="home_r_attack" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
-                            <input type="number" step="0.1" id="home_c_attack" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
-                            <input type="number" step="0.1" id="home_l_attack" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="home_r_attack" value="10.0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="home_c_attack" value="10.0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="home_l_attack" value="10.0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                         </div>
                     </div>
-                     <div>
-                        <label for="home_isp_def" class="block text-sm font-medium text-gray-300">ISP (Def / Att)</label>
+                    <div>
+                        <label for="home_isp_def" class="block text-sm font-medium text-gray-300">ISP (Def /
+                            Att)</label>
                         <div class="flex gap-2 mt-1">
-                            <input type="number" step="0.1" id="home_isp_def" value="10" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
-                            <input type="number" step="0.1" id="home_isp_att" value="10" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="home_isp_def" value="10"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="home_isp_att" value="10"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                         </div>
                     </div>
                     <div>
                         <label for="home_tactic" class="block text-sm font-medium text-gray-300">Tactic</label>
                         <div class="flex gap-2 mt-1">
-                           <select id="home_tactic" class="block w-2/3 bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
-                               <option>Normal</option> <option>Pressing</option> <option>CA</option> <option>AIM</option> <option>AOW</option> <option>LS</option> <option>PC</option>
-                           </select>
-                           <input type="number" id="home_tactic_level" value="10" class="block w-1/3 bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <select id="home_tactic"
+                                class="block w-2/3 bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
+                                <option>Normal</option>
+                                <option>Pressing</option>
+                                <option>CA</option>
+                                <option>AIM</option>
+                                <option>AOW</option>
+                                <option>LS</option>
+                                <option>PC</option>
+                            </select>
+                            <input type="number" id="home_tactic_level" value="10"
+                                class="block w-1/3 bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                         </div>
                     </div>
                     <div class="flex gap-4 mt-2">
                         <div class="w-1/2">
-                            <label for="home_stamina" class="block text-sm font-medium text-gray-300">Team stamina</label>
-                            <input type="number" step="0.1" id="home_stamina" value="8.0" min="1.7" max="10.0" class="mt-1 block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <label for="home_stamina" class="block text-sm font-medium text-gray-300">Team
+                                stamina</label>
+                            <input type="number" step="0.1" id="home_stamina" value="8.0" min="1.7" max="10.0"
+                                class="mt-1 block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                         </div>
                         <div class="w-1/2">
-                            <label for="home_experience" class="block text-sm font-medium text-gray-300">Team experience</label>
-                            <input type="number" step="0.1" id="home_experience" value="10.0" class="mt-1 block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <label for="home_experience" class="block text-sm font-medium text-gray-300">Team
+                                experience</label>
+                            <input type="number" step="0.1" id="home_experience" value="10.0"
+                                class="mt-1 block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                         </div>
                     </div>
                     <div class="mt-4">
@@ -101,8 +141,12 @@
                     </div>
                     <div class="mt-4 pt-4 border-t border-gray-600 text-center space-x-2">
                         <div id="home_export_status" class="text-sm text-green-400 mb-2 h-5"></div>
-                        <button data-team="home" data-role="marker" class="export-to-mm-btn bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold py-1 px-3 rounded-md transition-colors">Export as Marker</button>
-                        <button data-team="home" data-role="marked" class="export-to-mm-btn bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold py-1 px-3 rounded-md transition-colors">Export as Marked</button>
+                        <button data-team="home" data-role="marker"
+                            class="export-to-mm-btn bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold py-1 px-3 rounded-md transition-colors">Export
+                            as Marker</button>
+                        <button data-team="home" data-role="marked"
+                            class="export-to-mm-btn bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold py-1 px-3 rounded-md transition-colors">Export
+                            as Marked</button>
                     </div>
                 </div>
 
@@ -110,52 +154,77 @@
                     <h2 class="text-2xl font-semibold text-white border-b border-gray-700 pb-2">Away Team</h2>
                     <div>
                         <label for="away_name" class="block text-sm font-medium text-gray-300">Team Name</label>
-                        <input type="text" id="away_name" value="Team B" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                        <input type="text" id="away_name" value="Team B"
+                            class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
                     </div>
                     <div>
-                        <label for="away_r_defense" class="block text-sm font-medium text-gray-300">Defense (R / C / L)</label>
+                        <label for="away_r_defense" class="block text-sm font-medium text-gray-300">Defense (R / C /
+                            L)</label>
                         <div class="flex gap-2 mt-1">
-                            <input type="number" step="0.1" id="away_r_defense" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
-                            <input type="number" step="0.1" id="away_c_defense" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
-                            <input type="number" step="0.1" id="away_l_defense" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="away_r_defense" value="10.0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="away_c_defense" value="10.0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="away_l_defense" value="10.0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                         </div>
                     </div>
                     <div>
                         <label for="away_midfield" class="block text-sm font-medium text-gray-300">Midfield</label>
-                        <input type="number" step="0.1" id="away_midfield" value="10.0" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2 text-center">
+                        <input type="number" step="0.1" id="away_midfield" value="10.0"
+                            class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2 text-center">
                     </div>
-                     <div>
-                        <label for="away_r_attack" class="block text-sm font-medium text-gray-300">Attack (R / C / L)</label>
+                    <div>
+                        <label for="away_r_attack" class="block text-sm font-medium text-gray-300">Attack (R / C /
+                            L)</label>
                         <div class="flex gap-2 mt-1">
-                            <input type="number" step="0.1" id="away_r_attack" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
-                            <input type="number" step="0.1" id="away_c_attack" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
-                            <input type="number" step="0.1" id="away_l_attack" value="10.0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
-                        </div>
-                    </div>
-                     <div>
-                        <label for="away_isp_def" class="block text-sm font-medium text-gray-300">ISP (Def / Att)</label>
-                        <div class="flex gap-2 mt-1">
-                            <input type="number" step="0.1" id="away_isp_def" value="10" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
-                            <input type="number" step="0.1" id="away_isp_att" value="10" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="away_r_attack" value="10.0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="away_c_attack" value="10.0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="away_l_attack" value="10.0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                         </div>
                     </div>
                     <div>
-                         <label for="away_tactic" class="block text-sm font-medium text-gray-300">Tactic</label>
-                         <div class="flex gap-2 mt-1">
-                            <select id="away_tactic" class="block w-2/3 bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
-                                <option>Normal</option> <option>Pressing</option> <option>CA</option> <option>AIM</option> <option>AOW</option> <option>LS</option> <option>PC</option>
+                        <label for="away_isp_def" class="block text-sm font-medium text-gray-300">ISP (Def /
+                            Att)</label>
+                        <div class="flex gap-2 mt-1">
+                            <input type="number" step="0.1" id="away_isp_def" value="10"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" step="0.1" id="away_isp_att" value="10"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="away_tactic" class="block text-sm font-medium text-gray-300">Tactic</label>
+                        <div class="flex gap-2 mt-1">
+                            <select id="away_tactic"
+                                class="block w-2/3 bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
+                                <option>Normal</option>
+                                <option>Pressing</option>
+                                <option>CA</option>
+                                <option>AIM</option>
+                                <option>AOW</option>
+                                <option>LS</option>
+                                <option>PC</option>
                             </select>
-                            <input type="number" id="away_tactic_level" value="10" class="block w-1/3 bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <input type="number" id="away_tactic_level" value="10"
+                                class="block w-1/3 bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                         </div>
                     </div>
                     <div class="flex gap-4 mt-2">
                         <div class="w-1/2">
-                            <label for="away_stamina" class="block text-sm font-medium text-gray-300">Team stamina</label>
-                            <input type="number" step="0.1" id="away_stamina" value="8.0" min="1.7" max="10.0" class="mt-1 block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <label for="away_stamina" class="block text-sm font-medium text-gray-300">Team
+                                stamina</label>
+                            <input type="number" step="0.1" id="away_stamina" value="8.0" min="1.7" max="10.0"
+                                class="mt-1 block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                         </div>
                         <div class="w-1/2">
-                            <label for="away_experience" class="block text-sm font-medium text-gray-300">Team experience</label>
-                            <input type="number" step="0.1" id="away_experience" value="10.0" class="mt-1 block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
+                            <label for="away_experience" class="block text-sm font-medium text-gray-300">Team
+                                experience</label>
+                            <input type="number" step="0.1" id="away_experience" value="10.0"
+                                class="mt-1 block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2">
                         </div>
                     </div>
                     <div class="mt-4">
@@ -165,98 +234,137 @@
                     </div>
                     <div class="mt-4 pt-4 border-t border-gray-600 text-center space-x-2">
                         <div id="away_export_status" class="text-sm text-green-400 mb-2 h-5"></div>
-                        <button data-team="away" data-role="marker" class="export-to-mm-btn bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold py-1 px-3 rounded-md transition-colors">Export as Marker</button>
-                        <button data-team="away" data-role="marked" class="export-to-mm-btn bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold py-1 px-3 rounded-md transition-colors">Export as Marked</button>
+                        <button data-team="away" data-role="marker"
+                            class="export-to-mm-btn bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold py-1 px-3 rounded-md transition-colors">Export
+                            as Marker</button>
+                        <button data-team="away" data-role="marked"
+                            class="export-to-mm-btn bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold py-1 px-3 rounded-md transition-colors">Export
+                            as Marked</button>
                     </div>
                 </div>
             </div>
 
             <details class="bg-gray-800 rounded-lg shadow-xl mb-8 group">
-                <summary class="text-xl font-semibold text-white p-6 cursor-pointer list-none flex justify-between items-center group-open:border-b group-open:border-gray-700">
+                <summary
+                    class="text-xl font-semibold text-white p-6 cursor-pointer list-none flex justify-between items-center group-open:border-b group-open:border-gray-700">
                     Paste BBCode Ratings (Optional)
-                    <span class="text-lg text-indigo-300 group-open:text-indigo-200 bg-indigo-600 group-open:bg-indigo-700 px-2 py-1 rounded-md group-open:rotate-90 transform transition-all duration-200">&#9656;</span>
+                    <span
+                        class="text-lg text-indigo-300 group-open:text-indigo-200 bg-indigo-600 group-open:bg-indigo-700 px-2 py-1 rounded-md group-open:rotate-90 transform transition-all duration-200">&#9656;</span>
                 </summary>
                 <div class="p-6 pt-4 space-y-4">
                     <div>
-                        <label for="bbcode_team_select" class="block text-sm font-medium text-gray-300">Populate Team:</label>
-                        <select id="bbcode_team_select" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                        <label for="bbcode_team_select" class="block text-sm font-medium text-gray-300">Populate
+                            Team:</label>
+                        <select id="bbcode_team_select"
+                            class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
                             <option value="both">Both Teams</option>
                             <option value="home">Home Team</option>
                             <option value="away">Away Team</option>
                         </select>
                     </div>
                     <div>
-                        <label for="bbcode_input" class="block text-sm font-medium text-gray-300">Paste BBCode Here:</label>
-                        <textarea id="bbcode_input" rows="8" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2"></textarea>
+                        <label for="bbcode_input" class="block text-sm font-medium text-gray-300">Paste BBCode
+                            Here:</label>
+                        <textarea id="bbcode_input" rows="8"
+                            class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2"></textarea>
                     </div>
-                    <button id="parse_bbcode" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-300 ease-in-out">
+                    <button id="parse_bbcode"
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-300 ease-in-out">
                         Parse and Populate
                     </button>
-                     <div id="bbcode_status" class="mt-2 text-sm text-gray-400"></div>
+                    <div id="bbcode_status" class="mt-2 text-sm text-gray-400"></div>
                 </div>
             </details>
 
 
             <div class="bg-gray-800 p-6 rounded-lg shadow-xl mb-8 space-y-4">
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
-                     <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-4">
                         <label for="sim_count" class="block text-sm font-medium text-gray-300">Simulations:</label>
-                        <input type="number" id="sim_count" value="10000" max="100000" class="block w-28 bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
+                        <input type="number" id="sim_count" value="10000" max="100000"
+                            class="block w-28 bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
                     </div>
-                     <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-4">
                         <span class="text-sm font-medium text-gray-300">Match Type:</span>
-                        <label class="flex items-center"><input type="radio" name="match_type" value="league" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600" checked> <span class="ml-2 text-gray-300">League</span></label>
-                        <label class="flex items-center"><input type="radio" name="match_type" value="cup" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600"> <span class="ml-2 text-gray-300">Cup</span></label>
+                        <label class="flex items-center"><input type="radio" name="match_type" value="league"
+                                class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600" checked> <span
+                                class="ml-2 text-gray-300">League</span></label>
+                        <label class="flex items-center"><input type="radio" name="match_type" value="cup"
+                                class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600"> <span
+                                class="ml-2 text-gray-300">Cup</span></label>
                     </div>
                     <div class="flex items-center gap-2">
-                        <input type="checkbox" id="stamina_enabled" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-indigo-600 focus:ring-indigo-500">
-                        <label for="stamina_enabled" class="text-sm font-medium text-gray-300">Enable Stamina Effect</label>
+                        <input type="checkbox" id="stamina_enabled"
+                            class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-indigo-600 focus:ring-indigo-500">
+                        <label for="stamina_enabled" class="text-sm font-medium text-gray-300">Enable Stamina
+                            Effect</label>
                     </div>
-                     <div class="flex items-center gap-4">
-                        <label for="baseline_select" class="block text-sm font-medium text-gray-300">Compare with:</label>
+                    <div class="flex items-center gap-4">
+                        <label for="baseline_select" class="block text-sm font-medium text-gray-300">Compare
+                            with:</label>
                         <select id="baseline_select" class="block w-36 bg-gray-700 border-gray-600 rounded-md p-2">
                             <option value="none">None</option>
                         </select>
                     </div>
                 </div>
-                 <div class="flex items-center justify-center gap-4 pt-4 border-t border-gray-700">
-                    <button id="run_simulation" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out">
+                <div class="flex items-center justify-center gap-4 pt-4 border-t border-gray-700">
+                    <button id="run_simulation"
+                        class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out">
                         Run Simulation
                     </button>
-                     <div id="loader" class="hidden loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8"></div>
-                 </div>
+                    <div id="loader"
+                        class="hidden loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8">
+                    </div>
+                </div>
             </div>
 
             <details class="bg-gray-800 rounded-lg shadow-xl mb-8 group">
-                <summary class="text-xl font-semibold text-white p-6 cursor-pointer list-none flex justify-between items-center group-open:border-b group-open:border-gray-700">
+                <summary
+                    class="text-xl font-semibold text-white p-6 cursor-pointer list-none flex justify-between items-center group-open:border-b group-open:border-gray-700">
                     Initial Match Conditions (Optional)
-                    <span class="text-lg text-indigo-300 group-open:text-indigo-200 bg-indigo-600 group-open:bg-indigo-700 px-2 py-1 rounded-md group-open:rotate-90 transform transition-all duration-200">&#9656;</span>
+                    <span
+                        class="text-lg text-indigo-300 group-open:text-indigo-200 bg-indigo-600 group-open:bg-indigo-700 px-2 py-1 rounded-md group-open:rotate-90 transform transition-all duration-200">&#9656;</span>
                 </summary>
                 <div class="p-6 pt-4 space-y-4">
                     <div>
-                        <label for="initial_home_chances" class="block text-sm font-medium text-gray-300">Chance Distribution (Home / Shared / Away)</label>
+                        <label for="initial_home_chances" class="block text-sm font-medium text-gray-300">Chance
+                            Distribution (Home / Shared / Away)</label>
                         <div class="flex gap-2 mt-1">
-                            <input type="number" id="initial_home_chances" value="5" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Home Team Chances">
-                            <input type="number" id="initial_shared_chances" value="5" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Shared Chances">
-                            <input type="number" id="initial_away_chances" value="5" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Away Team Chances">
+                            <input type="number" id="initial_home_chances" value="5" min="0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2"
+                                title="Home Team Chances">
+                            <input type="number" id="initial_shared_chances" value="5" min="0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2"
+                                title="Shared Chances">
+                            <input type="number" id="initial_away_chances" value="5" min="0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2"
+                                title="Away Team Chances">
                         </div>
                     </div>
                     <div>
-                        <label for="initial_se_chances" class="block text-sm font-medium text-gray-300">Special Event Count (Default 5)</label>
-                        <input type="number" id="initial_se_chances" value="5" min="0" placeholder="Tactic-based" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2 text-center" title="Number of Special Events to occur. Overrides tactic-based calculation.">
+                        <label for="initial_se_chances" class="block text-sm font-medium text-gray-300">Special Event
+                            Count (Default 5)</label>
+                        <input type="number" id="initial_se_chances" value="5" min="0" placeholder="Tactic-based"
+                            class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2 text-center"
+                            title="Number of Special Events to occur. Overrides tactic-based calculation.">
                     </div>
                     <div>
-                        <label for="initial_home_goals" class="block text-sm font-medium text-gray-300">Starting Score (Home / Away)</label>
+                        <label for="initial_home_goals" class="block text-sm font-medium text-gray-300">Starting Score
+                            (Home / Away)</label>
                         <div class="flex gap-2 mt-1">
-                            <input type="number" id="initial_home_goals" value="0" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Initial Home Goals">
-                            <input type="number" id="initial_away_goals" value="0" min="0" class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2" title="Initial Away Goals">
+                            <input type="number" id="initial_home_goals" value="0" min="0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2"
+                                title="Initial Home Goals">
+                            <input type="number" id="initial_away_goals" value="0" min="0"
+                                class="block w-full bg-gray-700 text-center border-gray-600 rounded-md shadow-sm p-2"
+                                title="Initial Away Goals">
                         </div>
                     </div>
                 </div>
             </details>
 
             <div id="results" class="bg-gray-800 p-6 rounded-lg shadow-xl min-h-[100px]">
-                 <p class="text-gray-400 text-center">Results will be displayed here.</p>
+                <p class="text-gray-400 text-center">Results will be displayed here.</p>
             </div>
 
             <div id="saved_baselines_container" class="mt-8">
@@ -271,20 +379,20 @@
 
     <script type="module">
         import { precomputeRatings, simulateMatch } from './simulator.js';
-        
+
         let savedBaselines = {};
         let lastFullResults = null;
 
         const populateSpecialties = () => {
-             const specList = {'Quick_off':'Quick_off', 'Head_off':'Head_off', 'Tech_off':'Tech_off', 'Unpr_IM':'Unpr_IM', 'Unpr_FW_W':'Unpr_FW_W', 'Quick_def':'Quick_def', 'Head_def':'Head_def', 'Unpr_def':'Unpr_def', 'PNF':'PNF', 'PDIM':'PDIM', 'Tech_def': 'Tech_def'};
-             const homeContainer = document.getElementById('home_specialties');
-             const awayContainer = document.getElementById('away_specialties');
-             homeContainer.innerHTML = '';
-             awayContainer.innerHTML = '';
-             for (const [label, key] of Object.entries(specList)) {
-                 homeContainer.innerHTML += `<div class="flex items-center justify-between"><label for="home_${key}" class="text-sm text-gray-400">${label}</label><input type="number" id="home_${key}" value="0" min="0" class="w-16 bg-gray-700 p-1 rounded-md text-center"></div>`;
-                 awayContainer.innerHTML += `<div class="flex items-center justify-between"><label for="away_${key}" class="text-sm text-gray-400">${label}</label><input type="number" id="away_${key}" value="0" min="0" class="w-16 bg-gray-700 p-1 rounded-md text-center"></div>`;
-             }
+            const specList = { 'Quick_off': 'Quick_off', 'Head_off': 'Head_off', 'Tech_off': 'Tech_off', 'Unpr_IM': 'Unpr_IM', 'Unpr_FW_W': 'Unpr_FW_W', 'Quick_def': 'Quick_def', 'Head_def': 'Head_def', 'Unpr_def': 'Unpr_def', 'PNF': 'PNF', 'PDIM': 'PDIM', 'Tech_def': 'Tech_def' };
+            const homeContainer = document.getElementById('home_specialties');
+            const awayContainer = document.getElementById('away_specialties');
+            homeContainer.innerHTML = '';
+            awayContainer.innerHTML = '';
+            for (const [label, key] of Object.entries(specList)) {
+                homeContainer.innerHTML += `<div class="flex items-center justify-between"><label for="home_${key}" class="text-sm text-gray-400">${label}</label><input type="number" id="home_${key}" value="0" min="0" class="w-16 bg-gray-700 p-1 rounded-md text-center"></div>`;
+                awayContainer.innerHTML += `<div class="flex items-center justify-between"><label for="away_${key}" class="text-sm text-gray-400">${label}</label><input type="number" id="away_${key}" value="0" min="0" class="w-16 bg-gray-700 p-1 rounded-md text-center"></div>`;
+            }
         };
 
         const updateBaselinesUI = () => {
@@ -322,14 +430,14 @@
             const colorClass = diff >= 0 ? 'text-green-400' : 'text-red-400';
             return `<span class="${colorClass}">[${sign}${formattedDiff}${isPercentage ? '%' : ''}]</span>`;
         };
-        
+
         const collectInputs = (teamPrefix, staminaEnabled) => {
             const specialties = {};
             document.querySelectorAll(`#${teamPrefix}_specialties input`).forEach(input => {
                 const key = input.id.replace(`${teamPrefix}_`, '');
                 specialties[key] = parseInt(input.value) || 0;
             });
-            
+
             return {
                 name: document.getElementById(`${teamPrefix}_name`).value,
                 midfield: parseFloat(document.getElementById(`${teamPrefix}_midfield`).value),
@@ -349,7 +457,7 @@
                 specialties: specialties,
             };
         };
-        
+
         const loadExportedRatings = () => {
             const exportedRatingsJSON = localStorage.getItem('exportedRatings');
             if (!exportedRatingsJSON) return;
@@ -405,7 +513,7 @@
                 statusDiv.id = 'import_status';
                 statusDiv.className = 'bg-green-900/50 border border-green-700 text-green-300 px-4 py-3 rounded-lg relative mb-6 text-center';
                 statusDiv.innerHTML = 'Ratings successfully imported from the Man-Marking Calculator.';
-                
+
                 const mainElement = document.querySelector('main');
                 mainElement.insertBefore(statusDiv, mainElement.firstChild);
 
@@ -499,7 +607,7 @@
                         return { home: Object.assign({ name: summaryData.home_name }, summaryData), away: Object.assign({ name: summaryData.away_name }, summaryData) };
                     }
                 }
-                
+
                 // --- Fallback to detailed report parser ---
                 const raw_rows = bbcode.match(/\[tr\].*?\[\/tr\]/g);
                 if (!raw_rows) {
@@ -579,7 +687,7 @@
                 const parseTacticSkillForRow = (line, reportType, parsedHome, parsedAway) => {
                     const cellsContentMatch = line.match(/\[th\].*?\[\/th\](.*?)\[\/tr\]/i);
                     if (cellsContentMatch) {
-                        const cellsStr = cellsContentMatch[1].trim(); 
+                        const cellsStr = cellsContentMatch[1].trim();
                         const noTacticTextVariations = "(no tactic|keine Taktik|pas de tactique|ei taktikat|taktikata)";
                         const numericCellRegex = /\[td\s+align\s*=\s*["']?right["']?\s*\]\s*(\d+)\s*\[\/td\]/g;
                         const allNumericMatches = Array.from(cellsStr.matchAll(numericCellRegex));
@@ -646,7 +754,7 @@
                         case 'IN_ISP_RATINGS':
                             state = 'IN_ISP_RATINGS';
                             if (ispRatingIdx < ispRatingFormKeys.length) {
-                                if(parseNumericValuesForRow(line, reportType, ispRatingFormKeys[ispRatingIdx], parsedHome, parsedAway, false)) ispRatingIdx++;
+                                if (parseNumericValuesForRow(line, reportType, ispRatingFormKeys[ispRatingIdx], parsedHome, parsedAway, false)) ispRatingIdx++;
                             }
                             break;
                         case 'EXPECT_ATTITUDE_ROW': state = 'EXPECT_TACTIC_NAME_ROW'; break;
@@ -665,7 +773,7 @@
                             if (tacticFoundThisLine) state = 'EXPECT_TACTIC_SKILL_ROW';
                             break;
                         case 'EXPECT_TACTIC_SKILL_ROW':
-                             state = 'IN_TACTIC_SKILL';
+                            state = 'IN_TACTIC_SKILL';
                             if (parseTacticSkillForRow(line, reportType, parsedHome, parsedAway)) state = 'DONE_RELEVANT_SECTIONS';
                             break;
                         case 'DONE_RELEVANT_SECTIONS':
@@ -767,9 +875,9 @@
                             specialties: specialties
                         }
                     };
-                    
+
                     const storageKey = `manMarkingImport_${role}`; // e.g., 'manMarkingImport_marker'
-                    
+
                     localStorage.setItem(storageKey, JSON.stringify(ratingsToExport));
 
                     document.getElementById('home_export_status').innerHTML = '';
@@ -786,7 +894,7 @@
                 loader.classList.remove('hidden');
                 runButton.classList.add('hidden');
                 resultsDiv.innerHTML = '<p class="text-gray-400 text-center">Running simulations...</p>';
-                
+
                 const initialHomeChances = parseInt(document.getElementById('initial_home_chances').value) || 5;
                 const initialSharedChances = parseInt(document.getElementById('initial_shared_chances').value) || 5;
                 const initialAwayChances = parseInt(document.getElementById('initial_away_chances').value) || 5;
@@ -794,7 +902,7 @@
                 const initialAwayGoals = parseInt(document.getElementById('initial_away_goals').value) || 0;
                 const initialSEChancesInput = document.getElementById('initial_se_chances').value;
                 let num_se_override_val = initialSEChancesInput.trim() === "" ? undefined : (parseInt(initialSEChancesInput) >= 0 ? parseInt(initialSEChancesInput) : undefined);
-                
+
                 setTimeout(() => {
                     const staminaEnabled = document.getElementById('stamina_enabled').checked;
                     const home_data = collectInputs('home', staminaEnabled);
@@ -802,12 +910,12 @@
                     let sim_count = parseInt(document.getElementById('sim_count').value) || 1000;
                     if (sim_count > 100000) sim_count = 100000;
                     const match_type = document.querySelector('input[name="match_type"]:checked').value;
-                    
+
                     const home_team = precomputeRatings(home_data);
                     const away_team = precomputeRatings(away_data);
 
                     const custom_conditions = { home_chances: initialHomeChances, shared_chances: initialSharedChances, away_chances: initialAwayChances, num_se_override: num_se_override_val, start_home_goals: initialHomeGoals, start_away_goals: initialAwayGoals };
-                    
+
                     let results_raw = {
                         normal_time: { home_wins: 0, draws: 0, away_wins: 0, home_goals: 0, away_goals: 0 },
                         extra_time: { home_wins: 0, draws: 0, away_wins: 0 },
@@ -820,7 +928,7 @@
                         se_type_counts_sum: { home: {}, away: {} }, se_type_goal_counts_sum: { home: {}, away: {} }
                     };
 
-                    for(let i = 0; i < sim_count; i++) {
+                    for (let i = 0; i < sim_count; i++) {
                         const sim_result = simulateMatch(home_team, away_team, match_type, custom_conditions);
                         const [h_nt, a_nt] = sim_result.normal_time_score;
                         results_raw.normal_time.home_goals += h_nt;
@@ -834,7 +942,7 @@
                             if (sim_result.pk_winner === 'home') results_raw.penalties.home_wins++; else results_raw.penalties.away_wins++;
                         }
                         for (const key in results_raw.goal_details_sum) if (sim_result.goal_details.hasOwnProperty(key)) results_raw.goal_details_sum[key] += sim_result.goal_details[key];
-                        
+
                         // Aggregate SE Stats broken down by team
                         if (sim_result.se_type_counts) {
                             for (const team of ['home', 'away']) {
@@ -883,32 +991,32 @@
                                       <p class="mt-2">Expected Goals: <strong>${home_name} ${finalResults.nt_avg_home_goals.toFixed(2)} ${getComparisonHTML(finalResults.nt_avg_home_goals, baseline?.nt_avg_home_goals)} - ${finalResults.nt_avg_away_goals.toFixed(2)} ${getComparisonHTML(finalResults.nt_avg_away_goals, baseline?.nt_avg_away_goals)} ${away_name}</strong></p>
                                    </div>`;
 
-                    if(match_type === 'cup') {
+                    if (match_type === 'cup') {
                         finalResults.et_home_wins_cum_pct = ((results_raw.normal_time.home_wins + results_raw.extra_time.home_wins) / sim_count) * 100;
                         finalResults.et_away_wins_cum_pct = ((results_raw.normal_time.away_wins + results_raw.extra_time.away_wins) / sim_count) * 100;
                         finalResults.et_draws_pct = (results_raw.extra_time.draws / sim_count) * 100;
                         finalResults.final_home_wins_pct = ((results_raw.normal_time.home_wins + results_raw.extra_time.home_wins + results_raw.penalties.home_wins) / sim_count) * 100;
                         finalResults.final_away_wins_pct = ((results_raw.normal_time.away_wins + results_raw.extra_time.away_wins + results_raw.penalties.away_wins) / sim_count) * 100;
 
-                         outputHTML += `<div class="mb-6 p-4 bg-gray-700/50 rounded-lg">
+                        outputHTML += `<div class="mb-6 p-4 bg-gray-700/50 rounded-lg">
                                           <h3 class="text-xl font-semibold mb-2 text-indigo-400">2) Cumulative after Extra Time</h3>
                                           <p>${home_name} Wins: <strong>${finalResults.et_home_wins_cum_pct.toFixed(1)}%</strong> ${getComparisonHTML(finalResults.et_home_wins_cum_pct, baseline?.et_home_wins_cum_pct, true)}</p>
                                           <p>Draws (leading to penalties): <strong>${finalResults.et_draws_pct.toFixed(1)}%</strong> ${getComparisonHTML(finalResults.et_draws_pct, baseline?.et_draws_pct, true)}</p>
                                           <p>${away_name} Wins: <strong>${finalResults.et_away_wins_cum_pct.toFixed(1)}%</strong> ${getComparisonHTML(finalResults.et_away_wins_cum_pct, baseline?.et_away_wins_cum_pct, true)}</p>
                                        </div>`;
-                         outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg">
+                        outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg">
                                          <h3 class="text-xl font-semibold mb-2 text-indigo-400">3) Final Results (including Penalties)</h3>
                                          <p>${home_name} Wins: <strong>${finalResults.final_home_wins_pct.toFixed(1)}%</strong> ${getComparisonHTML(finalResults.final_home_wins_pct, baseline?.final_home_wins_pct, true)}</p>
                                          <p>${away_name} Wins: <strong>${finalResults.final_away_wins_pct.toFixed(1)}%</strong> ${getComparisonHTML(finalResults.final_away_wins_pct, baseline?.final_away_wins_pct, true)}</p>
                                       </div>`;
                     }
-                    
+
                     for (const key in results_raw.goal_details_sum) {
                         finalResults.avg_goal_details[key] = results_raw.goal_details_sum[key] / sim_count;
                     }
 
-                    const home_total_avg_goals = Object.keys(finalResults.avg_goal_details).filter(k=>k.startsWith('home')).reduce((s,k)=>s+finalResults.avg_goal_details[k], 0);
-                    const away_total_avg_goals = Object.keys(finalResults.avg_goal_details).filter(k=>k.startsWith('away')).reduce((s,k)=>s+finalResults.avg_goal_details[k], 0);
+                    const home_total_avg_goals = Object.keys(finalResults.avg_goal_details).filter(k => k.startsWith('home')).reduce((s, k) => s + finalResults.avg_goal_details[k], 0);
+                    const away_total_avg_goals = Object.keys(finalResults.avg_goal_details).filter(k => k.startsWith('away')).reduce((s, k) => s + finalResults.avg_goal_details[k], 0);
                     finalResults.avg_goal_details['home_total_avg_goals'] = home_total_avg_goals;
                     finalResults.avg_goal_details['away_total_avg_goals'] = away_total_avg_goals;
 
@@ -941,13 +1049,13 @@
                     finalResults.avg_se_details.total_generated.away = results_raw.total_simulated_se_events.away / sim_count;
                     finalResults.avg_se_details.total_goals.home = results_raw.total_simulated_se_goals.home / sim_count;
                     finalResults.avg_se_details.total_goals.away = results_raw.total_simulated_se_goals.away / sim_count;
-                    
+
                     // --- Display SE Generated Split ---
                     outputHTML += `<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div class="p-4 bg-gray-700/50 rounded-lg space-y-1">
                                       <h3 class="text-xl font-semibold mb-2 text-indigo-400">${home_name} - SE Generated</h3>
                                       <p>Total Generated: <strong>${finalResults.avg_se_details.total_generated.home.toFixed(4)}</strong> ${getComparisonHTML(finalResults.avg_se_details.total_generated.home, baseline?.avg_se_details.total_generated.home)}</p>`;
-                    
+
                     const sorted_se_gen_home = Object.keys(results_raw.se_type_counts_sum.home).sort();
                     for (const type of sorted_se_gen_home) {
                         const avg = results_raw.se_type_counts_sum.home[type] / sim_count;
@@ -960,7 +1068,7 @@
                     outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg space-y-1">
                                       <h3 class="text-xl font-semibold mb-2 text-indigo-400">${away_name} - SE Generated</h3>
                                       <p>Total Generated: <strong>${finalResults.avg_se_details.total_generated.away.toFixed(4)}</strong> ${getComparisonHTML(finalResults.avg_se_details.total_generated.away, baseline?.avg_se_details.total_generated.away)}</p>`;
-                    
+
                     const sorted_se_gen_away = Object.keys(results_raw.se_type_counts_sum.away).sort();
                     for (const type of sorted_se_gen_away) {
                         const avg = results_raw.se_type_counts_sum.away[type] / sim_count;
@@ -975,7 +1083,7 @@
                                     <div class="p-4 bg-gray-700/50 rounded-lg space-y-1">
                                       <h3 class="text-xl font-semibold mb-2 text-indigo-400">${home_name} - SE Goals</h3>
                                       <p>Total Goals: <strong>${finalResults.avg_se_details.total_goals.home.toFixed(4)}</strong> ${getComparisonHTML(finalResults.avg_se_details.total_goals.home, baseline?.avg_se_details.total_goals.home)}</p>`;
-                    
+
                     const sorted_se_goals_home = Object.keys(results_raw.se_type_goal_counts_sum.home).sort();
                     for (const type of sorted_se_goals_home) {
                         const avg = results_raw.se_type_goal_counts_sum.home[type] / sim_count;
@@ -988,7 +1096,7 @@
                     outputHTML += `<div class="p-4 bg-gray-700/50 rounded-lg space-y-1">
                                       <h3 class="text-xl font-semibold mb-2 text-indigo-400">${away_name} - SE Goals</h3>
                                       <p>Total Goals: <strong>${finalResults.avg_se_details.total_goals.away.toFixed(4)}</strong> ${getComparisonHTML(finalResults.avg_se_details.total_goals.away, baseline?.avg_se_details.total_goals.away)}</p>`;
-                    
+
                     const sorted_se_goals_away = Object.keys(results_raw.se_type_goal_counts_sum.away).sort();
                     for (const type of sorted_se_goals_away) {
                         const avg = results_raw.se_type_goal_counts_sum.away[type] / sim_count;
@@ -1036,4 +1144,5 @@
         });
     </script>
 </body>
+
 </html>

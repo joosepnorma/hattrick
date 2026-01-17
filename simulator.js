@@ -390,6 +390,8 @@ export const precomputeRatings = (teamData) => {
         stamina: teamData.stamina || 10.0,
         base_midfield: teamData.midfield, specialties: teamData.specialties || {},
         midfield_pow3: Math.pow(teamData.midfield, 3),
+        isp_att: teamData.isp_att || 10.0,
+        isp_def: teamData.isp_def || 10.0,
         attack_pow3_5: {
             right: Math.pow(teamData.r_attack, 3.5),
             central: Math.pow(teamData.c_attack, 3.5),
