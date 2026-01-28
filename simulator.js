@@ -47,6 +47,24 @@ const STAMINA_KEYS_NORMAL_NUM = STAMINA_KEYS_NORMAL_STR.map(Number);
 const STAMINA_KEYS_PRESSING_STR = Object.keys(STAMINA_TABLE_PRESSING);
 const STAMINA_KEYS_PRESSING_NUM = STAMINA_KEYS_PRESSING_STR.map(Number);
 
+// --- Performance Optimization: Flattened stamina arrays for fast indexed lookup ---
+const STAMINA_LEVELS = STAMINA_KEYS_NORMAL_NUM; // [1.7, 2.0, 2.5, ..., 9.4]
+const STAMINA_MINUTE_COUNT = 24;
+
+// Flatten tables to contiguous arrays [stamina_idx * 24 + minute_idx]
+const _flattenStaminaTable = (table, keys) => {
+    const arr = new Float32Array(keys.length * STAMINA_MINUTE_COUNT);
+    for (let i = 0; i < keys.length; i++) {
+        const row = table[keys[i]];
+        for (let j = 0; j < row.length; j++) {
+            arr[i * STAMINA_MINUTE_COUNT + j] = row[j];
+        }
+    }
+    return arr;
+};
+const STAMINA_FLAT_NORMAL = _flattenStaminaTable(STAMINA_TABLE_NORMAL, STAMINA_KEYS_NORMAL_STR);
+const STAMINA_FLAT_PRESSING = _flattenStaminaTable(STAMINA_TABLE_PRESSING, STAMINA_KEYS_PRESSING_STR);
+
 // Defense sector mapping (avoid object creation in hot path)
 const DEFENSE_SECTOR_MAP = { right: 'left', central: 'central', left: 'right' };
 
@@ -212,65 +230,59 @@ const getStaminaMultiplier = (staminaLevel, minute, tactic) => {
     if (staminaLevel >= 10) return 1.0;
 
     const isPressing = tactic === 'Pressing';
-    const table = isPressing ? STAMINA_TABLE_PRESSING : STAMINA_TABLE_NORMAL;
-    const staminaStringKeys = isPressing ? STAMINA_KEYS_PRESSING_STR : STAMINA_KEYS_NORMAL_STR;
-    const staminaNumKeys = isPressing ? STAMINA_KEYS_PRESSING_NUM : STAMINA_KEYS_NORMAL_NUM;
+    const flatTable = isPressing ? STAMINA_FLAT_PRESSING : STAMINA_FLAT_NORMAL;
+    const staminaLevels = STAMINA_LEVELS;
+    const numLevels = staminaLevels.length;
 
-    // Find surrounding stamina keys (as strings)
-    let lowerStaminaStrKey = staminaStringKeys[0];
-    let upperStaminaStrKey = staminaStringKeys[staminaStringKeys.length - 1];
-
-    for (let i = 0; i < staminaNumKeys.length; i++) {
-        if (staminaNumKeys[i] >= staminaLevel) {
-            upperStaminaStrKey = staminaStringKeys[i];
-            lowerStaminaStrKey = staminaStringKeys[i > 0 ? i - 1 : 0];
+    // Binary search for surrounding stamina indices
+    let lowerIdx = 0;
+    let upperIdx = numLevels - 1;
+    for (let i = 0; i < numLevels; i++) {
+        if (staminaLevels[i] >= staminaLevel) {
+            upperIdx = i;
+            lowerIdx = i > 0 ? i - 1 : 0;
             break;
         }
     }
 
-    // Find surrounding minute indices
-    const minute_per_row = 5;
-    // Ensure minute is at least 5 to avoid negative index
-    const clampedMinute = Math.max(minute, minute_per_row);
-    const minute_index_float = (clampedMinute - minute_per_row) / minute_per_row;
+    // Calculate minute indices
+    const clampedMinute = Math.max(minute, 5);
+    const minuteIndexFloat = (clampedMinute - 5) / 5;
+    const lowerMinIdx = Math.max(0, Math.floor(minuteIndexFloat));
+    const upperMinIdx = Math.min(STAMINA_MINUTE_COUNT - 1, Math.ceil(minuteIndexFloat));
 
-    // Ensure indices are within the bounds of the array
-    const arrayLength = table[lowerStaminaStrKey].length;
-    const lowerMinuteIndex = Math.max(0, Math.floor(minute_index_float));
-    const upperMinuteIndex = Math.min(arrayLength - 1, Math.ceil(minute_index_float));
+    // Get the four corner points using indexed lookup (much faster than Object)
+    const p11 = flatTable[lowerIdx * STAMINA_MINUTE_COUNT + lowerMinIdx];
+    const p12 = flatTable[lowerIdx * STAMINA_MINUTE_COUNT + upperMinIdx];
+    const p21 = flatTable[upperIdx * STAMINA_MINUTE_COUNT + lowerMinIdx];
+    const p22 = flatTable[upperIdx * STAMINA_MINUTE_COUNT + upperMinIdx];
 
-    // Get the four corner points for bilinear interpolation using string keys
-    const p11 = table[lowerStaminaStrKey][lowerMinuteIndex];
-    const p12 = table[lowerStaminaStrKey][upperMinuteIndex];
-    const p21 = table[upperStaminaStrKey][lowerMinuteIndex];
-    const p22 = table[upperStaminaStrKey][upperMinuteIndex];
+    // Get numeric stamina values for interpolation (already numeric, no parseFloat)
+    const lowerStamina = staminaLevels[lowerIdx];
+    const upperStamina = staminaLevels[upperIdx];
 
-    // Get the actual numeric values of the keys for interpolation
-    const lowerStaminaNumKey = parseFloat(lowerStaminaStrKey);
-    const upperStaminaNumKey = parseFloat(upperStaminaStrKey);
+    // Bilinear interpolation
+    const val_at_lower = _interpolate(minuteIndexFloat, lowerMinIdx, p11, upperMinIdx, p12);
+    const val_at_upper = _interpolate(minuteIndexFloat, lowerMinIdx, p21, upperMinIdx, p22);
 
-    // Interpolate along the minute axis for each stamina key
-    const val_at_lower_stamina = _interpolate(minute_index_float, lowerMinuteIndex, p11, upperMinuteIndex, p12);
-    const val_at_upper_stamina = _interpolate(minute_index_float, lowerMinuteIndex, p21, upperMinuteIndex, p22);
-
-    // Interpolate along the stamina axis
-    return _interpolate(staminaLevel, lowerStaminaNumKey, val_at_lower_stamina, upperStaminaNumKey, val_at_upper_stamina);
+    return _interpolate(staminaLevel, lowerStamina, val_at_lower, upperStamina, val_at_upper);
 };
 
 const _countPlayers = (team, positions, specialty) => {
     let count = 0;
-    const lineup = team.lineup_specialties || {}; // Expected structure: { 'IM': { 'Quick': 2 }, ... }
-    const posList = positions.includes('Any') ? Object.keys(lineup) : positions;
+    const lineup = team.lineup_specialties || {};
+    // Use cached keys if available (from precomputeRatings)
+    const posList = positions.includes('Any')
+        ? (team._lineup_keys || Object.keys(lineup))
+        : positions;
 
     for (const pos of posList) {
         if (lineup[pos]) {
             if (specialty) {
                 count += (lineup[pos][specialty] || 0);
             } else {
-                // If checking for position existence (e.g. WingAnyone)
-                // Sum all specs + 'None'? The user input implies "Winger Cross" triggers from Wingers.
-                // Assuming all Wingers count.
-                count += Object.values(lineup[pos]).reduce((a, b) => a + b, 0);
+                // Use cached sum if available
+                count += (team._lineup_sums?.[pos] ?? Object.values(lineup[pos]).reduce((a, b) => a + b, 0));
             }
         }
     }
@@ -458,6 +470,15 @@ export const precomputeRatings = (teamData) => {
         distributeTo('Head_def', ['Def'], 'Head');
         distributeTo('Tech_def', ['Def'], 'Technical');
         distributeTo('Unpr_def', ['Def'], 'Unpredictable');
+    }
+
+    // Pre-compute lineup keys and sums for _countPlayers optimization
+    if (team.lineup_specialties && Object.keys(team.lineup_specialties).length > 0) {
+        team._lineup_keys = Object.keys(team.lineup_specialties);
+        team._lineup_sums = {};
+        for (const pos of team._lineup_keys) {
+            team._lineup_sums[pos] = Object.values(team.lineup_specialties[pos]).reduce((a, b) => a + b, 0);
+        }
     }
 
     let ca_modifier = 0;

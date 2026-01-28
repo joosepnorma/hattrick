@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hattrick Substitution Tool 2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../config.js"></script>
+    <script src="../auth_guard.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -438,7 +441,7 @@
     </style>
 
     <script type="module">
-        import { simulateMatch, precomputeRatings } from './simulator.js';
+        import { simulateMatch, precomputeRatings } from '../../simulator.js';
 
         // --- Config ---
         const SPEC_LIST = {

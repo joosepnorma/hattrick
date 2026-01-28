@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hattrick Mass Simulator</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../config.js"></script>
+    <script src="../auth_guard.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e2f;
+            color: #eee;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #f39c12;
+            margin-bottom: 5px;
+        }
+
+        p.subtitle {
+            color: #aaa;
+            margin-top: 0;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .input-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #4facfe;
+        }
+
+        textarea {
+            background: #2b2b3b;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 10px;
+            font-family: monospace;
+            height: 150px;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        .settings-group {
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        button {
+            background: #f39c12;
+            border: none;
+            padding: 12px;
+            color: #fff;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #e67e22;
+        }
+
+        button:disabled {
+            background: #555;
+            cursor: wait;
+        }
+
+        button.secondary {
+            background: #444;
+        }
+
+        button.secondary:hover {
+            background: #555;
+        }
+
+        input[type="number"],
+        select {
+            background: #2b2b3b;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 8px;
+        }
+
+        #status {
+            color: #aaa;
+            font-style: italic;
+            margin-top: 5px;
+            min-height: 1.2em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+
+        th {
+            background: #333;
+            color: #f39c12;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .weights-cell {
+            font-family: monospace;
+            font-size: 0.9em;
+            text-align: left;
+            color: #bbb;
+        }
+
+        .rank {
+            font-weight: bold;
+            color: #4facfe;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Hattrick Mass Simulator</h1>
+        <p class="subtitle">Compare up to 50 training strategies efficiently.</p>
+
+        <div class="control-panel">
+            <div class="input-group">
+                <label for="weightsInput">Weights Input</label>
+                <div style="font-size:0.8em; margin-bottom:5px; color:#888;">Format per line:
+                    <code>(dLeft; dCenter; dRight; Mid; aLeft; aCenter; aRight)</code>
+                </div>
+                <textarea id="weightsInput"
+                    placeholder="(10;10;10;10;10;10;40)&#10;(10;10;10;10;10;20;30)&#10;..."></textarea>
+            </div>
+
+            <div class="settings-group">
+                <div class="input-group">
+                    <label for="matchesInput">Matches per Pair</label>
+                    <input type="number" id="matchesInput" value="100" min="1" max="10000">
+                </div>
+                <div class="input-group">
+                    <label for="weeksInput">Training Weeks</label>
+                    <input type="number" id="weeksInput" value="192" min="1" max="500">
+                </div>
+                <div class="input-group">
+                    <label for="tsInput">Team Spirit (0.5 - 10.5)</label>
+                    <select id="tsInput">
+                        <option value="10.5">10.5 (Paradise on Earth!)</option>
+                        <option value="9.5">9.5 (Walking on Clouds)</option>
+                        <option value="8.5">8.5 (Delirious)</option>
+                        <option value="7.5">7.5 (Satisfied)</option>
+                        <option value="6.5">6.5 (Content)</option>
+                        <option value="5.5">5.5 (Calm)</option>
+                        <option value="4.5" selected>4.5 (Composed)</option>
+                        <option value="3.5">3.5 (Irritated)</option>
+                        <option value="2.5">2.5 (Furious)</option>
+                        <option value="1.5">1.5 (Murderous)</option>
+                        <option value="0.5">0.5 (Cold War)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="confInput">Confidence (0 - 9)</label>
+                    <select id="confInput">
+                        <option value="9">9 (Completely Exaggerated)</option>
+                        <option value="8">8 (Exaggerated)</option>
+                        <option value="7">7 (Slightly Exaggerated)</option>
+                        <option value="6">6 (Wonderful)</option>
+                        <option value="5">5 (Strong)</option>
+                        <option value="4" selected>4 (Decent)</option>
+                        <option value="3">3 (Poor)</option>
+                        <option value="2">2 (Wretched)</option>
+                        <option value="1">1 (Disastrous)</option>
+                        <option value="0">0 (Non-existent)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="formationInput">Formation</label>
+                    <select id="formationInput">
+                        <option value="253">2-5-3</option>
+                        <option value="343">3-4-3</option>
+                        <option value="352" selected>3-5-2</option>
+                        <option value="433">4-3-3</option>
+                        <option value="442">4-4-2</option>
+                        <option value="451">4-5-1</option>
+                        <option value="532">5-3-2</option>
+                        <option value="541">5-4-1</option>
+                        <option value="550">5-5-0</option>
+                    </select>
+                </div>
+                <div class="input-group" style="display: flex; align-items: center; gap: 10px;">
+                    <label for="leagueModeInput" style="margin-bottom: 0; cursor: pointer;">League Mode
+                        (Home/Away)</label>
+                    <input type="checkbox" id="leagueModeInput" style="width: auto; cursor: pointer;">
+                </div>
+                <div class="input-group" style="display: flex; align-items: center; gap: 10px;">
+                    <label for="allowTDFInput" style="margin-bottom: 0; cursor: pointer;">Allow TDFs</label>
+                    <input type="checkbox" id="allowTDFInput" checked style="width: auto; cursor: pointer;">
+                </div>
+
+                <div
+                    style="margin-bottom: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px; font-size: 0.9em;">
+                    <strong>Input Format:</strong><br>
+                    Standard: <code>(d;d;d; m; a;a;a)</code><br>
+                    Extended:
+                    <code>(Standard...; GK SP; CD SP; WB SP; Mid/Fwd SP; Def Pass; Def Sco; Mid Sco; Tactic; TacLvl; Coach; Form; PNF)</code><br>
+                    <em>Tactic: Normal, AOW, AIM, CA, PC, LS. Default: Normal. TacLvl: Default 20.</em><br>
+                    <em>Coach: def (Defensive), att (Offensive), or neutral (Default).</em><br>
+                    <em>Formation: 253, 343, 352, 433, 442, 451, 532, 541, 550. Default: 352.</em><br>
+                    <em>Global settings below act as defaults for Standard input. Extended input overrides them. Target
+                        0 = Disabled.</em>
+                </div>
+
+                <div class="input-group">
+                    <label for="gkSpTarget">GK SP</label>
+                    <input type="number" id="gkSpTarget" value="0" min="0" max="25" step="0.1" placeholder="Target"
+                        style="width: 80px;">
+                </div>
+
+                <div class="input-group">
+                    <label for="cdSpTarget">CD SP</label>
+                    <input type="number" id="cdSpTarget" value="0" min="0" max="25" step="0.1" placeholder="Target"
+                        style="width: 80px;">
+                </div>
+
+                <div class="input-group">
+                    <label for="wbSpTarget">WB SP</label>
+                    <input type="number" id="wbSpTarget" value="0" min="0" max="25" step="0.1" placeholder="Target"
+                        style="width: 80px;">
+                </div>
+
+                <div class="input-group">
+                    <label for="midFwdSpTarget">Mid/Fwd SP</label>
+                    <input type="number" id="midFwdSpTarget" value="0" min="0" max="25" step="0.1" placeholder="Target"
+                        style="width: 80px;">
+                </div>
+
+                <div class="input-group">
+                    <label for="scoreDefTarget">Def Score</label>
+                    <input type="number" id="scoreDefTarget" value="0" min="0" max="25" step="0.1" placeholder="Target"
+                        style="width: 80px;">
+                </div>
+
+                <div class="input-group">
+                    <label for="scoreMidTarget">Mid Score</label>
+                    <input type="number" id="scoreMidTarget" value="0" min="0" max="25" step="0.1" placeholder="Target"
+                        style="width: 80px;">
+                </div>
+
+                <div class="input-group">
+                    <label for="defPassTarget">Def Pass</label>
+                    <input type="number" id="defPassTarget" value="0" min="0" max="25" step="0.1" placeholder="Target"
+                        style="width: 80px;">
+                </div>
+                <button onclick="runMassSim()" id="runBtn">▶ Run Simulation</button>
+                <button onclick="loadExample()" class="secondary">Load Example</button>
+                <div id="status">Ready</div>
+            </div>
+        </div>
+
+        <table id="resultsTable" style="display:none;">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th style="text-align:left">Strategy / Weights</th>
+                    <th>Pts</th>
+                    <th>W</th>
+                    <th>D</th>
+                    <th>L</th>
+                    <th>Win%</th>
+                    <th>GF</th>
+                    <th>GA</th>
+                    <th>Goal Diff</th>
+                </tr>
+            </thead>
+            <tbody id="resultsBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Scripts -->
+    <script src="training_data.js"></script>
+    <script src="lineup_engine.js"></script>
+    <script src="simulator_lib.js"></script>
+    <script src="team_generator.js"></script>
+    <script src="meta_simulator.js"></script>
+    <script src="input_parser.js"></script>
+
+    <script>
+        function loadExample() {
+            document.getElementById('weightsInput').value =
+                `(10;10;10;10;10;10;40)
+(10;10;10;10;10;20;30)
+(10;10;10;10;10;30;20)
+(70;70;70;40;40;40;40)
+(40;40;40;70;40;40;40)
+(50;50;50;50;50;50;50)`;
+        }
+
+
+
+        async function runMassSim() {
+            const btn = document.getElementById('runBtn');
+            const status = document.getElementById('status');
+            const table = document.getElementById('resultsTable');
+            const tbody = document.getElementById('resultsBody');
+            const input = document.getElementById('weightsInput').value;
+            const matchesPerPair = parseInt(document.getElementById('matchesInput').value) || 100;
+            const teamSpiritLevel = parseFloat(document.getElementById('tsInput').value) || 4.5;
+            const confidenceLevel = parseInt(document.getElementById('confInput').value) || 4;
+
+
+            btn.disabled = true;
+            status.textContent = "Parsing...";
+            tbody.innerHTML = '';
+            table.style.display = 'none';
+
+            await new Promise(r => setTimeout(r, 50));
+
+            // 1. Parse Input
+            const lines = input.split('\n').filter(l => l.trim());
+            const profiles = [];
+
+            lines.forEach((line, index) => {
+                const parsed = InputParser.parseWeights(line);
+                if (!parsed) return; // Skip invalid rows
+
+                profiles.push({
+                    name: `Row ${index + 1}`,
+                    desc: line.trim(),
+                    weights: parsed.weights,
+                    trainingOpts: parsed.trainingOpts,
+                    tactic: parsed.tactic,
+                    tacticLevel: parsed.tacticLevel,
+                    coachType: parsed.coachType,
+                    formation: parsed.formation,
+                    forcePNF: parsed.forcePNF // Extract PNF flag
+                });
+            });
+
+            if (profiles.length < 2) {
+                status.textContent = "Error: Please provide at least 2 valid weight profiles.";
+                btn.disabled = false;
+                return;
+            }
+
+            status.textContent = `Generated ${profiles.length} teams. Simulating...`;
+            await new Promise(r => setTimeout(r, 50));
+
+            try {
+                // Global options from UI (applied if no specific opts provided, enabled if target > 0)
+                const globalOptions = {
+                    trainSpForGk: parseFloat(document.getElementById('gkSpTarget').value) > 0,
+                    targetSpLevel: parseFloat(document.getElementById('gkSpTarget').value) || 0,
+
+                    trainSpForCd: parseFloat(document.getElementById('cdSpTarget').value) > 0,
+                    targetSpCdLevel: parseFloat(document.getElementById('cdSpTarget').value) || 0,
+
+                    trainSpForWb: parseFloat(document.getElementById('wbSpTarget').value) > 0,
+                    targetSpWbLevel: parseFloat(document.getElementById('wbSpTarget').value) || 0,
+
+                    trainPassForDef: parseFloat(document.getElementById('defPassTarget').value) > 0,
+                    targetPassLevel: parseFloat(document.getElementById('defPassTarget').value) || 0,
+
+                    trainSpForMidFwd: parseFloat(document.getElementById('midFwdSpTarget').value) > 0,
+                    targetMidFwdSpLevel: parseFloat(document.getElementById('midFwdSpTarget').value) || 0,
+
+                    trainScoreForDef: parseFloat(document.getElementById('scoreDefTarget').value) > 0,
+                    targetScoreDefLevel: parseFloat(document.getElementById('scoreDefTarget').value) || 0,
+
+                    trainScoreForMid: parseFloat(document.getElementById('scoreMidTarget').value) > 0,
+                    targetScoreMidLevel: parseFloat(document.getElementById('scoreMidTarget').value) || 0
+                };
+
+                // Pass object instead of individual args
+                const data = await MetaSimulator.runTournament(profiles, {
+                    matchesPerPair: matchesPerPair,
+                    teamSpiritLevel: teamSpiritLevel,
+                    confidenceLevel: confidenceLevel,
+                    formation: document.getElementById('formationInput').value,
+                    trainingWeeks: parseInt(document.getElementById('weeksInput').value) || 192,
+                    enableHomeAwayMode: document.getElementById('leagueModeInput').checked,
+                    allowTDF: document.getElementById('allowTDFInput').checked,
+                    ...globalOptions // Spread global options
+                }, (msg) => {
+                    status.textContent = msg;
+                });
+
+                const results = data.teams;
+
+                status.textContent = `Completed ${profiles.length} team tournament (${matchesPerPair} matches each).`;
+
+                // 3. Render Results
+                results.forEach((t, i) => {
+                    const totalGames = t.stats.w + t.stats.d + t.stats.l;
+                    const winRate = ((t.stats.w / totalGames) * 100).toFixed(1);
+                    const gd = t.stats.gf - t.stats.ga;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="rank">${i + 1}</td>
+                        <td class="weights-cell">
+                            <div style="font-weight:bold; color:#eee;">${t.profile.name}</div>
+                            <div style="color:#777;">${t.profile.desc || ''}</div>
+                        </td>
+                        <td style="font-weight:bold; font-size:1.1em; color:#f39c12;">${t.stats.pts}</td>
+                        <td>${t.stats.w}</td>
+                        <td>${t.stats.d}</td>
+                        <td>${t.stats.l}</td>
+                        <td style="color:${parseFloat(winRate) > 50 ? '#4ade80' : '#bbb'}">${winRate}%</td>
+                        <td>${t.stats.gf}</td>
+                        <td>${t.stats.ga}</td>
+                        <td style="color:${gd > 0 ? '#4ade80' : (gd < 0 ? '#f87171' : '#bbb')}">${gd > 0 ? '+' : ''}${gd}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                table.style.display = 'table';
+
+            } catch (e) {
+                console.error(e);
+                status.textContent = "Error: " + e.message;
+            }
+
+            btn.disabled = false;
+        }
+    </script>
+</body>
+
+</html>

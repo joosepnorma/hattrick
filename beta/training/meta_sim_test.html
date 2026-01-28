@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta-Simulator Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../config.js"></script>
+    <script src="../auth_guard.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #4facfe;
+        }
+
+        button {
+            background: #4facfe;
+            border: none;
+            padding: 10px 20px;
+            color: #fff;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #00f2fe;
+        }
+
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        #status {
+            margin: 20px 0;
+            font-style: italic;
+            color: #aaa;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(0, 0, 0, 0.3);
+            color: #4facfe;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .team-name {
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .win-rate {
+            color: #4ade80;
+        }
+
+        .skills-summary {
+            font-size: 0.8rem;
+            color: #888;
+            text-align: left;
+        }
+
+        .skills-table th {
+            font-size: 0.8rem;
+            padding: 4px;
+        }
+
+        .skills-table td {
+            font-size: 0.9rem;
+            padding: 4px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        select,
+        input[type="text"] {
+            background: #2b2b3b;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        label {
+            font-size: 0.9em;
+            color: #aaa;
+        }
+
+        .team-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .team-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .team-input-group input {
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🏆 Meta-Simulator Tournament</h1>
+        <p>Simulating 4 training strategies against each other (Round Robin, 10,000 matches per pair).</p>
+        <p>Settings: Configurable Weeks, Excellent Coach, configurable Formation.</p>
+
+        <div class="team-inputs">
+            <div class="team-input-group">
+                <label>Team 1 (Equal)</label>
+                <input type="text" id="team1" value="(50;50;50;50;50;50;50)">
+            </div>
+            <div class="team-input-group">
+                <label>Team 2 (Defense)</label>
+                <input type="text" id="team2" value="(70;70;70;40;40;40;40)">
+            </div>
+            <div class="team-input-group">
+                <label>Team 3 (Midfield)</label>
+                <input type="text" id="team3" value="(40;40;40;70;40;40;40)">
+            </div>
+            <div class="team-input-group">
+                <label>Team 4 (Attack)</label>
+                <input type="text" id="team4" value="(40;40;40;40;70;70;70)">
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-item">
+                <label for="tsInput">Team Spirit:</label>
+                <select id="tsInput">
+                    <option value="10.5">10.5 (Paradise on Earth!)</option>
+                    <option value="9.5">9.5 (Walking on Clouds)</option>
+                    <option value="8.5">8.5 (Delirious)</option>
+                    <option value="7.5">7.5 (Satisfied)</option>
+                    <option value="6.5">6.5 (Content)</option>
+                    <option value="5.5">5.5 (Calm)</option>
+                    <option value="4.5" selected>4.5 (Composed)</option>
+                    <option value="3.5">3.5 (Irritated)</option>
+                    <option value="2.5">2.5 (Furious)</option>
+                    <option value="1.5">1.5 (Murderous)</option>
+                    <option value="0.5">0.5 (Cold War)</option>
+                </select>
+            </div>
+
+            <div class="control-item">
+                <label for="confInput">Confidence:</label>
+                <select id="confInput">
+                    <option value="9">9 (Completely Exaggerated)</option>
+                    <option value="8">8 (Exaggerated)</option>
+                    <option value="7">7 (Slightly Exaggerated)</option>
+                    <option value="6">6 (Wonderful)</option>
+                    <option value="5">5 (Strong)</option>
+                    <option value="4" selected>4 (Decent)</option>
+                    <option value="3">3 (Poor)</option>
+                    <option value="2">2 (Wretched)</option>
+                    <option value="1">1 (Disastrous)</option>
+                    <option value="0">0 (Non-existent)</option>
+                </select>
+            </div>
+
+            <div class="control-item">
+                <label for="weeksInput">Training Weeks:</label>
+                <input type="number" id="weeksInput" value="192" min="1" max="500" style="width: 80px;">
+            </div>
+
+            <div class="control-item">
+                <label for="formationInput">Formation:</label>
+                <select id="formationInput">
+                    <option value="253">2-5-3</option>
+                    <option value="343">3-4-3</option>
+                    <option value="352" selected>3-5-2</option>
+                    <option value="433">4-3-3</option>
+                    <option value="442">4-4-2</option>
+                    <option value="451">4-5-1</option>
+                    <option value="532">5-3-2</option>
+                    <option value="541">5-4-1</option>
+                    <option value="550">5-5-0</option>
+                </select>
+            </div>
+
+            <div class="control-item" style="display: flex; align-items: center; gap: 5px;">
+                <label for="leagueModeInput" style="margin-bottom: 0; cursor: pointer;">League Mode</label>
+                <input type="checkbox" id="leagueModeInput" style="width: auto; cursor: pointer;">
+            </div>
+
+            <div class="control-item" style="display: flex; align-items: center; gap: 5px;">
+                <label for="allowTDFInput" style="margin-bottom: 0; cursor: pointer;">Allow TDFs</label>
+                <input type="checkbox" id="allowTDFInput" checked style="width: auto; cursor: pointer;">
+            </div>
+
+            <div class="control-item" style="display: flex; align-items: center; gap: 5px;">
+                <label for="forcePNFInput" style="margin-bottom: 0; cursor: pointer; color: #f39c12;">Force PNF (Team
+                    1-4)</label>
+                <input type="checkbox" id="forcePNFInput" style="width: auto; cursor: pointer;">
+            </div>
+
+            <div
+                style="margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px; font-size: 0.9em; grid-column: 1 / -1;">
+                <strong>Input Format:</strong><br>
+                Standard: <code>(d;d;d; m; a;a;a)</code><br>
+                Extended:
+                <code>(Standard...; GK SP; CD SP; WB SP; Mid/Fwd SP; Def Pass; Def Sco; Mid Sco; Tactic; TacLvl; Coach; Form; PNF)</code><br>
+                <em>Tactic: Normal, AOW, AIM, CA, PC, LS. Default: Normal. TacLvl: Default 20.</em><br>
+                <em>Coach: def (Defensive), att (Offensive), or neutral (Default).</em><br>
+                <em>Formation: 253, 343, 352, 433, 442, 451, 532, 541, 550. Default: 352.</em><br>
+                <em>Global settings below act as defaults for Standard input. Extended input overrides them. Target 0 =
+                    Disabled.</em>
+            </div>
+
+            <div class="control-item">
+                <label for="gkSpTarget">GK SP</label>
+                <input type="number" id="gkSpTarget" value="0" min="0" max="25" step="0.1" placeholder="Target"
+                    style="width: 80px;">
+            </div>
+
+            <div class="control-item">
+                <label for="cdSpTarget">CD SP</label>
+                <input type="number" id="cdSpTarget" value="0" min="0" max="25" step="0.1" placeholder="Target"
+                    style="width: 80px;">
+            </div>
+
+            <div class="control-item">
+                <label for="wbSpTarget">WB SP</label>
+                <input type="number" id="wbSpTarget" value="0" min="0" max="25" step="0.1" placeholder="Target"
+                    style="width: 80px;">
+            </div>
+
+            <div class="control-item">
+                <label for="midFwdSpTarget">Mid/Fwd SP</label>
+                <input type="number" id="midFwdSpTarget" value="0" min="0" max="25" step="0.1" placeholder="Target"
+                    style="width: 80px;">
+            </div>
+
+            <div class="control-item">
+                <label for="scoreDefTarget">Def Score</label>
+                <input type="number" id="scoreDefTarget" value="0" min="0" max="25" step="0.1" placeholder="Target"
+                    style="width: 80px;">
+            </div>
+
+            <div class="control-item">
+                <label for="scoreMidTarget">Mid Score</label>
+                <input type="number" id="scoreMidTarget" value="0" min="0" max="25" step="0.1" placeholder="Target"
+                    style="width: 80px;">
+            </div>
+
+            <div class="control-item">
+                <label for="defPassTarget">Def Pass</label>
+                <input type="number" id="defPassTarget" value="0" min="0" max="25" step="0.1" placeholder="Target"
+                    style="width: 80px;">
+            </div>
+
+            <button id="runBtn" onclick="runSim()" style="margin-top: 20px;">▶ Run Tournament</button>
+        </div>
+
+        <div id="status">Ready</div>
+
+        <table id="resultsTable" style="display:none;">
+            <thead>
+                <tr>
+                    <th style="text-align:left">Strategy</th>
+                    <th>Points</th>
+                    <th>Wins</th>
+                    <th>Draws</th>
+                    <th>Losses</th>
+                    <th>Win Rate</th>
+                    <th>Avg GF</th>
+                    <th>Avg GA</th>
+                </tr>
+            </thead>
+            <tbody id="resultsBody"></tbody>
+        </table>
+
+        <!-- Head to Head Section -->
+        <div id="h2h" style="margin-top: 30px;"></div>
+
+        <!-- Detailed Stats -->
+        <div id="details" style="margin-top: 30px;"></div>
+    </div>
+
+    <!-- Dependencies -->
+    <script src="training_data.js"></script>
+    <script src="lineup_engine.js"></script>
+    <script src="simulator_lib.js"></script>
+    <script src="team_generator.js"></script>
+    <script src="meta_simulator.js"></script>
+    <script src="input_parser.js"></script>
+
+    <script>
+        // Use shared parser
+        const parseWeights = InputParser.parseWeights;
+
+        function renderSkills(players, selectedVariants) {
+            if (!players) return '';
+            const skills = ['Keeper', 'Defending', 'Playmaking', 'Winger', 'Passing', 'Scoring', 'SetPieces'];
+            let html = '<div style="margin-top:10px; overflow-x:auto;"><table class="skills-table"><thead><tr><th style="text-align:left">Pos</th>';
+            skills.forEach(s => html += `<th>${s.substr(0, 3)}</th>`);
+            html += '</tr></thead><tbody>';
+
+            // Order: GK, WB, CD, IM, W, FW
+            const order = ['GK', 'WB', 'CD', 'IM', 'W', 'FW'];
+            order.forEach(pos => {
+                if (players[pos]) {
+                    // Get selected variant(s) for this position, join if multiple
+                    const variants = selectedVariants && selectedVariants[pos]
+                        ? selectedVariants[pos].join(', ')
+                        : pos;
+                    html += `<tr><td style="font-weight:bold; text-align:left; color:#ddd;">${variants}</td>`;
+                    skills.forEach(s => {
+                        const val = players[pos][s] || 0;
+                        html += `<td>${val.toFixed(1)}</td>`;
+                    });
+                    html += '</tr>';
+                }
+            });
+            html += '</tbody></table></div>';
+            return html;
+        }
+
+        function renderHeadToHead(teams, h2h) {
+            const div = document.getElementById('h2h');
+            div.innerHTML = '<h3>⚔️ Head-to-Head Results (Wins / Draws / Losses)</h3>';
+            const table = document.createElement('table');
+
+            // Header
+            let thead = '<thead><tr><th style="text-align:left">Vs &rarr;</th>';
+            teams.forEach(t => thead += `<th>${t.profile.name}</th>`);
+            thead += '</tr></thead>';
+
+            let tbody = '<tbody>';
+            teams.forEach(rowTeam => {
+                tbody += `<tr><td style="font-weight:bold; text-align:left">${rowTeam.profile.name}</td>`;
+                teams.forEach(colTeam => {
+                    if (rowTeam.id === colTeam.id) {
+                        tbody += '<td style="background:rgba(255,255,255,0.02)">-</td>';
+                    } else {
+                        const id1 = rowTeam.id;
+                        const id2 = colTeam.id;
+                        const key = (id1 < id2) ? `${id1}-${id2}` : `${id2}-${id1}`;
+                        const stats = h2h[key];
+                        if (stats) {
+                            if (id1 < id2) {
+                                // rowTeam is Team A: print w/d/l
+                                tbody += `<td>${stats.w} / ${stats.d} / ${stats.l}</td>`;
+                            } else {
+                                // rowTeam is Team B: print l/d/w (Team B's perspective)
+                                tbody += `<td>${stats.l} / ${stats.d} / ${stats.w}</td>`;
+                            }
+                        } else {
+                            tbody += '<td>?</td>';
+                        }
+                    }
+                });
+                tbody += '</tr>';
+            });
+            tbody += '</tbody>';
+            table.innerHTML = thead + tbody;
+            div.appendChild(table);
+        }
+
+
+
+        async function runSim() {
+            const btn = document.getElementById('runBtn');
+            const status = document.getElementById('status');
+            const table = document.getElementById('resultsTable');
+            const tbody = document.getElementById('resultsBody');
+            const details = document.getElementById('details');
+            const h2h = document.getElementById('h2h');
+            const tsLevel = parseFloat(document.getElementById('tsInput').value) || 4.5;
+            const confLevel = parseInt(document.getElementById('confInput').value) || 4;
+
+            btn.disabled = true;
+            tbody.innerHTML = '';
+            table.style.display = 'none';
+            details.innerHTML = '';
+            h2h.innerHTML = '';
+
+            // Allow UI to update
+            await new Promise(r => setTimeout(r, 50));
+
+            try {
+                // Collect profiles from inputs
+                const profiles = [];
+                const inputs = [
+                    { id: 'team1', name: 'Team 1 (Config)' },
+                    { id: 'team2', name: 'Team 2 (Config)' },
+                    { id: 'team3', name: 'Team 3 (Config)' },
+                    { id: 'team4', name: 'Team 4 (Config)' }
+                ];
+
+                for (const inp of inputs) {
+                    const el = document.getElementById(inp.id);
+                    const parsed = parseWeights(el.value);
+                    if (parsed) {
+                        profiles.push({
+                            name: inp.name,
+                            desc: el.value,
+                            weights: parsed.weights,
+                            trainingOpts: parsed.trainingOpts,
+                            tactic: parsed.tactic,
+                            tacticLevel: parsed.tacticLevel,
+                            coachType: parsed.coachType,
+                            formation: parsed.formation,
+                            forcePNF: parsed.forcePNF || document.getElementById('forcePNFInput').checked // Global override for testing
+                        });
+                    } else {
+                        throw new Error(`Invalid format for ${inp.id}. Use (v;v;v;v;v;v;v).`);
+                    }
+                }
+
+                // Pass Profiles AND Options
+                // Global options from UI (applied if no specific opts provided)
+                const globalOptions = {
+                    trainSpForGk: parseFloat(document.getElementById('gkSpTarget').value) > 0,
+                    targetSpLevel: parseFloat(document.getElementById('gkSpTarget').value) || 0,
+
+                    trainPassForDef: parseFloat(document.getElementById('defPassTarget').value) > 0,
+                    targetPassLevel: parseFloat(document.getElementById('defPassTarget').value) || 0,
+
+                    trainSpForCd: parseFloat(document.getElementById('cdSpTarget').value) > 0,
+                    targetSpCdLevel: parseFloat(document.getElementById('cdSpTarget').value) || 0,
+
+                    trainSpForWb: parseFloat(document.getElementById('wbSpTarget').value) > 0,
+                    targetSpWbLevel: parseFloat(document.getElementById('wbSpTarget').value) || 0,
+
+                    trainSpForMidFwd: parseFloat(document.getElementById('midFwdSpTarget').value) > 0,
+                    targetMidFwdSpLevel: parseFloat(document.getElementById('midFwdSpTarget').value) || 0,
+
+                    trainScoreForDef: parseFloat(document.getElementById('scoreDefTarget').value) > 0,
+                    targetScoreDefLevel: parseFloat(document.getElementById('scoreDefTarget').value) || 0,
+
+                    trainScoreForMid: parseFloat(document.getElementById('scoreMidTarget').value) > 0,
+                    targetScoreMidLevel: parseFloat(document.getElementById('scoreMidTarget').value) || 0
+                };
+
+                const data = await MetaSimulator.runTournament(profiles, {
+                    matchesPerPair: 10000,
+                    teamSpiritLevel: tsLevel,
+                    confidenceLevel: confLevel,
+                    formation: document.getElementById('formationInput').value,
+                    trainingWeeks: parseInt(document.getElementById('weeksInput').value) || 192,
+                    enableHomeAwayMode: document.getElementById('leagueModeInput').checked,
+                    allowTDF: document.getElementById('allowTDFInput').checked,
+                    ...globalOptions // Spread global options
+                }, (msg) => {
+                    status.textContent = msg;
+                });
+
+                const results = data.teams;
+                const headToHead = data.headToHead;
+
+                status.textContent = "Tournament Complete!";
+
+                // Render Results
+                results.sort((a, b) => b.stats.pts - a.stats.pts);
+
+                results.forEach(t => {
+                    const totalGames = t.stats.w + t.stats.d + t.stats.l;
+                    const winRate = ((t.stats.w / totalGames) * 100).toFixed(1);
+                    const avgGF = (t.stats.gf / totalGames).toFixed(2);
+                    const avgGA = (t.stats.ga / totalGames).toFixed(2);
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="team-name">
+                            ${t.profile.name}
+                            <br><span style="font-weight:normal; font-size:0.8em; color:#888;">${t.profile.desc}</span>
+                        </td>
+                        <td style="font-weight:bold; font-size:1.1em">${t.stats.pts}</td>
+                        <td>${t.stats.w}</td>
+                        <td>${t.stats.d}</td>
+                        <td>${t.stats.l}</td>
+                        <td class="win-rate">${winRate}%</td>
+                        <td>${avgGF}</td>
+                        <td>${avgGA}</td>
+                    `;
+                    tbody.appendChild(row);
+
+                    // Add details
+                    const skillsHtml = renderSkills(t.raw.players, t.raw.selectedVariants);
+                    const d = document.createElement('div');
+                    d.style.marginBottom = '20px';
+                    d.style.padding = '15px';
+                    d.style.background = 'rgba(255,255,255,0.05)';
+                    d.innerHTML = `
+                        <h3>${t.profile.name} - Team Stats</h3>
+                        <p>Ratings (1-20 scale): 
+                           Midfield: <strong>${t.raw.midfield.toFixed(2)}</strong> | 
+                           Attack: [R:${t.raw.r_attack.toFixed(2)} C:${t.raw.c_attack.toFixed(2)} L:${t.raw.l_attack.toFixed(2)}] | 
+                           Defense: [R:${t.raw.r_defense.toFixed(2)} C:${t.raw.c_defense.toFixed(2)} L:${t.raw.l_defense.toFixed(2)}] <br>
+                           ISP: <strong>Att ${t.raw.isp_att.toFixed(2)}</strong> | <strong>Def ${t.raw.isp_def.toFixed(2)}</strong>
+                        </p>
+                        <p style="margin-top:5px; font-size:0.9em; color:#4facfe;">
+                           <strong>Special Events:</strong> 
+                           Unpredictable Def: <strong>${t.raw.se_stats?.u_def || 0}</strong> | 
+                           Quick Off: <strong>${t.raw.se_stats?.q_off || 0}</strong> | 
+                           PNF: <strong>${t.raw.se_stats?.pnf ? 'YES' : 'NO'}</strong>
+                        </p>
+                        <h4 style="margin: 10px 0 5px 0; font-size: 0.9em; color:#888;">Optimized Players (After 192 Weeks):</h4>
+                        ${skillsHtml}
+                    `;
+                    details.appendChild(d);
+                });
+
+                table.style.display = 'table';
+
+                // Render H2H
+                renderHeadToHead(results, headToHead);
+
+            } catch (e) {
+                console.error(e);
+                status.textContent = "Error: " + e.message;
+            }
+
+            btn.disabled = false;
+        }
+    </script>
+</body>
+
+</html>

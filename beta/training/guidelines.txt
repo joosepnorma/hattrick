@@ -1,0 +1,49 @@
+First phase:
+We are creating a training planner to calculate the optimal skillset for a lineup of players based on different weights for different sectors:
+Def (left, center, right)
+Mid
+Att (left, center, right)
+
+The user will input the starting age and skills of the trained players and the number of weeks that the players will train.
+
+The output will be a description of an ideal player for each possible position, based on the weights:
+Goalkeeper
+Wingback (normal, towards middle, offensive, defensive)
+Central Defender (normal, towards wing, offensive)
+Inner Midfielder (normal, towards wing, defensive, offensive)
+Winger (normal, towards middle, offensive, defensive)
+Forward (normal, towards wing, defensive)
+
+Second phase:
+We will create a lineup simulator that will figure out the team ratings based on team players, tactics and other factors.
+
+Third phase: 
+After we have created the different lineups and team ratings, we will use the match simulator to simulate matches between the different lineups.
+This will allow us to compare the different weights and find the optimal weights and lineups for our team.
+
+[table][tr][th]Defence[/th][td align=center]3.5[/td][td align=center]3[/td][td align=center]3.5[/td][/tr][tr][th]Midfield[/th][td colspan=3 align=center]0.75[/td][/tr][tr][th]Attack[/th][td align=center]0.75[/td][td align=center]0.75[/td][td align=center]0.75[/td][/tr][/table]
+[b]Tactics[/b]: Normal
+[b]Team Attitude[/b]: Normal
+[b]Style of play[/b]: Neutral
+
+1. The Contribution Matrix
+Use this exact dictionary for looking up player weights.
+
+Input: Player Position + Order (e.g., "WB_Left_Offensive").
+
+Output: A list of 3 float coefficients [Left, Center, Right].
+
+Logic: For every player, multiply their Effective Skill (Defense or GK) by these coefficients and add the result to the respective sector's "Raw Sum".
+
+2. Calculation WorkflowStep 1: Calculate Raw SumsIterate through the team's players. For each player:Identify their lookup key (e.g., WB_Right_Normal).Multiply their Effective Defense Skill (Skill including form/stamina/xp logic) by the 3 weights in the matrix.Add the results to raw_sum_left, raw_sum_center, raw_sum_right.Important: For the Goalkeeper, you must perform two lookups:Lookup GK_GK_Skill and multiply by their Goalkeeping skill.Lookup GK_Def_Skill and multiply by their Defense skill.Add BOTH to the raw sums.Step 2: Apply Physics EngineOnce you have the total raw_sum for a sector (Left, Center, or Right), apply this specific formula:PythonSCALE_FACTOR = 0.25
+EXPONENT = 1.2
+FLOOR = 0.75
+
+physics_rating = SCALE_FACTOR * (raw_sum ** EXPONENT)
+Step 3: Apply Coach ModifierMultiply the physics_rating (not the raw sum) by the coach modifier.Neutral Coach: 1.0Defensive Coach: 1.128 (Defense sectors only)Offensive Coach: 0.88 (Defense sectors only)Step 4: Final Calculation & RoundingAdd the floor and round to the nearest 0.25.Pythonfinal_value = FLOOR + (physics_rating * coach_multiplier)
+
+# Rounding logic: Hattrick ratings are always visible in 0.25 steps
+def round_hattrick(value):
+    return 0.25 * round(value / 0.25)
+3. Implementation RequirementsFunction Signature:calculate_defense(players_list, coach_type="Neutral")Input Object:Player object should have:position (e.g., "WB", "CD", "IM", "Winger", "GK")side (e.g., "Left", "Middle", "Right")order (e.g., "Normal", "Offensive", "Defensive", "TW", "TM")skill_gk (float, effective skill)skill_def (float, effective skill)Key Construction:You must construct the dictionary key dynamically.Example: A Right Wingback with Normal orders $\rightarrow$ WB_Right_Normal.Example: A Middle CD with Offensive orders $\rightarrow$ CD_Middle_Offensive.
+#

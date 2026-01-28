@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hattrick Training Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../config.js"></script>
+    <script src="../auth_guard.js"></script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+
+        /* Remove number input spinners */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        /* Skill bar animation */
+        .skill-bar {
+            transition: width 0.3s ease-out;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <h1 class="text-xl font-bold text-white flex items-center gap-2">
+                <span class="text-green-500">📊</span> Training Planner
+            </h1>
+            <nav class="flex gap-4">
+                <a href="../../index.html" class="text-gray-300 hover:text-white text-sm">← Back to
+                    Simulator</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+
+        <!-- Input Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+
+            <!-- Sector Weights -->
+            <div class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-5">
+                <h2 class="text-lg font-semibold text-white mb-4 border-b border-gray-700 pb-2">
+                    Sector Weights
+                </h2>
+                <p class="text-xs text-gray-400 mb-4">Weight each sector by importance (0-100)</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Defense (L / C / R)</label>
+                        <div class="flex gap-2">
+                            <input type="number" id="weight_def_left" value="50" min="0" max="100"
+                                class="w-full bg-gray-700 border-gray-600 rounded px-3 py-2 text-center text-sm">
+                            <input type="number" id="weight_def_center" value="50" min="0" max="100"
+                                class="w-full bg-gray-700 border-gray-600 rounded px-3 py-2 text-center text-sm">
+                            <input type="number" id="weight_def_right" value="50" min="0" max="100"
+                                class="w-full bg-gray-700 border-gray-600 rounded px-3 py-2 text-center text-sm">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Midfield</label>
+                        <input type="number" id="weight_mid" value="100" min="0" max="100"
+                            class="w-full bg-gray-700 border-gray-600 rounded px-3 py-2 text-center text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Attack (L / C / R)</label>
+                        <div class="flex gap-2">
+                            <input type="number" id="weight_att_left" value="50" min="0" max="100"
+                                class="w-full bg-gray-700 border-gray-600 rounded px-3 py-2 text-center text-sm">
+                            <input type="number" id="weight_att_center" value="50" min="0" max="100"
+                                class="w-full bg-gray-700 border-gray-600 rounded px-3 py-2 text-center text-sm">
+                            <input type="number" id="weight_att_right" value="50" min="0" max="100"
+                                class="w-full bg-gray-700 border-gray-600 rounded px-3 py-2 text-center text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Presets -->
+                    <div class="pt-2 border-t border-gray-700">
+                        <label class="block text-xs text-gray-400 mb-2">Quick Presets</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="applyPreset('balanced')"
+                                class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-xs rounded">Balanced</button>
+                            <button onclick="applyPreset('midfield')"
+                                class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-xs rounded">Midfield Focus</button>
+                            <button onclick="applyPreset('attack')"
+                                class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-xs rounded">Attack Focus</button>
+                            <button onclick="applyPreset('wings')"
+                                class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-xs rounded">Wing Play</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Player Settings -->
+            <div class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-5">
+                <h2 class="text-lg font-semibold text-white mb-4 border-b border-gray-700 pb-2">
+                    Player Settings
+                </h2>
+
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Starting Age (Years /
+                                Days)</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="starting_age_years" value="17" min="17" max="45"
+                                    class="w-full bg-gray-700 border-gray-600 rounded px-3 py-2 text-center text-sm"
+                                    placeholder="Years">
+                                <input type="number" id="starting_age_days" value="0" min="0" max="111"
+                                    class="w-full bg-gray-700 border-gray-600 rounded px-3 py-2 text-center text-sm"
+                                    placeholder="Days">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Training Weeks</label>
+                            <input type="number" id="training_weeks" value="80" min="1" max="500"
+                                class="w-full bg-gray-700 border-gray-600 rounded px-3 py-2 text-center text-sm">
+                        </div>
+                    </div>
+
+                    <!-- SP Training (GK specific) -->
+                    <div id="sp_training_container" class="bg-gray-700/30 p-3 rounded border border-gray-700">
+                        <div class="flex items-center gap-2 mb-2">
+                            <input type="checkbox" id="train_sp_gk"
+                                class="rounded bg-gray-700 border-gray-600 text-indigo-500 focus:ring-indigo-500">
+                            <label for="train_sp_gk" class="text-sm font-medium text-gray-300">Train SP for
+                                Goalkeeper?</label>
+                        </div>
+                        <div id="sp_target_container" class="hidden pl-6">
+                            <label class="block text-xs text-gray-400 mb-1">Target SP Level</label>
+                            <input type="number" id="target_sp_level" value="20" min="1" max="25" step="0.1"
+                                class="w-24 bg-gray-700 border-gray-600 rounded px-2 py-1 text-center text-sm">
+                        </div>
+                    </div>
+
+                    <!-- SP Training (CD specific) -->
+                    <div id="sp_cd_container" class="bg-gray-700/30 p-3 rounded border border-gray-700">
+                        <div class="flex items-center gap-2 mb-2">
+                            <input type="checkbox" id="train_sp_cd"
+                                class="rounded bg-gray-700 border-gray-600 text-indigo-500 focus:ring-indigo-500">
+                            <label for="train_sp_cd" class="text-sm font-medium text-gray-300">Train SP for
+                                CD?</label>
+                        </div>
+                        <div id="sp_cd_target_container" class="hidden pl-6">
+                            <label class="block text-xs text-gray-400 mb-1">Target SP Level</label>
+                            <input type="number" id="target_sp_cd_level" value="20" min="1" max="25" step="0.1"
+                                class="w-24 bg-gray-700 border-gray-600 rounded px-2 py-1 text-center text-sm">
+                        </div>
+                    </div>
+
+                    <!-- SP Training (WB specific) -->
+                    <div id="sp_wb_container" class="bg-gray-700/30 p-3 rounded border border-gray-700">
+                        <div class="flex items-center gap-2 mb-2">
+                            <input type="checkbox" id="train_sp_wb"
+                                class="rounded bg-gray-700 border-gray-600 text-indigo-500 focus:ring-indigo-500">
+                            <label for="train_sp_wb" class="text-sm font-medium text-gray-300">Train SP for
+                                WB?</label>
+                        </div>
+                        <div id="sp_wb_target_container" class="hidden pl-6">
+                            <label class="block text-xs text-gray-400 mb-1">Target SP Level</label>
+                            <input type="number" id="target_sp_wb_level" value="20" min="1" max="25" step="0.1"
+                                class="w-24 bg-gray-700 border-gray-600 rounded px-2 py-1 text-center text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Passing Training (Def specific) -->
+                    <div id="pass_training_container" class="bg-gray-700/30 p-3 rounded border border-gray-700">
+                        <div class="flex items-center gap-2 mb-2">
+                            <input type="checkbox" id="train_pass_def"
+                                class="rounded bg-gray-700 border-gray-600 text-indigo-500 focus:ring-indigo-500">
+                            <label for="train_pass_def" class="text-sm font-medium text-gray-300">Train Passing for
+                                Defenders?</label>
+                        </div>
+                        <div id="pass_target_container" class="hidden pl-6">
+                            <label class="block text-xs text-gray-400 mb-1">Target Passing Level</label>
+                            <input type="number" id="target_pass_level" value="15" min="1" max="25" step="0.1"
+                                class="w-24 bg-gray-700 border-gray-600 rounded px-2 py-1 text-center text-sm">
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- SP Training (Mid/Fwd) -->
+                <div id="sp_midfwd_container" class="bg-gray-700/30 p-3 rounded border border-gray-700">
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="checkbox" id="train_sp_midfwd"
+                            class="rounded bg-gray-700 border-gray-600 text-indigo-500 focus:ring-indigo-500">
+                        <label for="train_sp_midfwd" class="text-sm font-medium text-gray-300">Train SP for
+                            Mid/Fwd?</label>
+                    </div>
+                    <div id="sp_midfwd_target_container" class="hidden pl-6">
+                        <label class="block text-xs text-gray-400 mb-1">Target SP Level</label>
+                        <input type="number" id="target_sp_midfwd_level" value="15" min="1" max="25" step="0.1"
+                            class="w-24 bg-gray-700 border-gray-600 rounded px-2 py-1 text-center text-sm">
+                    </div>
+                </div>
+
+                <!-- Scoring Training (Defenders) -->
+                <div id="score_def_container" class="bg-gray-700/30 p-3 rounded border border-gray-700 mb-2">
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="checkbox" id="train_score_def"
+                            class="rounded bg-gray-700 border-gray-600 text-indigo-500 focus:ring-indigo-500">
+                        <label for="train_score_def" class="text-sm font-medium text-gray-300">Train Scoring for
+                            Defenders?</label>
+                    </div>
+                    <div id="score_def_target_container" class="hidden pl-6">
+                        <label class="block text-xs text-gray-400 mb-1">Target Scoring Level</label>
+                        <input type="number" id="target_score_def_level" value="15" min="1" max="25" step="0.1"
+                            class="w-24 bg-gray-700 border-gray-600 rounded px-2 py-1 text-center text-sm">
+                    </div>
+                </div>
+
+                <!-- Scoring Training (Midfielders) -->
+                <div id="score_mid_container" class="bg-gray-700/30 p-3 rounded border border-gray-700 mb-2">
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="checkbox" id="train_score_mid"
+                            class="rounded bg-gray-700 border-gray-600 text-indigo-500 focus:ring-indigo-500">
+                        <label for="train_score_mid" class="text-sm font-medium text-gray-300">Train Scoring for
+                            Midfielders?</label>
+                    </div>
+                    <div id="score_mid_target_container" class="hidden pl-6">
+                        <label class="block text-xs text-gray-400 mb-1">Target Scoring Level</label>
+                        <input type="number" id="target_score_mid_level" value="15" min="1" max="25" step="0.1"
+                            class="w-24 bg-gray-700 border-gray-600 rounded px-2 py-1 text-center text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Starting Skills (all)</label>
+                    <input type="number" id="starting_skills" value="5.0" min="1" max="20" step="0.1"
+                        class="w-full bg-gray-700 border-gray-600 rounded px-3 py-2 text-center text-sm">
+                </div>
+
+                <!-- Advanced: Individual starting skills (collapsible) -->
+                <details class="pt-2">
+                    <summary class="text-xs text-indigo-400 cursor-pointer hover:text-indigo-300">
+                        Advanced: Set individual starting skills
+                    </summary>
+                    <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
+                        <div><label class="text-gray-400">Keeper</label>
+                            <input type="number" id="start_keeper" value="5" step="0.1"
+                                class="w-full bg-gray-600 rounded px-2 py-1 text-center">
+                        </div>
+                        <div><label class="text-gray-400">Defending</label>
+                            <input type="number" id="start_defending" value="5" step="0.1"
+                                class="w-full bg-gray-600 rounded px-2 py-1 text-center">
+                        </div>
+                        <div><label class="text-gray-400">Playmaking</label>
+                            <input type="number" id="start_playmaking" value="5" step="0.1"
+                                class="w-full bg-gray-600 rounded px-2 py-1 text-center">
+                        </div>
+                        <div><label class="text-gray-400">Winger</label>
+                            <input type="number" id="start_winger" value="5" step="0.1"
+                                class="w-full bg-gray-600 rounded px-2 py-1 text-center">
+                        </div>
+                        <div><label class="text-gray-400">Passing</label>
+                            <input type="number" id="start_passing" value="5" step="0.1"
+                                class="w-full bg-gray-600 rounded px-2 py-1 text-center">
+                        </div>
+                        <div><label class="text-gray-400">Scoring</label>
+                            <input type="number" id="start_scoring" value="5" step="0.1"
+                                class="w-full bg-gray-600 rounded px-2 py-1 text-center">
+                        </div>
+                        <div><label class="text-gray-400">Set Pieces</label>
+                            <input type="number" id="start_setpieces" value="5" step="0.1"
+                                class="w-full bg-gray-600 rounded px-2 py-1 text-center">
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- Training Settings -->
+        <div class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-5">
+            <h2 class="text-lg font-semibold text-white mb-4 border-b border-gray-700 pb-2">
+                Training Settings
+            </h2>
+
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Coach Level</label>
+                        <select id="coach_level" class="w-full bg-gray-700 border-gray-600 rounded px-3 py-2 text-sm">
+                            <option value="4">4 - Weak</option>
+                            <option value="5">5 - Inadequate</option>
+                            <option value="6">6 - Passable</option>
+                            <option value="7">7 - Solid</option>
+                            <option value="8" selected>8 - Excellent</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Assistant Sum</label>
+                        <select id="assistant_sum" class="w-full bg-gray-700 border-gray-600 rounded px-3 py-2 text-sm">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10" selected>10</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Advanced Options -->
+                <div class="border-t border-gray-700 pt-3 mt-3">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="train_allow_tdf" checked
+                            class="rounded bg-gray-700 border-gray-600 text-indigo-500 focus:ring-indigo-500">
+                        <label for="train_allow_tdf" class="text-sm font-medium text-gray-300">Allow Technical Defensive
+                            Forwards (TDF)?</label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Intensity (%)</label>
+                        <div class="flex items-center gap-2">
+                            <input type="range" id="intensity_slider" min="0" max="100" value="100"
+                                class="flex-grow h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                                oninput="document.getElementById('intensity').value = this.value">
+                            <input type="number" id="intensity" value="100" min="0" max="100"
+                                class="w-16 bg-gray-700 border-gray-600 rounded px-2 py-1 text-center text-sm"
+                                oninput="document.getElementById('intensity_slider').value = this.value">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Stamina Share (%)</label>
+                        <div class="flex items-center gap-2">
+                            <input type="range" id="stamina_slider" min="10" max="100" value="10"
+                                class="flex-grow h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                                oninput="document.getElementById('stamina_share').value = this.value">
+                            <input type="number" id="stamina_share" value="10" min="10" max="100"
+                                class="w-16 bg-gray-700 border-gray-600 rounded px-2 py-1 text-center text-sm"
+                                oninput="document.getElementById('stamina_slider').value = this.value">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Simulator Input String Section -->
+        <div class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-5 mb-8">
+            <h2 class="text-lg font-semibold text-white mb-4 border-b border-gray-700 pb-2">
+                Simulator Input String
+            </h2>
+            <p class="text-xs text-gray-400 mb-4">
+                Use this string in the Simulator tool to test this specific training configuration.
+            </p>
+
+            <div class="flex gap-2 mb-4">
+                <input type="text" id="simulator_input_string" readonly
+                    class="flex-grow bg-gray-900 border-gray-600 rounded px-3 py-2 text-sm font-mono text-green-400"
+                    placeholder="Click Generate to create string...">
+                <button onclick="updateInputString()"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm font-semibold transition-colors">
+                    Generate
+                </button>
+                <button onclick="copyInputString()"
+                    class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm font-semibold transition-colors">
+                    Copy
+                </button>
+            </div>
+
+            <details class="text-xs text-gray-400">
+                <summary class="cursor-pointer hover:text-indigo-400 mb-2 font-semibold">
+                    Input String Format Overview
+                </summary>
+                <div class="bg-gray-900 p-3 rounded border border-gray-700 font-mono space-y-1">
+                    <p class="mb-2 font-semibold text-gray-300">Full Index Map:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-1">
+                        <div class="text-gray-500"><span class="text-indigo-400">0</span>: Def Left Weight</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">1</span>: Def Center Weight</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">2</span>: Def Right Weight</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">3</span>: Midfield Weight</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">4</span>: Att Left Weight</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">5</span>: Att Center Weight</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">6</span>: Att Right Weight</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">7</span>: GK SP Level</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">8</span>: CD SP Level</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">9</span>: WB SP Level</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">10</span>: Mid/Fwd SP Level</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">11</span>: Def Passing Level</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">12</span>: Def Scoring Level</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">13</span>: Mid Scoring Level</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">14</span>: Tactic (e.g. Normal)</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">15</span>: Tactic Level (1-20)</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">16</span>: Coach (Def/Neu/Att)</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">17</span>: Formation (e.g. 352)</div>
+                        <div class="text-gray-500"><span class="text-indigo-400">18+</span>: Flags (PNF)</div>
+                    </div>
+                </div>
+            </details>
+        </div>
+
+        <!-- Calculate Button -->
+        <div class="text-center mb-8">
+            <button id="calculate_btn" onclick="runOptimization()"
+                class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-lg transition-colors">
+                🧮 Calculate Optimal Training Paths
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results_section" class="hidden">
+            <h2 class="text-2xl font-bold text-white mb-6 text-center">Optimization Results</h2>
+
+            <!-- Summary Stats -->
+            <div id="summary_stats" class="bg-gray-800 rounded-lg border border-gray-700 p-4 mb-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div>
+                        <div class="text-2xl font-bold text-green-400" id="stat_positions">-</div>
+                        <div class="text-xs text-gray-400">Positions Analyzed</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-blue-400" id="stat_weeks">-</div>
+                        <div class="text-xs text-gray-400">Training Weeks</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-yellow-400" id="stat_best_pos">-</div>
+                        <div class="text-xs text-gray-400">Best Position</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-purple-400" id="stat_best_score">-</div>
+                        <div class="text-xs text-gray-400">Best Score</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Position Results Grid -->
+            <div id="results_grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <!-- Results will be inserted here -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 border-t border-gray-700 py-4 text-center text-xs text-gray-500">
+        Hattrick Training Planner • Phase 1 • Using greedy optimization with SS = W × P × (s-1)
+    </footer>
+
+    <script src="training_data.js"></script>
+    <script>
+        // Weight presets
+        function applyPreset(preset) {
+            const presets = {
+                balanced: { defL: 50, defC: 50, defR: 50, mid: 50, attL: 50, attC: 50, attR: 50 },
+                midfield: { defL: 20, defC: 30, defR: 20, mid: 100, attL: 20, attC: 30, attR: 20 },
+                attack: { defL: 20, defC: 30, defR: 20, mid: 50, attL: 70, attC: 100, attR: 70 },
+                wings: { defL: 50, defC: 20, defR: 50, mid: 50, attL: 100, attC: 30, attR: 100 }
+            };
+
+            const p = presets[preset];
+            if (!p) return;
+
+            document.getElementById('weight_def_left').value = p.defL;
+            document.getElementById('weight_def_center').value = p.defC;
+            document.getElementById('weight_def_right').value = p.defR;
+            document.getElementById('weight_mid').value = p.mid;
+            document.getElementById('weight_att_left').value = p.attL;
+            document.getElementById('weight_att_center').value = p.attC;
+            document.getElementById('weight_att_right').value = p.attR;
+        }
+
+        // Get form values
+        function getFormValues() {
+            const defaultSkill = parseFloat(document.getElementById('starting_skills').value) || 5;
+
+            // Calculate age in decimal format
+            const years = parseInt(document.getElementById('starting_age_years').value) || 17;
+            const days = parseInt(document.getElementById('starting_age_days').value) || 0;
+            const startingAge = years + (days / 112);
+
+            return {
+                weights: {
+                    defLeft: parseFloat(document.getElementById('weight_def_left').value) || 0,
+                    defCenter: parseFloat(document.getElementById('weight_def_center').value) || 0,
+                    defRight: parseFloat(document.getElementById('weight_def_right').value) || 0,
+                    mid: parseFloat(document.getElementById('weight_mid').value) || 0,
+                    attLeft: parseFloat(document.getElementById('weight_att_left').value) || 0,
+                    attCenter: parseFloat(document.getElementById('weight_att_center').value) || 0,
+                    attRight: parseFloat(document.getElementById('weight_att_right').value) || 0
+                },
+                startingAge: startingAge,
+                trainingWeeks: parseInt(document.getElementById('training_weeks').value) || 80,
+                startingSkills: {
+                    Keeper: parseFloat(document.getElementById('start_keeper')?.value) || defaultSkill,
+                    Defending: parseFloat(document.getElementById('start_defending')?.value) || defaultSkill,
+                    Playmaking: parseFloat(document.getElementById('start_playmaking')?.value) || defaultSkill,
+                    Winger: parseFloat(document.getElementById('start_winger')?.value) || defaultSkill,
+                    Passing: parseFloat(document.getElementById('start_passing')?.value) || defaultSkill,
+                    Scoring: parseFloat(document.getElementById('start_scoring')?.value) || defaultSkill,
+                    SetPieces: parseFloat(document.getElementById('start_setpieces')?.value) || defaultSkill
+                },
+                params: {
+                    coachLevel: parseInt(document.getElementById('coach_level').value),
+                    assistantSum: parseInt(document.getElementById('assistant_sum').value),
+                    intensity: parseInt(document.getElementById('intensity').value),
+                    staminaShare: parseInt(document.getElementById('stamina_share').value),
+                    playingTime: 1.0,
+                    trainSpForGk: document.getElementById('train_sp_gk').checked,
+                    targetSpLevel: parseFloat(document.getElementById('target_sp_level').value) || 20,
+
+                    trainSpForCd: document.getElementById('train_sp_cd').checked,
+                    targetSpCdLevel: parseFloat(document.getElementById('target_sp_cd_level').value) || 20,
+
+                    trainSpForWb: document.getElementById('train_sp_wb').checked,
+                    targetSpWbLevel: parseFloat(document.getElementById('target_sp_wb_level').value) || 20,
+
+                    trainPassForDef: document.getElementById('train_pass_def').checked,
+                    targetPassLevel: parseFloat(document.getElementById('target_pass_level').value) || 15,
+
+                    trainSpForMidFwd: document.getElementById('train_sp_midfwd').checked,
+                    targetMidFwdSpLevel: parseFloat(document.getElementById('target_sp_midfwd_level').value) || 15,
+
+                    trainScoreForDef: document.getElementById('train_score_def').checked,
+                    targetScoreDefLevel: parseFloat(document.getElementById('target_score_def_level').value) || 15,
+                    trainScoreForMid: document.getElementById('train_score_mid').checked,
+                    targetScoreMidLevel: parseFloat(document.getElementById('target_score_mid_level').value) || 15,
+                    allowTDF: document.getElementById('train_allow_tdf').checked
+                }
+            };
+        }
+
+        // Run optimization
+        function runOptimization() {
+            const form = getFormValues();
+
+            // Run optimization for all positions
+            const results = TrainingData.optimizeAllPositions(
+                form.startingSkills,
+                form.startingAge,
+                form.trainingWeeks,
+                form.weights,
+                form.params
+            );
+
+            displayResults(results, form);
+        }
+
+        // Display results
+        function displayResults(results, form) {
+            const section = document.getElementById('results_section');
+            const grid = document.getElementById('results_grid');
+
+            // Update summary stats
+            document.getElementById('stat_positions').textContent = results.length;
+            document.getElementById('stat_weeks').textContent = form.trainingWeeks;
+            document.getElementById('stat_best_pos').textContent = results[0]?.positionName?.split(' ')[0] || '-';
+            document.getElementById('stat_best_score').textContent = results[0]?.finalScore?.toFixed(2) || '-';
+
+            // Build results cards
+            grid.innerHTML = results.map((result, index) => {
+                const rankColors = ['text-yellow-400', 'text-gray-300', 'text-amber-600'];
+                const rankColor = rankColors[index] || 'text-gray-500';
+                const isTop3 = index < 3;
+
+                return `
+                    <div class="bg-gray-800 rounded-lg border ${isTop3 ? 'border-indigo-500' : 'border-gray-700'} overflow-hidden">
+                        <div class="bg-gray-700/50 px-4 py-3 flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl font-bold ${rankColor}">#${index + 1}</span>
+                                <div>
+                                    <h3 class="font-semibold text-white">${result.positionName}</h3>
+                                    <div class="text-xs text-gray-400">${result.position}</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xl font-bold text-green-400">${result.finalScore.toFixed(2)}</div>
+                                <div class="text-xs text-gray-400">Skill Score</div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 space-y-4">
+                            <!-- Training Summary -->
+                            <div>
+                                <div class="text-xs text-gray-400 mb-2">Training Distribution</div>
+                                <div class="flex flex-wrap gap-1">
+                                    ${Object.entries(result.trainingSummary).map(([type, weeks]) => `
+                                        <span class="px-2 py-1 text-xs rounded ${getTrainingColor(type)}">
+                                            ${type}: ${weeks}w
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            
+                            <!-- Final Skills -->
+                            <div>
+                                <div class="text-xs text-gray-400 mb-2">Final Skill Levels</div>
+                                <div class="space-y-1">
+                                    ${Object.entries(result.finalSkills)
+                        .filter(([skill, val]) => val > form.startingSkills[skill] + 0.1)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 4)
+                        .map(([skill, val]) => {
+                            const start = form.startingSkills[skill];
+                            const gain = val - start;
+                            const pct = Math.min(100, (val / 20) * 100);
+                            return `
+                                                <div class="flex items-center gap-2 text-xs">
+                                                    <span class="w-20 text-gray-400">${skill}</span>
+                                                    <div class="flex-1 bg-gray-700 rounded h-2">
+                                                        <div class="skill-bar h-full bg-indigo-500 rounded" style="width: ${pct}%"></div>
+                                                    </div>
+                                                    <span class="w-16 text-right">${val.toFixed(1)} <span class="text-green-400">(+${gain.toFixed(1)})</span></span>
+                                                </div>
+                                            `;
+                        }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            section.classList.remove('hidden');
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Get training type color
+        function getTrainingColor(type) {
+            const colors = {
+                GK: 'bg-purple-600',
+                Def: 'bg-blue-600',
+                PM: 'bg-green-600',
+                Wing: 'bg-yellow-600',
+                Pass: 'bg-cyan-600',
+                Score: 'bg-red-600',
+                SP: 'bg-pink-600'
+            };
+            return colors[type] || 'bg-gray-600';
+        }
+
+        // Sync default skills to individual inputs
+        document.getElementById('starting_skills').addEventListener('change', function () {
+            const val = this.value;
+            ['keeper', 'defending', 'playmaking', 'winger', 'passing', 'scoring', 'setpieces'].forEach(skill => {
+                const el = document.getElementById('start_' + skill);
+                if (el) el.value = val;
+            });
+        });
+
+        // Toggle SP target input
+        document.getElementById('train_sp_gk').addEventListener('change', function () {
+            const container = document.getElementById('sp_target_container');
+            if (this.checked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        });
+
+        // Toggle Def Pass target input
+        document.getElementById('train_pass_def').addEventListener('change', function () {
+            const container = document.getElementById('pass_target_container');
+            if (this.checked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        });
+
+        // Toggle Mid/Fwd SP target input
+        document.getElementById('train_sp_midfwd').addEventListener('change', function () {
+            const container = document.getElementById('sp_midfwd_target_container');
+            if (this.checked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        });
+
+        // Toggle CD SP target input
+        document.getElementById('train_sp_cd').addEventListener('change', function () {
+            const container = document.getElementById('sp_cd_target_container');
+            if (this.checked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        });
+
+        // Toggle WB SP target input
+        document.getElementById('train_sp_wb').addEventListener('change', function () {
+            const container = document.getElementById('sp_wb_target_container');
+            if (this.checked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        });
+
+        // Toggle Score Def target input
+        document.getElementById('train_score_def').addEventListener('change', function () {
+            const container = document.getElementById('score_def_target_container');
+            if (this.checked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        });
+
+        // Toggle Score Mid target input
+        document.getElementById('train_score_mid').addEventListener('change', function () {
+            const container = document.getElementById('score_mid_target_container');
+            if (this.checked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        });
+        // Generate Input String
+        function updateInputString() {
+            const form = getFormValues();
+
+            // 1. Weights (7 values)
+            const weights = [
+                form.weights.defLeft, form.weights.defCenter, form.weights.defRight,
+                form.weights.mid,
+                form.weights.attLeft, form.weights.attCenter, form.weights.attRight
+            ];
+
+            // 2. Training Options (7 values)
+            // Order: GK SP, CD SP, WB SP, Mid/Fwd SP, Def Pass, Def Score, Mid Score
+            const trainOpts = [
+                form.params.trainSpForGk ? form.params.targetSpLevel : 0,
+                form.params.trainSpForCd ? form.params.targetSpCdLevel : 0,
+                form.params.trainSpForWb ? form.params.targetSpWbLevel : 0,
+                form.params.trainSpForMidFwd ? form.params.targetMidFwdSpLevel : 0,
+                form.params.trainPassForDef ? form.params.targetPassLevel : 0,
+                form.params.trainScoreForDef ? form.params.targetScoreDefLevel : 0,
+                form.params.trainScoreForMid ? form.params.targetScoreMidLevel : 0
+            ];
+
+            // 3. Tactic & Other Settings (Defaults for now as they aren't fully in UI inputs except Coach)
+            const tactic = "Normal";
+            const tacLvl = 20;
+
+            // Map coach level/type if UI had it (UI has Coach Level (4-8) and Assistant Sum)
+            // But the Input String expects "Coach Type" (Def/Neu/Att).
+            // Currently UI doesn't have Coach Type selector, defaulting to Neutral.
+            const coachType = "Neutral";
+
+            // Formation (Default)
+            const formation = "352";
+
+            // PNF Flag?
+            // The logic for PNF is separate, but we should include it if needed.
+            // Currently UI doesn't have a PNF checkbox EXCEPT implicit logic?
+            // No, user requested PNF option previously. Let's assume standard for now.
+            // Wait, previous session implemented PNF checkbox in Simulator, but strictly speaking
+            // the Training Planner doesn't have a specific PNF checkbox to toggle "Force PNF".
+            // However, we can add it if requested. For now, empty or standard.
+
+            const parts = [
+                ...weights,
+                ...trainOpts,
+                tactic,
+                tacLvl,
+                coachType,
+                formation
+            ];
+
+            // Join with semicolons
+            const str = parts.join(';');
+
+            document.getElementById('simulator_input_string').value = str;
+        }
+
+        function copyInputString() {
+            const el = document.getElementById('simulator_input_string');
+            el.select();
+            document.execCommand('copy');
+
+            // Visual feedback
+            const originalText = el.value;
+            // el.value = "Copied!";
+            // setTimeout(() => el.value = originalText, 1000);
+        }
+
+        // Generate string on load
+        // window.onload = updateInputString;
+    </script>
+</body>
+
+</html>

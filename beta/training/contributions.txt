@@ -1,0 +1,149 @@
+# HATTRICK PASSING MATRIX (FINAL)
+# Coefficients applied to Player's Passing Skill
+# Format: [Left Weight, Center Weight, Right Weight]
+# Note: For side players, "Own" = Left/Right, "Other" = 0.
+
+PASSING_MATRIX = {
+    # --- FORWARDS (Universal Boosters) ---
+    "FW_Defensive":    [0.191, 0.283, 0.191], # The King of Passing
+    "FW_Normal":       [0.089, 0.191, 0.089],
+    "FW_TW_Left":      [0.125, 0.125, 0.050],
+    "FW_TW_Right":     [0.050, 0.125, 0.125],
+
+    # --- INNER MIDFIELDERS (Center Slot - Split Support) ---
+    "IM_Middle_Offensive": [0.125, 0.253, 0.125],
+    "IM_Middle_Normal":    [0.089, 0.159, 0.089],
+    "IM_Middle_Defensive": [0.050, 0.089, 0.050],
+
+    # --- INNER MIDFIELDERS (Side Slot - Focused Support) ---
+    "IM_Left_Offensive":   [0.250, 0.253, 0.000],
+    "IM_Left_Normal":      [0.178, 0.159, 0.000],
+    "IM_Left_TW":          [0.191, 0.125, 0.000],
+    "IM_Left_Defensive":   [0.100, 0.089, 0.000],
+
+    "IM_Right_Offensive":  [0.000, 0.253, 0.250],
+    "IM_Right_Normal":     [0.000, 0.159, 0.178],
+    "IM_Right_TW":         [0.000, 0.125, 0.191],
+    "IM_Right_Defensive":  [0.000, 0.089, 0.100],
+
+    # --- WINGERS (Side Specialists) ---
+    "Winger_Left_Offensive": [0.191, 0.089, 0.000],
+    "Winger_Left_Normal":    [0.159, 0.089, 0.000],
+    "Winger_Left_TM":        [0.125, 0.089, 0.000],
+    "Winger_Left_Defensive": [0.125, 0.050, 0.000],
+
+    "Winger_Right_Offensive": [0.000, 0.089, 0.191],
+    "Winger_Right_Normal":    [0.000, 0.089, 0.159],
+    "Winger_Right_TM":        [0.000, 0.089, 0.125],
+    "Winger_Right_Defensive": [0.000, 0.050, 0.125],
+    
+    # --- DEFENDERS ---
+    "All_Defenders": [0.000, 0.000, 0.000]
+}
+
+# HATTRICK MIDFIELD MATRIX (Verified)
+# Coefficients applied to Player's Playmaking Skill
+# Output: Contribution to Midfield Sector
+
+MIDFIELD_MATRIX = {
+    # --- INNER MIDFIELDERS (The Kings) ---
+    "IM_Normal":    0.312,  # Tier 1 (100%)
+    "IM_Offensive": 0.283,  # Tier 2 (~91%)
+    "IM_Defensive": 0.283,  # Tier 2 (~91%)
+    "IM_TW":        0.283,  # Tier 2 (~91%)
+
+    # --- WINGERS (The Support) ---
+    "Winger_TM":        0.191,  # Tier 3 (~61%)
+    "Winger_Normal":    0.159,  # Tier 4 (~51%)
+    "Winger_Offensive": 0.089,  # Tier 6 (~29%)
+    "Winger_Defensive": 0.089,  # Tier 6 (~29%)
+
+    # --- CENTRAL DEFENDERS ---
+    "CD_Offensive": 0.125,  # Tier 5 (~40%)
+    "CD_Normal":    0.089,  # Tier 6 (~29%)
+    "CD_TW":        0.050,  # Tier 7 (~16%)
+
+    # --- WINGBACKS ---
+    "WB_Offensive": 0.089,  # Tier 6 (~29%)
+    "WB_TM":        0.089,  # Tier 6 (~29%)
+    "WB_Normal":    0.050,  # Tier 7 (~16%)
+    "WB_Defensive": 0.050,  # Tier 7 (~16%)
+
+    # --- FORWARDS ---
+    "FW_Defensive": 0.125,  # Tier 5 (~40%)
+    "FW_Normal":    0.089,  # Tier 6 (~29%)
+    "FW_TW":        0.050,  # Tier 7 (~16%)
+}
+
+DEFENSE_MATRIX_CORRECTED = {
+    # --- GOALKEEPER ---
+    "GK_GK_Skill":      [0.504, 0.424, 0.504],
+    "GK_Def_Skill":     [0.223, 0.191, 0.223],
+
+    # --- CENTRAL DEFENDERS (Adjusted) ---
+    # Normal: Middle sum (0.446) > Side val (0.424). Side upgraded.
+    "CD_Middle_Normal":    [0.223, 0.504, 0.223],
+    "CD_Side_Normal":      [0.446, 0.504, 0.000],  # Up from 0.424
+
+    # Offensive: Side val (0.341) > Middle sum (0.326). Middle upgraded.
+    "CD_Middle_Offensive": [0.171, 0.369, 0.171],  # Up from 0.163
+    "CD_Side_Offensive":   [0.341, 0.369, 0.000],
+
+    # Towards Wing (No middle equivalent, kept as is)
+    "CD_Side_TW":          [0.657, 0.341, 0.000],
+
+
+    # --- INNER MIDFIELDERS (Adjusted) ---
+    # Normal: Middle sum (0.178) > Side val (0.159). Side upgraded.
+    "IM_Middle_Normal":    [0.089, 0.223, 0.089],
+    "IM_Side_Normal":      [0.178, 0.223, 0.000],  # Up from 0.159
+
+    # Defensive: Middle sum (0.250) > Side val (0.223). Side upgraded.
+    "IM_Middle_Defensive": [0.125, 0.283, 0.125],
+    "IM_Side_Defensive":   [0.250, 0.283, 0.000],  # Up from 0.223
+
+    # Offensive: Middle sum (0.100) > Side val (0.089). Side upgraded.
+    "IM_Middle_Offensive": [0.050, 0.089, 0.050],
+    "IM_Side_Offensive":   [0.100, 0.089, 0.000],  # Up from 0.089
+
+    # Towards Wing (Already consistent)
+    "IM_Side_TW":          [0.191, 0.191, 0.000],
+
+
+    # --- WINGBACKS (Unchanged) ---
+    "WB_Side_Normal":      [0.731, 0.191, 0.000],
+    "WB_Side_Offensive":   [0.607, 0.191, 0.000],
+    "WB_Side_Defensive":   [0.803, 0.223, 0.000],
+    "WB_Side_TM":          [0.607, 0.341, 0.000],
+
+    # --- WINGERS (Unchanged) ---
+    "Winger_Side_Normal":    [0.283, 0.125, 0.000],
+    "Winger_Side_Offensive": [0.191, 0.089, 0.000],
+    "Winger_Side_Defensive": [0.504, 0.125, 0.000],
+    "Winger_Side_TM":        [0.253, 0.125, 0.000],
+}
+
+Position,Order,Central Attack,Side Attack (Left),Side Attack (Right)
+Forward,Normal,0.504,0.191,0.191
+Forward,Towards Wing (Left),0.340,0.312,0.125
+Forward,Towards Wing (Right),0.340,0.125,0.312
+Forward,Defensive,0.283,0.089,0.089
+,,,,
+Inner Mid,Offensive,0.159,0.000,0.000
+Inner Mid,Normal,0.125,0.000,0.000
+Inner Mid,Defensive,0.089,0.000,0.000
+
+Position,Order,Weight,% of Normal Winger
+Winger,Offensive,0.607,120%
+Winger,Normal,0.504,100%
+Winger,Towards Mid,0.451,89%
+Winger,Defensive,0.424,84%
+Wingback,Offensive,0.424,84%
+Forward,Towards Wing,0.396,79%
+Wingback,Normal,0.369,73%
+Inner Mid,Towards Wing,0.369,73%
+Wingback,Defensive,0.269,53%
+Wingback,Towards Mid,0.222,44%
+Central Def,Towards Wing,0.158,31%
+Forward,Normal,0.158,31% (Applied to Both Sides)
+Forward,Defensive,0.089,18% (Applied to Both Sides)

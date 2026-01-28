@@ -1,0 +1,157 @@
+Future Improvements for Training Planner
+=========================================
+Last Updated: 2026-01-25
+
+////////////////////////
+Creative idea:
+HT HG league mode
+////////////////////////
+
+High Priority:
+--------------
+1. Formation Support [IMPLEMENTED]
+   - Currently uses fixed 3-5-2 formation in team_generator.js.
+   - Add formation selector (4-4-2, 5-3-2, 4-5-1, 3-4-3, etc.).
+   - Requires updating lineup construction logic for each formation.
+
+2. Position Variants [IMPLEMENTED]
+   - Support position orders (Defensive, Offensive, Towards Middle, Towards Wing).
+   - Currently all positions use "Normal" variant.
+   - Affects both contributions and rating calculations.
+
+3. Special Events (SE) System [IMPLEMENTED]
+   - Implement SE generation based on player skills.
+   - Weather SEs (rain, sun), player specialty SEs (Technical, Powerful, etc.).
+   - Display SE probabilities in the UI.
+
+4. Set Pieces & ISP Ratings [Implemented]
+   - Calculate team Indirect Set Pieces (ISP) rating.
+   - Allow designating a SP taker for indirect free kicks.
+   - Factor SP into simulation outcomes.
+
+5. Home/Away Battle Mode [IMPLEMENTED]
+   - Add toggle between Neutral Battle (current) and Home/Away Battle.
+   - Home/Away mode: Half of simulated matches played with home advantage for Team A,
+     other half played with home advantage for Team B.
+   - Provides more realistic simulation of league-style play.
+
+6. Wingback SP taker tickbox
+   - Add tickbox for wingbacks to be SP takers.
+
+Medium Priority:
+----------------
+6. Per-Team Spirit, Confidence, Stamina
+   - Currently these are global settings applied to all teams.
+   - Nice to have: Allow per-profile Team Spirit, Confidence, and Stamina.
+
+Low Priority / Nice to Have:
+---------------------------
+7. More Realistic Player Generation
+   - Different starting ages and skills.
+   - Non-uniform skill distributions.
+
+8. Export/Import Configurations
+   - Save and load weight configurations as JSON.
+
+9. Match Report Generation
+    - Detailed simulation logs showing events, chances, goals.
+
+10. CSV Export for Results
+    - Export tournament results and ratings to CSV.
+
+11. UI Dark/Light Theme Toggle
+    - Currently only dark theme.
+
+12. Mobile Responsive Design
+    - Improve UI for smaller screens.
+
+Performance Optimizations (No Loss of Specificity):
+===================================================
+Ordered by estimated impact (highest first).
+
+1. Pre-compute Sim Teams Once [ALREADY IMPLEMENTED]
+   - meta_simulator.js line 114 calls precomputeRatings() once per team.
+   - Precomputed simTeam (with cubic powers) is reused for all matches.
+   - Impact: Already achieved ~30-40% speedup.
+
+2. Cache Team Generation by Profile Hash [IMPLEMENTED]
+   - teamCache Map with hashProfile() in meta_simulator.js.
+   - Neutral overhead for unique profiles, ~20%+ savings for duplicates.
+
+3. Typed Arrays for Stamina Tables [IMPLEMENTED]
+   - STAMINA_FLAT_NORMAL and STAMINA_FLAT_PRESSING Float32Arrays.
+   - getStaminaMultiplier() uses indexed lookup, no parseFloat().
+   - Impact: ~10-15% speedup in stamina calculations.
+
+4. Pre-compute Object.keys() in Hot Paths [IMPLEMENTED]
+   - _lineup_keys and _lineup_sums cached in precomputeRatings().
+   - _countPlayers() uses cached values with fallback.
+   - Impact: ~5-10% speedup in SE calculation.
+
+5. Batch Random Number Generation [NOT RECOMMENDED]
+   - Modern V8/SpiderMonkey have highly optimized Math.random().
+   - Array overhead often makes this slower, not faster.
+   - Remove from consideration.
+
+6. Inline Simple Math Functions [IMPLEMENTED]
+   - Inlined applySectorPhysics and roundHattrick in rating functions.
+   - Removes function call overhead in lineup_engine.js.
+   - Impact: ~2-5% speedup in rating calculations.
+
+7. Web Workers for Parallel Simulation
+   - Move match simulation to background thread.
+   - Prevents UI freezing, enables multi-core utilization.
+   - Impact: UI responsiveness + potential parallelism.
+
+Technical Improvements:
+=======================
+
+High Priority:
+--------------
+1. Deduplicate CONTRIBUTION_MATRICES
+   - Exists in both training_data.js and lineup_engine.js.
+   - Extract to shared contribution_data.js.
+
+2. Add Error Handling for Invalid Inputs
+   - Input parser should return meaningful error messages.
+   - UI should display errors to user instead of failing silently.
+
+3. Extract Shared Coefficients
+   - Coach multipliers, overcrowding, team spirit coefficients.
+   - Create shared coefficients.js used by lineup_engine.js and training_data.js.
+
+Medium Priority:
+----------------
+4. Split simulator_lib.js (1000+ lines)
+   - stamina.js (stamina tables and calculations)
+   - tactics.js (tactic rates and modifiers)
+   - special_events.js (SE logic and probabilities)
+   - match_engine.js (core simulation functions)
+
+5. Standardize Module Pattern
+   - Some files use IIFE with scope/window, others use const exports.
+   - Pick one pattern and apply consistently.
+
+6. Add Web Workers for Simulations
+   - Long-running tournaments freeze the UI.
+   - Move simulation loop to Web Worker.
+
+Low Priority:
+-------------
+7. Write Unit Tests
+   - lineup_engine.js rating calculations.
+   - training_data.js optimization logic.
+   - input_parser.js parsing edge cases.
+
+8. Add JSDoc Comments
+   - simulator_lib.js public functions.
+   - lineup_engine.js public API.
+
+9. Extract Common UI Components
+   - Results table rendering.
+   - Loading state/progress bar.
+   - Shared styles.css.
+
+10. Configuration Management
+    - Extract global settings to config.js.
+    - Add versioning for saved configurations.

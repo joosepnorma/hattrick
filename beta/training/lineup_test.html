@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lineup Engine Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../config.js"></script>
+    <script src="../auth_guard.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e4e4e4;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .top-section {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .panel h2 {
+            font-size: 1rem;
+            color: #4facfe;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+
+        /* Settings Panel */
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .setting-row label {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .setting-row select,
+        .setting-row input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
+
+        .setting-row select {
+            min-width: 150px;
+        }
+
+        /* Ratings Display */
+        .ratings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .rating-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .rating-card.midfield {
+            grid-column: span 3;
+        }
+
+        .rating-label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .rating-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .rating-name {
+            font-size: 0.8rem;
+            color: #4facfe;
+            margin-top: 3px;
+        }
+
+        .rating-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .rating-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Sector Labels */
+        .sector-header {
+            grid-column: span 3;
+            font-size: 0.85rem;
+            color: #666;
+            text-align: center;
+            margin: 5px 0;
+        }
+
+        /* Players Section */
+        .players-section {
+            margin-top: 20px;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .player-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .player-number {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            color: #000;
+        }
+
+        .player-card select {
+            flex: 1;
+            margin-left: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            color: #fff;
+            padding: 5px 8px;
+            font-size: 0.8rem;
+        }
+
+        .skill-row {
+            display: flex;
+            align-items: center;
+            margin: 6px 0;
+            gap: 8px;
+        }
+
+        .skill-label {
+            font-size: 0.7rem;
+            color: #888;
+            width: 55px;
+            text-transform: uppercase;
+        }
+
+        .skill-slider {
+            flex: 1;
+            accent-color: #4facfe;
+        }
+
+        .skill-value {
+            width: 28px;
+            font-size: 0.8rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            padding: 2px;
+        }
+
+        /* Color coding for ratings */
+        .rating-low {
+            color: #ff6b6b;
+        }
+
+        .rating-low .rating-bar-fill {
+            background: linear-gradient(90deg, #ff6b6b, #ee5a5a);
+        }
+
+        .rating-mid {
+            color: #ffd93d;
+        }
+
+        .rating-mid .rating-bar-fill {
+            background: linear-gradient(90deg, #ffd93d, #ffcd00);
+        }
+
+        .rating-high {
+            color: #6bcb77;
+        }
+
+        .rating-high .rating-bar-fill {
+            background: linear-gradient(90deg, #6bcb77, #4ade80);
+        }
+
+        .rating-excellent {
+            color: #4facfe;
+        }
+
+        .rating-excellent .rating-bar-fill {
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+        }
+
+        @media (max-width: 900px) {
+            .top-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>⚽ Lineup Engine Test</h1>
+
+        <div class="grid top-section">
+            <!-- Settings Panel -->
+            <div class="panel">
+                <h2>Match Settings</h2>
+                <div class="setting-row">
+                    <label>Formation</label>
+                    <select id="formation">
+                        <option value="253">2-5-3</option>
+                        <option value="343">3-4-3</option>
+                        <option value="352">3-5-2</option>
+                        <option value="433">4-3-3</option>
+                        <option value="442" selected>4-4-2</option>
+                        <option value="451">4-5-1</option>
+                        <option value="532">5-3-2</option>
+                        <option value="541">5-4-1</option>
+                        <option value="550">5-5-0</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <label>Coach Type</label>
+                    <select id="coachType">
+                        <option value="Neutral">Neutral</option>
+                        <option value="Defensive">Defensive</option>
+                        <option value="Offensive">Offensive</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <label>Home/Away</label>
+                    <select id="homeAway">
+                        <option value="home">Home (+20% Mid)</option>
+                        <option value="away">Away</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <label>Confidence</label>
+                    <select id="confidence">
+                        <option value="0">Non-existent</option>
+                        <option value="1">Disastrous</option>
+                        <option value="2">Wretched</option>
+                        <option value="3">Poor</option>
+                        <option value="4" selected>Decent</option>
+                        <option value="5">Strong</option>
+                        <option value="6">Wonderful</option>
+                        <option value="7">Slightly Exaggerated</option>
+                        <option value="8">Exaggerated</option>
+                        <option value="9">Completely Exaggerated</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <label>Tactic</label>
+                    <select id="tactic">
+                        <option value="Normal">Normal</option>
+                        <option value="AOW">Attack on Wings</option>
+                        <option value="AIM">Attack in Middle</option>
+                        <option value="CA">Counter Attack</option>
+                        <option value="LS">Long Shots</option>
+                        <option value="PC">Play Creatively</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Ratings Display -->
+            <div class="panel">
+                <h2>Team Ratings</h2>
+                <div class="ratings-grid">
+                    <div class="sector-header">🛡️ DEFENSE</div>
+                    <div class="rating-card" id="defRight">
+                        <div class="rating-label">Right</div>
+                        <div class="rating-value">-</div>
+                        <div class="rating-name">-</div>
+                        <div class="rating-bar">
+                            <div class="rating-bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="rating-card" id="defCenter">
+                        <div class="rating-label">Center</div>
+                        <div class="rating-value">-</div>
+                        <div class="rating-name">-</div>
+                        <div class="rating-bar">
+                            <div class="rating-bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="rating-card" id="defLeft">
+                        <div class="rating-label">Left</div>
+                        <div class="rating-value">-</div>
+                        <div class="rating-name">-</div>
+                        <div class="rating-bar">
+                            <div class="rating-bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="sector-header">⚙️ MIDFIELD</div>
+                    <div class="rating-card midfield" id="midfield">
+                        <div class="rating-label">Midfield</div>
+                        <div class="rating-value">-</div>
+                        <div class="rating-name">-</div>
+                        <div class="rating-bar">
+                            <div class="rating-bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="sector-header">⚔️ ATTACK</div>
+                    <div class="rating-card" id="attRight">
+                        <div class="rating-label">Right</div>
+                        <div class="rating-value">-</div>
+                        <div class="rating-name">-</div>
+                        <div class="rating-bar">
+                            <div class="rating-bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="rating-card" id="attCenter">
+                        <div class="rating-label">Center</div>
+                        <div class="rating-value">-</div>
+                        <div class="rating-name">-</div>
+                        <div class="rating-bar">
+                            <div class="rating-bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="rating-card" id="attLeft">
+                        <div class="rating-label">Left</div>
+                        <div class="rating-value">-</div>
+                        <div class="rating-name">-</div>
+                        <div class="rating-bar">
+                            <div class="rating-bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Players Section -->
+        <div class="panel players-section">
+            <h2>Players (11)</h2>
+            <div class="players-grid" id="playersGrid"></div>
+        </div>
+    </div>
+
+    <script src="lineup_engine.js"></script>
+    <script>
+        // Position options
+        const POSITIONS = {
+            GK: ['GK'],
+            DEF: ['WB', 'WB_TM', 'WB_O', 'WB_D', 'CD', 'CD_R', 'CD_L', 'CD_O', 'CD_TW'],
+            MID: ['IM', 'IM_O', 'IM_D', 'IM_TW', 'W', 'W_TM', 'W_O', 'W_D'],
+            ATT: ['FW', 'FW_D', 'FW_TW', 'FW_TD']
+        };
+
+        const POSITION_NAMES = {
+            'GK': 'Goalkeeper',
+            'WB': 'Wingback', 'WB_TM': 'WB (→Mid)', 'WB_O': 'WB (Off)', 'WB_D': 'WB (Def)',
+            'CD': 'Central Def', 'CD_R': 'CD (Right)', 'CD_L': 'CD (Left)', 'CD_O': 'CD (Off)', 'CD_TW': 'CD (→Wing)',
+            'IM': 'Inner Mid', 'IM_O': 'IM (Off)', 'IM_D': 'IM (Def)', 'IM_TW': 'IM (→Wing)',
+            'W': 'Winger', 'W_TM': 'W (→Mid)', 'W_O': 'W (Off)', 'W_D': 'W (Def)',
+            'FW': 'Forward', 'FW_D': 'FW (Def)', 'FW_TW': 'FW (→Wing)', 'FW_TD': 'FW (Tech Def)'
+        };
+
+        const SKILLS = ['Keeper', 'Defending', 'Playmaking', 'Winger', 'Passing', 'Scoring'];
+
+        // Formation templates: [position, side]
+        // Rules: X-Y-Z structure
+        // X (Defense): WB Left + WB Right first, then CDs (Center if odd, then Left+Right)
+        // Y (Midfield): W Left + W Right first, then IMs (Center if odd, then Left+Right)
+        // Z (Attack): FW Left, then FW Right, then FW Middle (lone forwards use Left)
+        const FORMATIONS = {
+            // X=2: WB Left + WB Right
+            '253': [
+                ['GK', 'Middle'],
+                ['WB', 'Left'], ['WB', 'Right'],
+                ['W', 'Left'], ['IM', 'Left'], ['IM', 'Middle'], ['IM', 'Right'], ['W', 'Right'],
+                ['FW', 'Left'], ['FW', 'Right'], ['FW', 'Middle']
+            ],
+            // X=3: WB Left + WB Right + CD Middle
+            '352': [
+                ['GK', 'Middle'],
+                ['WB', 'Left'], ['CD', 'Middle'], ['WB', 'Right'],
+                ['W', 'Left'], ['IM', 'Left'], ['IM', 'Middle'], ['IM', 'Right'], ['W', 'Right'],
+                ['FW', 'Left'], ['FW', 'Right']
+            ],
+            '343': [
+                ['GK', 'Middle'],
+                ['WB', 'Left'], ['CD', 'Middle'], ['WB', 'Right'],
+                ['W', 'Left'], ['IM', 'Left'], ['IM', 'Right'], ['W', 'Right'],
+                ['FW', 'Left'], ['FW', 'Right'], ['FW', 'Middle']
+            ],
+            // X=4: WB Left + WB Right + CD Left + CD Right
+            '442': [
+                ['GK', 'Middle'],
+                ['WB', 'Left'], ['CD', 'Left'], ['CD', 'Right'], ['WB', 'Right'],
+                ['W', 'Left'], ['IM', 'Left'], ['IM', 'Right'], ['W', 'Right'],
+                ['FW', 'Left'], ['FW', 'Right']
+            ],
+            '433': [
+                ['GK', 'Middle'],
+                ['WB', 'Left'], ['CD', 'Left'], ['CD', 'Right'], ['WB', 'Right'],
+                ['W', 'Left'], ['IM', 'Middle'], ['W', 'Right'],
+                ['FW', 'Left'], ['FW', 'Right'], ['FW', 'Middle']
+            ],
+            '451': [
+                ['GK', 'Middle'],
+                ['WB', 'Left'], ['CD', 'Left'], ['CD', 'Right'], ['WB', 'Right'],
+                ['W', 'Left'], ['IM', 'Left'], ['IM', 'Middle'], ['IM', 'Right'], ['W', 'Right'],
+                ['FW', 'Left']
+            ],
+            // X=5: WB Left + WB Right + CD Left + CD Middle + CD Right
+            '550': [
+                ['GK', 'Middle'],
+                ['WB', 'Left'], ['CD', 'Left'], ['CD', 'Middle'], ['CD', 'Right'], ['WB', 'Right'],
+                ['W', 'Left'], ['IM', 'Left'], ['IM', 'Middle'], ['IM', 'Right'], ['W', 'Right']
+            ],
+            '532': [
+                ['GK', 'Middle'],
+                ['WB', 'Left'], ['CD', 'Left'], ['CD', 'Middle'], ['CD', 'Right'], ['WB', 'Right'],
+                ['IM', 'Left'], ['IM', 'Middle'], ['IM', 'Right'],
+                ['FW', 'Left'], ['FW', 'Right']
+            ],
+            '541': [
+                ['GK', 'Middle'],
+                ['WB', 'Left'], ['CD', 'Left'], ['CD', 'Middle'], ['CD', 'Right'], ['WB', 'Right'],
+                ['W', 'Left'], ['IM', 'Left'], ['IM', 'Right'], ['W', 'Right'],
+                ['FW', 'Left']
+            ]
+        };
+
+        // Player data
+        let players = [];
+
+        // Initialize
+        function init() {
+            loadFormation('442');
+            renderPlayers();
+            bindEvents();
+            calculateRatings();
+        }
+
+        function loadFormation(formationId) {
+            const template = FORMATIONS[formationId];
+            players = template.map((p, i) => ({
+                id: i,
+                positionCode: p[0],
+                side: p[1],
+                skills: {
+                    Keeper: p[0] === 'GK' ? 10 : 1,
+                    Defending: ['WB', 'CD'].some(x => p[0].startsWith(x)) ? 10 : 3,
+                    Playmaking: p[0].startsWith('IM') ? 10 : 3,
+                    Winger: p[0].startsWith('W') ? 10 : 3,
+                    Passing: 5,
+                    Scoring: p[0].startsWith('FW') ? 10 : 3
+                }
+            }));
+        }
+
+        function renderPlayers() {
+            const grid = document.getElementById('playersGrid');
+            grid.innerHTML = players.map((p, i) => `
+                <div class="player-card" data-index="${i}">
+                    <div class="player-header">
+                        <div class="player-number">${i + 1}</div>
+                        <select class="pos-select" data-index="${i}">
+                            ${getAllPositions().map(pos =>
+                `<option value="${pos}" ${pos === p.positionCode ? 'selected' : ''}>${POSITION_NAMES[pos] || pos}</option>`
+            ).join('')}
+                        </select>
+                    </div>
+                    <select class="side-select" data-index="${i}" style="width: 100%; margin-bottom: 8px;">
+                        <option value="Right" ${p.side === 'Right' ? 'selected' : ''}>Right</option>
+                        <option value="Middle" ${p.side === 'Middle' ? 'selected' : ''}>Middle</option>
+                        <option value="Left" ${p.side === 'Left' ? 'selected' : ''}>Left</option>
+                    </select>
+                    ${SKILLS.map(skill => `
+                        <div class="skill-row">
+                            <span class="skill-label">${skill.slice(0, 4)}</span>
+                            <input type="range" class="skill-slider" min="1" max="20" value="${p.skills[skill]}" 
+                                   data-index="${i}" data-skill="${skill}">
+                            <span class="skill-value">${p.skills[skill]}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        function getAllPositions() {
+            return [...POSITIONS.GK, ...POSITIONS.DEF, ...POSITIONS.MID, ...POSITIONS.ATT];
+        }
+
+        function bindEvents() {
+            // Settings
+            document.getElementById('formation').addEventListener('change', e => {
+                loadFormation(e.target.value);
+                renderPlayers();
+                bindPlayerEvents();
+                calculateRatings();
+            });
+
+            ['coachType', 'homeAway', 'confidence', 'tactic'].forEach(id => {
+                document.getElementById(id).addEventListener('change', calculateRatings);
+            });
+
+            bindPlayerEvents();
+        }
+
+        function bindPlayerEvents() {
+            // Position select
+            document.querySelectorAll('.pos-select').forEach(el => {
+                el.addEventListener('change', e => {
+                    const idx = parseInt(e.target.dataset.index);
+                    players[idx].positionCode = e.target.value;
+                    calculateRatings();
+                });
+            });
+
+            // Side select
+            document.querySelectorAll('.side-select').forEach(el => {
+                el.addEventListener('change', e => {
+                    const idx = parseInt(e.target.dataset.index);
+                    players[idx].side = e.target.value;
+                    calculateRatings();
+                });
+            });
+
+            // Skill sliders
+            document.querySelectorAll('.skill-slider').forEach(el => {
+                el.addEventListener('input', e => {
+                    const idx = parseInt(e.target.dataset.index);
+                    const skill = e.target.dataset.skill;
+                    const val = parseInt(e.target.value);
+                    players[idx].skills[skill] = val;
+                    e.target.nextElementSibling.textContent = val;
+                    calculateRatings();
+                });
+            });
+        }
+
+        function calculateRatings() {
+            const settings = {
+                coachType: document.getElementById('coachType').value,
+                isHome: document.getElementById('homeAway').value === 'home',
+                confidenceLevel: parseInt(document.getElementById('confidence').value),
+                tactic: document.getElementById('tactic').value,
+                teamSpiritMultiplier: 1.0
+            };
+
+            const ratings = LineupEngine.calculateAllSectorRatings(players, settings);
+
+            updateRatingCard('defRight', ratings.defense.right, ratings.display.defense.right);
+            updateRatingCard('defCenter', ratings.defense.center, ratings.display.defense.center);
+            updateRatingCard('defLeft', ratings.defense.left, ratings.display.defense.left);
+            updateRatingCard('midfield', ratings.midfield, ratings.display.midfield);
+            updateRatingCard('attRight', ratings.attack.right, ratings.display.attack.right);
+            updateRatingCard('attCenter', ratings.attack.center, ratings.display.attack.center);
+            updateRatingCard('attLeft', ratings.attack.left, ratings.display.attack.left);
+        }
+
+        function updateRatingCard(id, value, name) {
+            const card = document.getElementById(id);
+            const percent = Math.min(100, (value / 20) * 100);
+
+            // Determine color class
+            let colorClass = 'rating-low';
+            if (value >= 10) colorClass = 'rating-excellent';
+            else if (value >= 7) colorClass = 'rating-high';
+            else if (value >= 4) colorClass = 'rating-mid';
+
+            card.className = `rating-card ${id === 'midfield' ? 'midfield ' : ''}${colorClass}`;
+            card.querySelector('.rating-value').textContent = value.toFixed(2);
+            card.querySelector('.rating-name').textContent = name;
+            card.querySelector('.rating-bar-fill').style.width = `${percent}%`;
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+
+</html>
