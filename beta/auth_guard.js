@@ -20,7 +20,7 @@ async function checkAuth() {
         }
 
         // Show body content if authenticated
-        document.body.classList.remove('invisible');
+        document.body.style.visibility = 'visible';
     } catch (e) {
         // Redirect to login page on error or no session
         const currentPath = window.location.pathname;
