@@ -11,11 +11,21 @@ async function checkAuth() {
     const { createClient } = supabase;
     const _supabase = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);
 
-    const { data: { session } } = await _supabase.auth.getSession();
+    try {
+        const { data: { session }, error } = await _supabase.auth.getSession();
+        if (error) throw error;
 
-    if (!session) {
-        // Redirect to login page
-        // Handle different depth levels: beta/index.html vs beta/tools/tool.html
+        if (!session) {
+            throw new Error('No session');
+        }
+
+        // Show body content if authenticated
+        document.body.classList.remove('invisible');
+    } catch (e) {
+        // Redirect to login page on error or no session
+        const currentPath = window.location.pathname;
+        let loginPath = 'login.html';
+
         if (currentPath.includes('/tools/') || currentPath.includes('/training/')) {
             loginPath = '../login.html';
         } else {
@@ -25,6 +35,14 @@ async function checkAuth() {
         window.location.href = loginPath;
     }
 }
+
+// Hide body immediately to prevent flash of content
+const style = document.createElement('style');
+style.innerHTML = 'body { visibility: hidden; }';
+document.head.appendChild(style);
+
+// Run check
+checkAuth();
 
 // Run check immediately
 checkAuth();
