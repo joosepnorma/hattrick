@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hattrick Homegrown Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../../config.js"></script>
+    <!-- Import dependencies -->
+    <script src="training_data.js"></script>
+    <script src="hg_engine.js"></script>
+    <script src="lineup_engine.js"></script>
+    <style>
+        /* Rating Bar Styles */
+        .rating-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .rating-fill {
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .rating-low .rating-fill {
+            background: linear-gradient(90deg, #ff6b6b, #ee5a5a);
+        }
+
+        .rating-mid .rating-fill {
+            background: linear-gradient(90deg, #ffd93d, #ffcd00);
+        }
+
+        .rating-high .rating-fill {
+            background: linear-gradient(90deg, #6bcb77, #4ade80);
+        }
+
+        .rating-exc .rating-fill {
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2d2d44;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #5a5a7f;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7a7a9f;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-200 font-sans min-h-screen p-4">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+
+        <!-- Header -->
+        <header class="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
+            <h1 class="text-3xl font-bold text-green-400 mb-2">Homegrown Planner</h1>
+            <p class="text-gray-400">Optimize training for a fixed squad (2 GK, 10 FP) over a long duration.</p>
+        </header>
+
+        <!-- Configuration Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Sector Weights -->
+            <div class="bg-gray-800 p-5 rounded-lg border border-gray-700 shadow-lg lg:col-span-2">
+                <h2 class="text-xl font-semibold mb-4 text-purple-300">Optimization Goal (Sector Weights)</h2>
+                <div class="grid grid-cols-3 gap-6">
+                    <!-- Defense -->
+                    <div class="space-y-3">
+                        <h3 class="font-medium text-gray-300 text-center">Defense</h3>
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs text-gray-400">Right</label>
+                            <input type="number" id="w_defRight" value="1.0" step="0.1"
+                                class="w-16 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-right focus:border-green-500 outline-none">
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs text-gray-400">Center</label>
+                            <input type="number" id="w_defCenter" value="1.0" step="0.1"
+                                class="w-16 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-right focus:border-green-500 outline-none">
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs text-gray-400">Left</label>
+                            <input type="number" id="w_defLeft" value="1.0" step="0.1"
+                                class="w-16 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-right focus:border-green-500 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Midfield -->
+                    <div class="space-y-3">
+                        <h3 class="font-medium text-gray-300 text-center">Midfield</h3>
+                        <div class="flex items-center justify-between pt-8">
+                            <label class="text-xs text-gray-400">Midfield</label>
+                            <input type="number" id="w_mid" value="1.0" step="0.1"
+                                class="w-16 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-right focus:border-green-500 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Attack -->
+                    <div class="space-y-3">
+                        <h3 class="font-medium text-gray-300 text-center">Attack</h3>
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs text-gray-400">Right</label>
+                            <input type="number" id="w_attRight" value="1.0" step="0.1"
+                                class="w-16 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-right focus:border-green-500 outline-none">
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs text-gray-400">Center</label>
+                            <input type="number" id="w_attCenter" value="1.0" step="0.1"
+                                class="w-16 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-right focus:border-green-500 outline-none">
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs text-gray-400">Left</label>
+                            <input type="number" id="w_attLeft" value="1.0" step="0.1"
+                                class="w-16 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-right focus:border-green-500 outline-none">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings & Action -->
+            <div class="bg-gray-800 p-5 rounded-lg border border-gray-700 shadow-lg space-y-4">
+                <h2 class="text-xl font-semibold mb-4 text-blue-300">Settings</h2>
+
+                <div class="space-y-2">
+                    <label class="block text-sm text-gray-400">Formation</label>
+                    <select id="formationSelect"
+                        class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 focus:border-green-500 outline-none">
+                        <option value="Auto">Calculate the optimal formation based on weights</option>
+                        <option value="253">2-5-3</option>
+                        <option value="343">3-4-3</option>
+                        <option value="352">3-5-2</option>
+                        <option value="433">4-3-3</option>
+                        <option value="442">4-4-2</option>
+                        <option value="451">4-5-1</option>
+                        <option value="532">5-3-2</option>
+                        <option value="541">5-4-1</option>
+                        <option value="550">5-5-0</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm text-gray-400">Coach Type</label>
+                    <select id="coachSelect"
+                        class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 focus:border-green-500 outline-none">
+                        <option value="Neutral">Neutral</option>
+                        <option value="Offensive">Offensive</option>
+                        <option value="Defensive">Defensive</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm text-gray-400">Simulation Weeks</label>
+                    <input type="number" id="weeks" value="208"
+                        class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 focus:border-green-500 outline-none">
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm text-gray-400">Stamina Share %</label>
+                    <input type="number" id="stamina" value="10"
+                        class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 focus:border-green-500 outline-none">
+                </div>
+
+                <div class="pt-4">
+                    <button onclick="runSimulation()"
+                        class="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-bold py-3 rounded shadow-lg transform transition active:scale-95">
+                        Run Optimization
+                    </button>
+                    <div id="loading" class="hidden text-center text-sm text-yellow-400 mt-2">Computing optimal
+                        path...
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Results Section -->
+        <div id="results" class="hidden space-y-6">
+
+            <!-- Training Log Visualization -->
+            <div class="bg-gray-800 p-5 rounded-lg border border-gray-700 shadow-lg">
+                <h2 class="text-xl font-semibold mb-4 text-yellow-300">Training Schedule</h2>
+                <div id="timeline" class="flex flex-wrap gap-1 text-xs">
+                    <!-- Timeline blocks will be inserted here -->
+                </div>
+                <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-400" id="summaryStats">
+                    <!-- Summary stats -->
+                </div>
+            </div>
+
+            <!-- Final Squad -->
+            <div class="bg-gray-800 p-5 rounded-lg border border-gray-700 shadow-lg overflow-x-auto">
+                <h2 class="text-xl font-semibold mb-4 text-green-300">Final Squad (Age <span id="finalAge"></span>)
+                </h2>
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-gray-700 text-gray-400">
+                            <th class="p-2">Player</th>
+                            <th class="p-2">GK</th>
+                            <th class="p-2">Def</th>
+                            <th class="p-2">Play</th>
+                            <th class="p-2">Wing</th>
+                            <th class="p-2">Pass</th>
+                            <th class="p-2">Score</th>
+                            <th class="p-2">SP</th>
+                            <th class="p-2">Target Pos</th>
+                            <th class="p-2">SS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="squadTable" class="text-sm">
+                        <!-- Rows -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function runSimulation() {
+            document.getElementById('loading').classList.remove('hidden');
+
+            // Defer to allow UI update
+            setTimeout(() => {
+                const weights = {
+                    defLeft: parseFloat(document.getElementById('w_defLeft').value),
+                    defCenter: parseFloat(document.getElementById('w_defCenter').value),
+                    defRight: parseFloat(document.getElementById('w_defRight').value),
+                    mid: parseFloat(document.getElementById('w_mid').value),
+                    attLeft: parseFloat(document.getElementById('w_attLeft').value),
+                    attCenter: parseFloat(document.getElementById('w_attCenter').value),
+                    attRight: parseFloat(document.getElementById('w_attRight').value)
+                };
+
+                const weeks = parseInt(document.getElementById('weeks').value);
+                const stamina = parseInt(document.getElementById('stamina').value);
+                const formation = document.getElementById('formationSelect').value;
+                const coachType = document.getElementById('coachSelect').value;
+
+                const engine = new HGEngine(weights, weeks, stamina, formation, coachType);
+                const result = engine.run(); // Should define this in engine
+
+                renderResults(result, weights);
+                document.getElementById('loading').classList.add('hidden');
+            }, 50);
+        }
+
+        function renderResults(result, weights) {
+            document.getElementById('results').classList.remove('hidden');
+            const log = result.log;
+
+            // 1. Timeline
+            const container = document.getElementById('timeline');
+            container.innerHTML = '';
+
+            // Group by consecutive training types
+            let blocks = [];
+            let currentBlock = { type: log[0].trainingType, count: 0, start: 1 };
+
+            log.forEach((entry, idx) => {
+                if (entry.trainingType === currentBlock.type) {
+                    currentBlock.count++;
+                } else {
+                    blocks.push(currentBlock);
+                    currentBlock = { type: entry.trainingType, count: 1, start: idx + 1 };
+                }
+            });
+            blocks.push(currentBlock);
+
+            const colors = {
+                'GK': 'bg-red-600', 'Def': 'bg-blue-600', 'Def_Ext': 'bg-cyan-600',
+                'PM': 'bg-yellow-600',
+                'Wing': 'bg-purple-600', 'Wing_Ext': 'bg-indigo-600',
+                'Pass': 'bg-green-600',
+                'Score': 'bg-orange-600', 'Score_Ext': 'bg-red-400',
+                'SP': 'bg-gray-600'
+            };
+
+            blocks.forEach(block => {
+                const div = document.createElement('div');
+                div.className = `${colors[block.type]} p-1 text-center text-white rounded`;
+                // Scale width roughly by duration, but keep min width
+                const width = Math.max(40, block.count * 2);
+                div.style.width = `${width}px`;
+                div.title = `Weeks ${block.start}-${block.start + block.count - 1} (${block.count} wks)`;
+                div.innerHTML = `<span class="font-bold">${block.type}</span><br>${block.count}`;
+                container.appendChild(div);
+            });
+
+            // 2. Summary Stats
+            const typeCounts = {};
+            log.forEach(l => typeCounts[l.trainingType] = (typeCounts[l.trainingType] || 0) + 1);
+
+            const statsDiv = document.getElementById('summaryStats');
+            statsDiv.innerHTML = Object.entries(typeCounts).map(([k, v]) => `
+                <div class="flex justify-between border-b border-gray-700 py-1">
+                    <span>${k}</span> <span class="text-white">${v} wks</span>
+                </div>
+            `).join('');
+
+            // 3. Squad Table
+            const tbody = document.getElementById('squadTable');
+            tbody.innerHTML = '';
+            let finalAge = 0;
+
+            // Display Results
+            // Create container for Lineup if not exists
+            let lineupContainer = document.getElementById('lineupContainer');
+            if (!lineupContainer) {
+                lineupContainer = document.createElement('div');
+                lineupContainer.id = 'lineupContainer';
+                lineupContainer.className = "bg-gray-800 p-5 rounded-lg border border-gray-700 shadow-lg mt-6";
+                lineupContainer.innerHTML = `
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-blue-300">Final ${result.formation} Lineup</h2>
+                        <div class="text-sm text-gray-400 bg-gray-900 px-3 py-1 rounded">Ratings calculated with Neutral Coach, 100% Spirit</div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Left: Lineup List -->
+                        <div id="finalLineup" class="lg:col-span-1 space-y-1"></div>
+                        
+                        <!-- Right: Ratings Display -->
+                        <div class="lg:col-span-2 bg-gray-900 p-4 rounded border border-gray-700">
+                             <h3 class="text-sm uppercase text-gray-500 font-bold mb-4 text-center">Predicted Sector Ratings</h3>
+                             <div class="grid grid-cols-3 gap-4" id="ratingsGrid">
+                                 <!-- Ratings inserted by JS -->
+                             </div>
+                        </div>
+                    </div>`;
+                document.getElementById('results').appendChild(lineupContainer);
+            }
+
+            // Create a map for quick lookup of assigned roles
+            const playerRoleMap = {};
+            const playerScoreMap = {};
+            result.lineup.forEach(entry => {
+                playerRoleMap[entry.playerId] = entry.slot;
+                playerScoreMap[entry.playerId] = entry.score;
+            });
+
+            result.finalPlayers.forEach(p => {
+                finalAge = p.age.toFixed(1);
+
+                // Determine Target Position from Lineup
+                const targetPos = playerRoleMap[p.id] || "Res";
+
+                // SS is either the score in the lineup, or we calculate a "backup" score 
+                // (e.g. their max SS, or score in their best theoretical pos)
+                let showSS = playerScoreMap[p.id];
+
+                if (targetPos === "Res") {
+                    // For reserves, show their best possible score/pos as info
+                    const bestPos = getBestPositionForPlayer(p, weights);
+                    const wVec = calculateWeights(weights);
+                    showSS = calculateSkillScore(bestPos, p.skills, wVec);
+                }
+
+                const row = document.createElement('tr');
+                row.className = "border-b border-gray-800 hover:bg-gray-700 transition";
+                row.innerHTML = `
+                    <td class="p-2 font-medium ${p.isGK ? 'text-red-300' : 'text-blue-300'}">${p.name}</td>
+                    <td class="p-2">${p.skills.Keeper.toFixed(1)}</td>
+                    <td class="p-2">${p.skills.Defending.toFixed(1)}</td>
+                    <td class="p-2">${p.skills.Playmaking.toFixed(1)}</td>
+                    <td class="p-2">${p.skills.Winger.toFixed(1)}</td>
+                    <td class="p-2">${p.skills.Passing.toFixed(1)}</td>
+                    <td class="p-2">${p.skills.Scoring.toFixed(1)}</td>
+                    <td class="p-2">${p.skills.SetPieces.toFixed(1)}</td>
+                    <td class="p-2 ${targetPos === 'Res' ? 'text-gray-500' : 'text-yellow-400 font-bold'}">${targetPos}</td>
+                    <td class="p-2 font-bold">${showSS.toFixed(2)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('finalAge').innerText = finalAge;
+
+            // 4. Render Final Lineup
+            const lineupDiv = document.getElementById('finalLineup');
+            if (lineupDiv) {
+                lineupDiv.innerHTML = ''; // Clear previous
+                // Sort lineup by slot for display order: GK, CD, WB, IM, W, FW
+                const order = { 'GK': 1, 'CD': 2, 'WB': 3, 'IM': 4, 'W': 5, 'FW': 6 };
+
+                const lineup = result.lineup; // Array of { slot, playerName, score }
+                lineup.sort((a, b) => (order[a.slot] || 99) - (order[b.slot] || 99));
+
+                lineup.forEach(p => {
+                    const el = document.createElement('div');
+                    el.className = "flex justify-between items-center bg-gray-700 p-2 rounded mb-1";
+                    el.innerHTML = `
+                        <span class="font-bold w-12 text-yellow-500">${p.slot}</span>
+                        <span class="flex-1 px-4">${p.playerName}</span>
+                        <span class="text-green-400 font-mono">${p.score.toFixed(2)}</span>
+                    `;
+                    lineupDiv.appendChild(el);
+                });
+
+                // 5. Calculate and Render Ratings
+                // Pass coach type from result (we need to ensure HGEngine returns it)
+                // Actually result.coachType might not exist yet?
+                // engine.coachType exists.
+                // renderResults receives result, weights.
+                // We should pass coachType or extract from result.
+
+                // Let's assume result has coachType or we get it from DOM? 
+                // Better: result.coachType
+                const coachType = document.getElementById('coachSelect').value;
+                calculateAndRenderRatings(result.finalPlayers, lineup, coachType);
+            }
+
+        }
+
+        // --- Ratings Logic ---
+        function calculateAndRenderRatings(finalPlayers, lineup, coachType) {
+            // Map squad to LineupEngine player format
+            // Need to assign sides logic: Left/Right/Middle for WB, CD, IM, W, FW
+
+            // Group by Base Role to assign sides
+            const roleGroups = { 'GK': [], 'WB': [], 'CD': [], 'IM': [], 'W': [], 'FW': [] };
+
+            // Helper to get base role (variant prefix)
+            const getBase = (variant) => {
+                if (variant.startsWith('GK')) return 'GK';
+                if (variant.startsWith('WB')) return 'WB';
+                if (variant.startsWith('CD')) return 'CD';
+                if (variant.startsWith('IM')) return 'IM';
+                if (variant.startsWith('W')) return 'W';
+                if (variant.startsWith('FW')) return 'FW';
+                return 'IM';
+            };
+
+            lineup.forEach(param => {
+                // We need the Full Player Object with skills
+                const player = finalPlayers.find(p => p.id === param.playerId);
+                const base = getBase(param.slot);
+                if (roleGroups[base]) roleGroups[base].push({ ...player, variant: param.slot });
+            });
+
+            const enginePlayers = [];
+
+            // Assignment Rules for 3-5-2
+            // GK: Middle
+            if (roleGroups.GK[0]) enginePlayers.push(createEnginePlayer(roleGroups.GK[0], 'GK', 'Middle'));
+
+            // CD: Middle
+            if (roleGroups.CD[0]) enginePlayers.push(createEnginePlayer(roleGroups.CD[0], roleGroups.CD[0].variant, 'Middle'));
+
+            // WB: Left, Right
+            if (roleGroups.WB[0]) enginePlayers.push(createEnginePlayer(roleGroups.WB[0], roleGroups.WB[0].variant, 'Left'));
+            if (roleGroups.WB[1]) enginePlayers.push(createEnginePlayer(roleGroups.WB[1], roleGroups.WB[1].variant, 'Right'));
+
+            // W: Left, Right
+            if (roleGroups.W[0]) enginePlayers.push(createEnginePlayer(roleGroups.W[0], roleGroups.W[0].variant, 'Left'));
+            if (roleGroups.W[1]) enginePlayers.push(createEnginePlayer(roleGroups.W[1], roleGroups.W[1].variant, 'Right'));
+
+            // FW: Left, Right
+            if (roleGroups.FW[0]) enginePlayers.push(createEnginePlayer(roleGroups.FW[0], roleGroups.FW[0].variant, 'Left'));
+            if (roleGroups.FW[1]) enginePlayers.push(createEnginePlayer(roleGroups.FW[1], roleGroups.FW[1].variant, 'Right'));
+
+            // IM: Left, Middle, Right
+            if (roleGroups.IM[0]) enginePlayers.push(createEnginePlayer(roleGroups.IM[0], roleGroups.IM[0].variant, 'Left'));
+            if (roleGroups.IM[1]) enginePlayers.push(createEnginePlayer(roleGroups.IM[1], roleGroups.IM[1].variant, 'Middle'));
+            if (roleGroups.IM[2]) enginePlayers.push(createEnginePlayer(roleGroups.IM[2], roleGroups.IM[2].variant, 'Right'));
+
+            // Settings
+            const settings = {
+                coachType: 'Neutral',
+                isHome: true,
+                confidenceLevel: 5, // Strong
+                tactic: 'Normal',
+                teamSpiritMultiplier: 1.0
+            };
+
+            // Calculate
+            // Calculate
+            if (typeof LineupEngine !== 'undefined') {
+                const ratings = LineupEngine.calculateAllSectorRatings(enginePlayers, {
+                    coachType: coachType || 'Neutral',
+                    teamSpiritLevel: 4.5, // Default
+                    confidenceLevel: 4,   // Default
+                });
+                renderRatingBars(ratings);
+            } else {
+                console.error("LineupEngine not loaded");
+            }
+        }
+
+        function createEnginePlayer(p, variant, side) {
+            return {
+                id: p.id,
+                positionCode: variant, // e.g. "WB_TM"
+                side: side,
+                skills: p.skills
+            };
+        }
+
+        function renderRatingBars(ratings) {
+            const grid = document.getElementById('ratingsGrid');
+            grid.innerHTML = '';
+
+            const sectors = [
+                { id: 'defL', label: 'Left Def', val: ratings.defense.left },
+                { id: 'defC', label: 'Mid Def', val: ratings.defense.center },
+                { id: 'defR', label: 'Right Def', val: ratings.defense.right },
+                { id: 'mid', label: 'Midfield', val: ratings.midfield, colSpan: true },
+                { id: 'attL', label: 'Left Att', val: ratings.attack.left },
+                { id: 'attC', label: 'Mid Att', val: ratings.attack.center },
+                { id: 'attR', label: 'Right Att', val: ratings.attack.right },
+            ];
+
+            sectors.forEach(s => {
+                const percent = Math.min(100, (s.val / 20) * 100);
+                let color = 'rating-low';
+                if (s.val >= 10) color = 'rating-exc';
+                else if (s.val >= 7) color = 'rating-high';
+                else if (s.val >= 4) color = 'rating-mid';
+
+                const div = document.createElement('div');
+                div.className = `bg-gray-800 p-3 rounded text-center ${s.colSpan ? 'col-span-3 border-t border-b border-gray-700 my-1' : ''}`;
+                div.innerHTML = `
+                        <div class="text-xs text-gray-500 uppercase tracking-wider">${s.label}</div>
+                        <div class="text-2xl font-bold text-gray-200 my-1">${s.val.toFixed(2)}</div>
+                        <div class="rating-bar bg-gray-700">
+                             <div class="rating-fill ${color}" style="width: ${percent}%"></div>
+                        </div>
+                    `;
+                grid.appendChild(div);
+            });
+        }
+
+        // --- Helper Duplication (Ideally should be in shared lib or exported from Engine) ---
+        // For quick prototyping, I'll redefine the helpers used in render here if not attached to window
+        // Note: hg_engine.js class methods are not global. 
+        // We need to access TrainingData globals which ARE global (loaded via script tag)
+        // calculateWeights and calculateSkillScore ARE in training_data.js and thus global.
+
+        function getBestPositionForPlayer(player, wUsers) {
+            const weights = calculateWeights(wUsers);
+            // Validation: Only consider positions available in the requested 3-5-2 Normal structure
+            const positions = ['GK', 'WB', 'CD', 'W', 'IM', 'FW'];
+
+            let maxSS = -1;
+            let bestPos = 'IM';
+
+            for (const pos of positions) {
+                if (player.isGK && pos !== 'GK') continue;
+                if (!player.isGK && pos === 'GK') continue;
+
+                const ss = calculateSkillScore(pos, player.skills, weights);
+                if (ss > maxSS) {
+                    maxSS = ss;
+                    bestPos = pos;
+                }
+            }
+            return bestPos;
+        }
+
+    </script>
+</body>
+
+</html>

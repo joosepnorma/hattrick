@@ -8,7 +8,7 @@ import sys
 PORT = 8000
 # Serve from the parent directory (project root) to make "../" links work if they point to other sibling folders
 # and to allow access to both "Training planner" and "Simulator tool"
-DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -22,8 +22,8 @@ def start_server():
             print("Press Ctrl+C to stop the server.")
             
             # Open the training planner in the default browser
-            # Adjusted path since we are serving from root
-            url = f"http://localhost:{PORT}/Training%20planner/training_planner.html"
+            # Adjusted path to include beta/training since root is now project root
+            url = f"http://localhost:{PORT}/beta/training/hg_planner.html"
             print(f"Opening {url}...")
             webbrowser.open(url)
             
