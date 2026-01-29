@@ -4,15 +4,15 @@
  */
 
 const FORMATION_SLOTS = {
-    '253': ['GK', 'WB', 'WB', 'IM_Side', 'IM_Side', 'IM_Mid', 'W', 'W', 'FW', 'FW', 'FW'],
-    '343': ['GK', 'WB', 'WB', 'CD', 'IM_Side', 'IM_Side', 'W', 'W', 'FW', 'FW', 'FW'],
+    '253': ['GK', 'WB', 'WB', 'IM_Side', 'IM_Side', 'IM_Mid', 'W', 'W', 'FW', 'FW_Mid', 'FW'],
+    '343': ['GK', 'WB', 'WB', 'CD', 'IM_Side', 'IM_Side', 'W', 'W', 'FW', 'FW_Mid', 'FW'],
     '352': ['GK', 'WB', 'WB', 'CD', 'IM_Side', 'IM_Side', 'IM_Mid', 'W', 'W', 'FW', 'FW'],
-    '433': ['GK', 'WB', 'WB', 'CD', 'CD', 'IM_Mid', 'W', 'W', 'FW', 'FW', 'FW'], // 4-3-3: 2 W, 1 IM (Middle)
+    '433': ['GK', 'WB', 'WB', 'CD', 'CD', 'IM_Mid', 'W', 'W', 'FW', 'FW_Mid', 'FW'], // 4-3-3: 2 W, 1 IM (Middle)
     '442': ['GK', 'WB', 'WB', 'CD', 'CD', 'IM_Side', 'IM_Side', 'W', 'W', 'FW', 'FW'],
     '451': ['GK', 'WB', 'WB', 'CD', 'CD', 'IM_Side', 'IM_Side', 'IM_Mid', 'W', 'W', 'FW'],
-    '532': ['GK', 'WB', 'WB', 'CD', 'CD', 'CD', 'IM_Side', 'IM_Side', 'IM_Mid', 'FW', 'FW'], // 5-3-2 with 3 IMs implies NO Wingers usually? Or 2 Wingers 1 IM? Standard is 3 IMs for midfield.
-    '541': ['GK', 'WB', 'WB', 'CD', 'CD', 'CD', 'IM_Side', 'IM_Side', 'W', 'W', 'FW'],
-    '550': ['GK', 'WB', 'WB', 'CD', 'CD', 'CD', 'IM_Side', 'IM_Side', 'IM_Mid', 'W', 'W']
+    '532': ['GK', 'WB', 'WB', 'CD', 'CD_Mid', 'CD', 'IM_Side', 'IM_Side', 'IM_Mid', 'FW', 'FW'],
+    '541': ['GK', 'WB', 'WB', 'CD', 'CD_Mid', 'CD', 'IM_Side', 'IM_Side', 'W', 'W', 'FW'],
+    '550': ['GK', 'WB', 'WB', 'CD', 'CD_Mid', 'CD', 'IM_Side', 'IM_Side', 'IM_Mid', 'W', 'W']
     // Note: 5-3-2 usually interpreted as 3 IMs (balanced) or 2 W + 1 IM (CA). 
     // We assume 3 IMs for max midfield rating potential unless specified.
 };
@@ -392,7 +392,7 @@ class HGEngine {
                 row['GK'] = { score: -1, variant: null };
 
                 // Slots types to check
-                const slotTypes = ['WB', 'CD', 'IM_Side', 'IM_Mid', 'W', 'FW'];
+                const slotTypes = ['WB', 'CD', 'CD_Mid', 'IM_Side', 'IM_Mid', 'W', 'FW', 'FW_Mid'];
 
                 slotTypes.forEach(slotType => {
                     let constraints = [];
@@ -402,6 +402,12 @@ class HGEngine {
                         constraints = ['IM', 'IM_O', 'IM_D'];
                     } else if (slotType === 'IM_Side') {
                         constraints = ['IM', 'IM_O', 'IM_D', 'IM_TW'];
+                    } else if (slotType === 'CD_Mid') {
+                        // Central CD cannot be TW
+                        constraints = ['CD', 'CD_O']; // Exclude CD_TW
+                    } else if (slotType === 'FW_Mid') {
+                        // Central FW cannot be TW
+                        constraints = ['FW', 'FW_D']; // Exclude FW_TW (and others if needed)
                     } else {
                         // Standard lookup
                         constraints = this.positionVariants[slotType] || [];
