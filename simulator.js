@@ -99,7 +99,7 @@ const AIM_DYNAMIC_RATES = { 18: [0.43, 0.23, 0.19, 0.11], 20: [0.48, 0.23, 0.12,
 // Pre-computed sorted keys for dynamic rate tables (must be after their tables)
 const AIM_DYNAMIC_RATES_KEYS = Object.keys(AIM_DYNAMIC_RATES).map(Number).sort((a, b) => a - b);
 const AOW_DYNAMIC_RATES_KEYS = Object.keys(AOW_DYNAMIC_RATES).map(Number).sort((a, b) => a - b);
-const SE_XG_RATES = { 'Quick_off': 0.49, 'Head_off': 0.76, 'Tech_off': 0.43, 'Unpr_IM': 0.25, 'Unpr_FW_W': 0.18, 'Quick_def': 0.0, 'Head_def': 0.63, 'Unpr_def': 0.22, 'Tech_def': 0.0, 'PNF': 0.60, 'PDIM': 0.15, 'Corner': 0.53, 'Experienced Fwd': 0.219, 'Inexperienced Def': -0.107, 'Tired Def': 0.0 };
+const SE_XG_RATES = { 'Quick_off': 0.49, 'Head_off': 0.76, 'Tech_off': 0.43, 'Unpr_IM': 0.25, 'Unpr_FW_W': 0.18, 'Quick_def': 0.0, 'Head_def': 0.63, 'Unpr_def': 0.22, 'Tech_def': 0.0, 'PNF': 0.80, 'PDIM': 0.15, 'Corner': 0.53, 'Experienced Fwd': 0.219, 'Inexperienced Def': -0.107, 'Tired Def': 0.0 }; // PNF updated from 0.60 to 0.80 based on research
 SE_XG_RATES['NonSpecSE_XG'] = 0.30;
 
 // 0: 0, 1: 0.275, 2: 0.51, 3: 0.705, 4: 0.87, 5: 1.0
@@ -250,7 +250,30 @@ const _getSpDefBucketIndex = (ispDef) => {
 };
 const PDIM_TRIGGER_RATES = { 1: 0.1, 2: 0.16, 3: 0.2 };
 const PDIM_SUCCESS_RATE = 0.625;
-const PNF_TRIGGER_RATES = { 1: 0.1, 2: 0.16, 3: 0.2 };
+
+// --- PNF Trigger Rates (based on nickarana's CHPP research) ---
+// 2D table: [pnf_count][cd_count] - rates per Missed Normal Chance
+const PNF_TRIGGER_RATES_2D = {
+    1: { 0: 0.095, 1: 0.064, 2: 0.031, 3: 0.016 },
+    2: { 0: 0.144, 1: 0.097, 2: 0.050, 3: 0.024 },
+    3: { 0: 0.140, 1: 0.129, 2: 0.068, 3: 0.033 }
+};
+
+// Helper function to get PNF trigger rate based on PNF count and opponent CD count
+const _getPnfTriggerRate = (pnf_count, cd_count) => {
+    const pnf_key = Math.min(Math.max(pnf_count, 1), 3);
+    const cd_key = Math.min(Math.max(cd_count, 0), 3);
+    return PNF_TRIGGER_RATES_2D[pnf_key][cd_key];
+};
+
+// Helper function to infer CD count from formation (defenders - 2)
+// 352 -> 1 CD, 442 -> 2 CDs, 532 -> 3 CDs
+const _inferCdCount = (formation) => {
+    if (!formation) return 1; // Default: 352 = 1 CD
+    const formStr = String(formation);
+    const defenders = parseInt(formStr[0]) || 3;
+    return Math.max(0, defenders - 2);
+};
 const NTCA_TECH_DEF_TRIGGER_RATES = { 0: 0.0, 1: 0.017, 2: 0.02025, 3: 0.0235, 4: 0.02675, 5: 0.03 };
 const NTCA_FORMATION_SUCCESS_RATE = 0.9;
 const PC_LEVEL_DATA = { 0: [1.0, 0.5, 1.0, 1.0], 7: [1.51, 0.5, 1.51, 1.51], 8: [1.65, 0.5, 1.65, 1.65], 9: [1.67, 0.51, 1.7, 1.64], 10: [1.75, 0.53, 1.86, 1.65], 11: [1.85, 0.55, 2.04, 1.66], 12: [1.93, 0.55, 2.13, 1.72], 13: [1.99, 0.56, 2.24, 1.73], 14: [2.05, 0.58, 2.36, 1.73], 15: [2.15, 0.59, 2.54, 1.76], 16: [2.21, 0.59, 2.63, 1.8], 17: [2.32, 0.61, 2.84, 1.79], 18: [2.46, 0.63, 3.11, 1.8], 19: [2.56, 0.65, 3.32, 1.79], 20: [2.75, 0.66, 3.6, 1.9], 21: [3.02, 0.67, 4.05, 2.0], 22: [3.3, 0.67, 4.44, 2.16] };
@@ -507,6 +530,8 @@ export const precomputeRatings = (teamData) => {
         midfield_pow3: Math.pow(teamData.midfield, 3),
         isp_att: teamData.isp_att || 10.0,
         isp_def: teamData.isp_def || 10.0,
+        // CD count for PNF calculation: inferred from formation or provided directly
+        cd_count: teamData.cd_count ?? _inferCdCount(teamData.formation || '352'),
         attack_pow3_5: {
             right: Math.pow(teamData.r_attack, 3.5),
             central: Math.pow(teamData.c_attack, 3.5),
@@ -937,9 +962,11 @@ const _runMatchPeriod = (chance_slots, home_team_initial, away_team_initial, ini
                 }
 
                 // 2. Check for PNF (Powerful Normal Forward) - only if CA didn't trigger
+                // Uses 2D lookup based on PNF count AND opponent CD count (from research)
                 let pnf_scored_this_chance = false;
                 const pnf_count = attacker.specialties.PNF || 0;
-                if (pnf_count > 0 && Math.random() < (PNF_TRIGGER_RATES[pnf_count] || 0)) {
+                const defender_cd_count = defender.cd_count ?? 1; // Default to 1 CD if unknown
+                if (pnf_count > 0 && Math.random() < _getPnfTriggerRate(pnf_count, defender_cd_count)) {
                     if (Math.random() < SE_XG_RATES.PNF) {
                         state[attacker_is_home ? 'home_score' : 'away_score']++;
                         state[attacker_is_home ? 'home_pnf_goals' : 'away_pnf_goals']++;
