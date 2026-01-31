@@ -913,6 +913,30 @@ const _runMatchPeriod = (chance_slots, home_team_initial, away_team_initial, ini
         } else {
             if (chance_type !== 'set_piece') {
                 state[attacker_is_home ? 'away_opp_miss' : 'home_opp_miss']++;
+
+                // REORDERED per nickarana's research: CA is checked FIRST, then PNF
+                // Data shows CAs "rob" PNF events, not vice versa
+
+                // 1. Check for tactical CA (Counter Attack) first
+                let ca_triggered = false;
+                if (defender.tactic === 'CA' && ((home_has_weaker_midfield && !attacker_is_home) || (!home_has_weaker_midfield && attacker_is_home))) {
+                    const [missed, succ, ca_tactic_modifier] = !attacker_is_home ? [state.home_opp_miss, state.home_ca_succ, current_home_team.ca_modifier] : [state.away_opp_miss, state.away_ca_succ, current_away_team.ca_modifier];
+                    const [row, col] = [Math.min(missed - 1, 7), Math.min(succ, 6)];
+                    if (Math.random() < CA_DYNAMIC_RATES[row][col] * ca_tactic_modifier) {
+                        ca_triggered = true;
+                        const tactical_ca_mods = { ...mods, attacker_is_home: !attacker_is_home };
+                        if (_resolveAttack(chance_type, defender, attacker, tactical_ca_mods)) {
+                            state[!attacker_is_home ? 'home_score' : 'away_score']++;
+                            if (chance_type === 'left') state[!attacker_is_home ? 'home_l_attack_goals' : 'away_l_attack_goals']++;
+                            else if (chance_type === 'central') state[!attacker_is_home ? 'home_c_attack_goals' : 'away_c_attack_goals']++;
+                            else if (chance_type === 'right') state[!attacker_is_home ? 'home_r_attack_goals' : 'away_r_attack_goals']++;
+                            state[!attacker_is_home ? 'home_ca_succ' : 'away_ca_succ']++;
+                        }
+                        continue;
+                    }
+                }
+
+                // 2. Check for PNF (Powerful Normal Forward) - only if CA didn't trigger
                 let pnf_scored_this_chance = false;
                 const pnf_count = attacker.specialties.PNF || 0;
                 if (pnf_count > 0 && Math.random() < (PNF_TRIGGER_RATES[pnf_count] || 0)) {
@@ -925,6 +949,8 @@ const _runMatchPeriod = (chance_slots, home_team_initial, away_team_initial, ini
                 if (pnf_scored_this_chance) {
                     continue;
                 }
+
+                // 3. Check for NTCA (Non-Tactic Counter Attack from Tech defenders)
                 if (chance_type !== 'long_shot') {
                     const tech_def_count = defender.specialties.Tech_def || 0;
                     if (tech_def_count > 0) {
@@ -948,20 +974,6 @@ const _runMatchPeriod = (chance_slots, home_team_initial, away_team_initial, ini
                                 }
                                 continue;
                             }
-                        }
-                    }
-                }
-                if (defender.tactic === 'CA' && ((home_has_weaker_midfield && !attacker_is_home) || (!home_has_weaker_midfield && attacker_is_home))) {
-                    const [missed, succ, ca_tactic_modifier] = !attacker_is_home ? [state.home_opp_miss, state.home_ca_succ, current_home_team.ca_modifier] : [state.away_opp_miss, state.away_ca_succ, current_away_team.ca_modifier];
-                    const [row, col] = [Math.min(missed - 1, 7), Math.min(succ, 6)];
-                    if (Math.random() < CA_DYNAMIC_RATES[row][col] * ca_tactic_modifier) {
-                        const tactical_ca_mods = { ...mods, attacker_is_home: !attacker_is_home };
-                        if (_resolveAttack(chance_type, defender, attacker, tactical_ca_mods)) {
-                            state[!attacker_is_home ? 'home_score' : 'away_score']++;
-                            if (chance_type === 'left') state[!attacker_is_home ? 'home_l_attack_goals' : 'away_l_attack_goals']++;
-                            else if (chance_type === 'central') state[!attacker_is_home ? 'home_c_attack_goals' : 'away_c_attack_goals']++;
-                            else if (chance_type === 'right') state[!attacker_is_home ? 'home_r_attack_goals' : 'away_r_attack_goals']++;
-                            state[!attacker_is_home ? 'home_ca_succ' : 'away_ca_succ']++;
                         }
                     }
                 }
@@ -1134,3 +1146,13 @@ const _runPenaltyShootout = (home_team, away_team) => {
     }
     return home_pk_score > away_pk_score ? 'home' : 'away';
 };
+
+// --- Browser Compatibility ---
+// When loaded via <script> tag, expose functions through window.Simulator
+if (typeof window !== 'undefined') {
+    window.Simulator = {
+        TACTIC_RATES,
+        precomputeRatings,
+        simulateMatch
+    };
+}
