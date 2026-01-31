@@ -172,7 +172,82 @@ const POSSESSION_BASED_SE = new Set(['CornerAnyone', 'CornerHead', 'ExperienceFw
 
 const SE_TIMING_PROBABILITY = [0.042, 0.048, 0.053, 0.057, 0.068, 0.079, 0.084, 0.038, 0.034, 0.043, 0.05, 0.057, 0.062, 0.05, 0.045];
 const IFK_CONVERSION_RATES = { "-23": 0.0, "-22": 0.002, "-21": 0.004, "-20": 0.002, "-19": 0.015, "-18": 0.026, "-17": 0.042, "-16": 0.037, "-15": 0.075, "-14": 0.075, "-13": 0.088, "-12": 0.107, "-11": 0.119, "-10": 0.145, "-9": 0.16, "-8": 0.178, "-7": 0.175, "-6": 0.213, "-5": 0.231, "-4": 0.262, "-3": 0.276, "-2": 0.316, "-1": 0.394, "0": 0.455, "1": 0.541, "2": 0.589, "3": 0.63, "4": 0.672, "5": 0.682, "6": 0.685, "7": 0.728, "8": 0.729, "9": 0.765, "10": 0.781, "11": 0.776, "12": 0.793, "13": 0.841, "14": 0.824, "15": 0.859, "16": 0.839, "17": 0.906, "18": 0.912, "19": 0.929, "20": 0.93, "21": 0.959, "22": 0.896, "23": 0.891, "24": 0.926, "25": 0.875, "26": 0.889, "27": 0.928 };
-const PK_CONVERSION_RATES = { 8: 0.74, 9: 0.57, 10: 0.49, 11: 0.45, 12: 0.42, 13: 0.39, 14: 0.3 };
+// --- NEW SET PIECE TABLES (based on nickarana's empirical research) ---
+// ISP Att bucket keys for row lookup
+const SP_ISP_ATT_KEYS = [5, 6, 6.5, 7, 7.25, 7.5, 8, 8.5, 9, 9.5, 10.25, 11.5];
+// Opp ISP Def bucket keys for column lookup
+const SP_ISP_DEF_KEYS = [7, 8, 8.5, 9, 9.5, 10, 10.5, 11, 11.5, 12, 12.5, 13.5];
+
+// DFK Conversion 2D Table: [ISP_Att_bucket][ISP_Def_bucket] -> conversion rate
+// Rows: <6, 6.00, 6.50, 7.00, 7.25, 7.50, 8.00, 8.50, 9.00, 9.50, 10.25, 11.50
+// Cols: <8, 8.00, 8.50, 9.00, 9.50, 10.00, 10.50, 11.00, 11.50, 12.00, 12.50, 13.50+
+const DFK_CONVERSION_2D = [
+    [0.09, 0.04, 0.03, 0.03, 0.01, 0.02, 0.01, 0.01, 0.02, 0.01, 0.01, 0.01], // <6
+    [0.18, 0.09, 0.07, 0.05, 0.04, 0.03, 0.03, 0.03, 0.03, 0.04, 0.02, 0.01], // 6.00
+    [0.25, 0.16, 0.10, 0.10, 0.09, 0.07, 0.08, 0.06, 0.05, 0.04, 0.05, 0.04], // 6.50
+    [0.33, 0.19, 0.17, 0.13, 0.11, 0.10, 0.08, 0.08, 0.07, 0.06, 0.07, 0.04], // 7.00
+    [0.35, 0.21, 0.16, 0.13, 0.11, 0.13, 0.10, 0.09, 0.08, 0.09, 0.05, 0.06], // 7.25
+    [0.36, 0.22, 0.18, 0.15, 0.13, 0.13, 0.10, 0.10, 0.10, 0.09, 0.08, 0.05], // 7.50
+    [0.39, 0.24, 0.19, 0.16, 0.14, 0.13, 0.12, 0.12, 0.10, 0.08, 0.07, 0.07], // 8.00
+    [0.41, 0.24, 0.22, 0.17, 0.16, 0.13, 0.14, 0.10, 0.08, 0.10, 0.08, 0.07], // 8.50
+    [0.42, 0.26, 0.21, 0.19, 0.18, 0.14, 0.14, 0.11, 0.13, 0.12, 0.09, 0.07], // 9.00
+    [0.45, 0.27, 0.25, 0.19, 0.19, 0.16, 0.13, 0.13, 0.13, 0.11, 0.10, 0.10], // 9.50
+    [0.50, 0.37, 0.28, 0.24, 0.22, 0.20, 0.19, 0.16, 0.17, 0.15, 0.15, 0.10], // 10.25
+    [0.53, 0.36, 0.31, 0.27, 0.24, 0.24, 0.19, 0.21, 0.19, 0.17, 0.15, 0.14]  // 11.50+
+];
+
+// PK Conversion 2D Table: [ISP_Att_bucket][ISP_Def_bucket] -> conversion rate
+const PK_CONVERSION_2D = [
+    [0.41, 0.20, 0.18, 0.12, 0.08, 0.09, 0.09, 0.05, 0.07, 0.03, 0.08, 0.03], // <6
+    [0.56, 0.36, 0.32, 0.25, 0.22, 0.22, 0.20, 0.20, 0.14, 0.17, 0.12, 0.11], // 6.00
+    [0.70, 0.53, 0.47, 0.37, 0.34, 0.31, 0.24, 0.33, 0.27, 0.24, 0.24, 0.15], // 6.50
+    [0.71, 0.53, 0.52, 0.43, 0.38, 0.37, 0.41, 0.30, 0.34, 0.31, 0.23, 0.14], // 7.00
+    [0.77, 0.54, 0.49, 0.53, 0.43, 0.43, 0.38, 0.33, 0.28, 0.36, 0.28, 0.22], // 7.25
+    [0.77, 0.61, 0.55, 0.52, 0.47, 0.45, 0.43, 0.40, 0.32, 0.38, 0.33, 0.28], // 7.50
+    [0.79, 0.65, 0.58, 0.52, 0.48, 0.45, 0.43, 0.44, 0.40, 0.35, 0.36, 0.31], // 8.00
+    [0.78, 0.67, 0.63, 0.57, 0.51, 0.48, 0.46, 0.47, 0.39, 0.38, 0.36, 0.28], // 8.50
+    [0.82, 0.73, 0.62, 0.52, 0.53, 0.54, 0.47, 0.45, 0.45, 0.40, 0.37, 0.34], // 9.00
+    [0.83, 0.70, 0.65, 0.62, 0.55, 0.54, 0.50, 0.48, 0.51, 0.41, 0.42, 0.31], // 9.50
+    [0.84, 0.76, 0.69, 0.65, 0.62, 0.59, 0.58, 0.56, 0.51, 0.53, 0.46, 0.40], // 10.25
+    [0.87, 0.80, 0.75, 0.70, 0.67, 0.65, 0.63, 0.60, 0.58, 0.59, 0.53, 0.50]  // 11.50+
+];
+
+// PK Ratio 2D Table: PK/(DFK+PK) by [ISP_Att_bucket][ISP_Def_bucket]
+const PK_RATIO_2D = [
+    [0.28, 0.23, 0.22, 0.21, 0.22, 0.22, 0.22, 0.21, 0.17, 0.21, 0.19, 0.20], // <6
+    [0.33, 0.27, 0.26, 0.23, 0.22, 0.24, 0.24, 0.23, 0.20, 0.24, 0.23, 0.22], // 6.00
+    [0.37, 0.30, 0.28, 0.26, 0.27, 0.25, 0.25, 0.24, 0.25, 0.25, 0.19, 0.24], // 6.50
+    [0.40, 0.33, 0.31, 0.29, 0.28, 0.28, 0.27, 0.25, 0.26, 0.24, 0.24, 0.24], // 7.00
+    [0.39, 0.32, 0.30, 0.29, 0.28, 0.27, 0.25, 0.27, 0.27, 0.27, 0.26, 0.25], // 7.25
+    [0.43, 0.34, 0.31, 0.30, 0.29, 0.29, 0.28, 0.27, 0.27, 0.26, 0.26, 0.26], // 7.50
+    [0.42, 0.35, 0.33, 0.31, 0.31, 0.28, 0.28, 0.30, 0.28, 0.27, 0.26, 0.26], // 8.00
+    [0.43, 0.38, 0.33, 0.33, 0.31, 0.32, 0.29, 0.26, 0.26, 0.27, 0.27, 0.26], // 8.50
+    [0.47, 0.36, 0.34, 0.31, 0.31, 0.30, 0.31, 0.27, 0.29, 0.28, 0.26, 0.27], // 9.00
+    [0.46, 0.37, 0.34, 0.32, 0.31, 0.30, 0.32, 0.30, 0.29, 0.29, 0.25, 0.27], // 9.50
+    [0.48, 0.40, 0.36, 0.36, 0.33, 0.34, 0.32, 0.31, 0.30, 0.31, 0.31, 0.28], // 10.25
+    [0.47, 0.43, 0.38, 0.39, 0.35, 0.36, 0.35, 0.33, 0.32, 0.32, 0.31, 0.31]  // 11.50+
+];
+
+// Helper function for fast bucket index lookup with clamping
+const _getSpAttBucketIndex = (ispAtt) => {
+    if (ispAtt < 6) return 0;
+    if (ispAtt >= 11.5) return 11;
+    // Binary search through sorted keys
+    for (let i = SP_ISP_ATT_KEYS.length - 1; i >= 0; i--) {
+        if (ispAtt >= SP_ISP_ATT_KEYS[i]) return i;
+    }
+    return 0;
+};
+
+const _getSpDefBucketIndex = (ispDef) => {
+    if (ispDef < 8) return 0;
+    if (ispDef >= 13.5) return 11;
+    // Binary search through sorted keys
+    for (let i = SP_ISP_DEF_KEYS.length - 1; i >= 0; i--) {
+        if (ispDef >= SP_ISP_DEF_KEYS[i]) return i;
+    }
+    return 0;
+};
 const PDIM_TRIGGER_RATES = { 1: 0.1, 2: 0.16, 3: 0.2 };
 const PDIM_SUCCESS_RATE = 0.625;
 const PNF_TRIGGER_RATES = { 1: 0.1, 2: 0.16, 3: 0.2 };
@@ -514,20 +589,32 @@ const _resolveAttack = (chance_type, attacker_team, defender_team, mods) => {
     return Math.random() < (0.92 * final_attack_rating) / (final_attack_rating + final_defense_rating + 1e-9);
 };
 
-// MODIFIED to accept and use stamina multipliers
+// MODIFIED to use new 2D lookup tables for DFK/PK based on empirical research
 const _resolveSetPiece = (attacker, defender, attacker_stamina_mod, defender_stamina_mod) => {
     let goal_prob = 0;
     const attacker_isp = attacker.isp_att * attacker_stamina_mod; // APPLY STAMINA
     const defender_isp = defender.isp_def * defender_stamina_mod; // APPLY STAMINA
 
-    if (Math.random() < 0.33) { // IFK
+    if (Math.random() < 0.33) { // IFK (33% of set pieces)
+        // IFK conversion based on ISP difference - unchanged, data confirms this is correct
         const diff = attacker_isp - defender_isp;
         const closest_key = Object.keys(IFK_CONVERSION_RATES).reduce((a, b) => Math.abs(parseInt(b) - diff) < Math.abs(parseInt(a) - diff) ? b : a);
         goal_prob = IFK_CONVERSION_RATES[closest_key];
-    } else { // DFK/PK
-        const def_isp_rating = defender_isp;
-        const closest_key = Object.keys(PK_CONVERSION_RATES).reduce((a, b) => Math.abs(parseInt(b) - def_isp_rating) < Math.abs(parseInt(a) - def_isp_rating) ? b : a);
-        goal_prob = PK_CONVERSION_RATES[closest_key];
+    } else { // DFK or PK (67% of set pieces)
+        // Use 2D tables for lookup - bucket indices based on ISP values
+        const attIdx = _getSpAttBucketIndex(attacker_isp);
+        const defIdx = _getSpDefBucketIndex(defender_isp);
+
+        // Determine if DFK or PK based on 2D PK ratio table
+        const pk_ratio = PK_RATIO_2D[attIdx][defIdx];
+
+        if (Math.random() < pk_ratio) {
+            // PK - use PK conversion table
+            goal_prob = PK_CONVERSION_2D[attIdx][defIdx];
+        } else {
+            // DFK - use DFK conversion table
+            goal_prob = DFK_CONVERSION_2D[attIdx][defIdx];
+        }
     }
     return Math.random() < goal_prob;
 };
